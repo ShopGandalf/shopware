@@ -30,10 +30,13 @@ return [
         'Value of constant Shopware\\\\Core\\\\Framework\\\\Webhook\\\\Hookable',
 
         // Adding optional parameters to a constructor is not a BC
-        'ADDED: Parameter prefixMatch was added to Method __construct\(\) of class Shopware\\\\Elasticsearch\\\\Product\\\\SearchFieldConfig',
-        'ADDED: Parameter label was added to Method __construct\(\) of class Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Tax\\\\Struct\\\\CalculatedTax',
-        'ADDED: Parameter senderName was added to Method __construct\(\) of class Shopware\\\\Core\\\\Content\\\\Mail\\\\Service\\\\SendMailTemplateParams',
-        'ADDED: Parameter response was added to Method __construct\(\) of class Shopware\\\\Elasticsearch\\\\Framework\\\\DataAbstractionLayer\\\\Event\\\\ElasticsearchEntitySearcherSearchedEvent',
+        preg_quote('ADDED: Parameter prefixMatch was added to Method __construct() of class Shopware\Elasticsearch\Product\SearchFieldConfig', '/'),
+        preg_quote('ADDED: Parameter label was added to Method __construct() of class Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTax', '/'),
+        preg_quote('ADDED: Parameter senderName was added to Method __construct() of class Shopware\Core\Content\Mail\Service\SendMailTemplateParams', '/'),
+        preg_quote('ADDED: Parameter response was added to Method __construct() of class Shopware\Elasticsearch\Framework\DataAbstractionLayer\Event\ElasticsearchEntitySearcherSearchedEvent', '/'),
+        preg_quote('ADDED: Parameter clock was added to Method __construct() of class Shopware\Core\Checkout\Promotion\Gateway\Template\ActiveDateRange', '/'),
+        preg_quote('ADDED: Parameter visibility was added to Method __construct() of class Shopware\Core\Framework\Adapter\Filesystem\Plugin\CopyBatchInput', '/'),
+        preg_quote('ADDED: Parameter useForSorting was added to Method __construct() of class Shopware\Core\Framework\DataAbstractionLayer\Field\TranslatedField', '/'),
 
         // Fix to make promotions work with order recalculation
         'Value of constant Shopware\\\\Core\\\\Checkout\\\\Cart\\\\Order\\\\OrderConverter::ADMIN_EDIT_ORDER_PERMISSIONS changed from array \((\n.*)*skipPromotion.*(\n.*)*to array \((\n.*)*pinAutomaticPromotions',
