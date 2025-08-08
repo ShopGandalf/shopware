@@ -6,7 +6,7 @@ use Doctrine\DBAL\Connection;
 use Shopware\Core\Content\Category\CategoryCollection;
 use Shopware\Core\Content\Category\CategoryException;
 use Shopware\Core\Framework\Adapter\Cache\Event\AddCacheTagEvent;
-use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoader;
+use Shopware\Core\Content\Category\Service\DefaultCategoryLevelLoaderInterface;
 use Shopware\Core\Content\Category\Tree\CategoryTreePathResolver;
 use Shopware\Core\Framework\DataAbstractionLayer\Doctrine\FetchModeHelper;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -37,7 +37,7 @@ class NavigationRoute extends AbstractNavigationRoute
         private readonly SalesChannelRepository $categoryRepository,
         private readonly EventDispatcherInterface $dispatcher,
         private readonly CategoryTreePathResolver $categoryTreePathResolver,
-        private readonly DefaultCategoryLevelLoader $categoryLevelLoader,
+        private readonly DefaultCategoryLevelLoaderInterface $categoryLevelLoader,
     ) {
     }
 
