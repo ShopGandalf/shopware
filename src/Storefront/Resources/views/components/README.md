@@ -51,6 +51,20 @@ components/Button/
 </div>
 ```
 
+```css
+.sw-product-card {
+    /* Styling */
+}
+
+.sw-product-card__body {
+    /* Styling */
+}
+
+.sw-product-card__title {
+    /* Styling */
+}
+```
+
 ❌ Don't
 ```html
 <div class="sw-product-card card">
@@ -64,15 +78,11 @@ components/Button/
 
 ```css
 .sw-product-card {
-    /* Styling */
-}
-
-.sw-product-card__headline {
-    /* Styling */
-}
-
-.sw-product-card__body {
-    /* Styling */
+    .sw-card-inner {
+        h2 {
+            /* Styling */
+        }
+    }
 }
 ```
 
@@ -95,6 +105,11 @@ components/Button/
 ```
 
 ## Slots/Blocks
+
+* A larger component should bring blocks (slots) for each logical section of the component to allow customization.
+* Not all components must have blocks. For example when there is no inner HTML element that would make sense to customize.
+* A simple (one tag) component like a button must bring a default content block `{% block content %}`
+* A component block must not be prefixed with the components name since it is automatically namespaced to the component.
 
 ## Data independence and global state access
 
@@ -149,7 +164,7 @@ components/Button/
 ```
 
 ❌ Don't
-```
+```twig
 <div class="sw-product-card card" role="article">
     ...
 </div>
@@ -167,12 +182,12 @@ components/ProductCard
     Actions.html.twig
 ```
 
-```html
+```twig
 <twig:Sw:ProductCard:ProductCard></twig:Sw:ProductCard:ProductCard>
 <twig:Sw:ProductCard:Actions></twig:Sw:ProductCard:Actions>
 ```
 
 ## CSS
 
-Prefer native CSS and custom properties over SCSS
+* Prefer native CSS and custom properties over SCSS
 
