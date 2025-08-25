@@ -64,7 +64,7 @@ class Router implements RouterInterface, RequestMatcherInterface, WarmableInterf
             ['REQUEST_URI' => $request->attributes->get(RequestTransformer::SALES_CHANNEL_RESOLVED_URI)]
         );
 
-        $localClone = $request->duplicate(null, null, null, null, null, $server);
+        $localClone = $request->duplicate(server: $server);
 
         return $this->decorated->matchRequest($localClone);
     }

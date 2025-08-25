@@ -32,10 +32,8 @@ final class CleanupUnusedDownloadMediaTaskHandler extends ScheduledTaskHandler
     public function run(): void
     {
         $this->unusedMediaPurger->deleteNotUsedMedia(
-            null,
-            null,
-            null,
-            ProductDownloadDefinition::ENTITY_NAME
+            limit: null,
+            folderEntity: ProductDownloadDefinition::ENTITY_NAME
         );
     }
 }

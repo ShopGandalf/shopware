@@ -197,7 +197,7 @@ class NotFoundSubscriber implements EventSubscriberInterface, ResetInterface
      */
     private function renderErrorPage(Request $request, \Throwable $e, Context $context): Response
     {
-        $errorRequest = $request->duplicate(null, null, [
+        $errorRequest = $request->duplicate(attributes: [
             ...$request->attributes->all(),
             '_controller' => '\Shopware\Storefront\Controller\ErrorController::error',
             PlatformRequest::ATTRIBUTE_HTTP_CACHE => true,

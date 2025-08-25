@@ -112,7 +112,7 @@ class SystemConfigValidator
             'min' => fn (mixed $ruleValue) => new Assert\Range(min: $ruleValue),
             'max' => fn (mixed $ruleValue) => new Assert\Range(max: $ruleValue),
             'dataType' => fn (mixed $ruleValue) => new Assert\Type($ruleValue),
-            'required' => fn (mixed $ruleValue) => new Assert\NotBlank(null, null, $allowNulls),
+            'required' => fn (mixed $ruleValue) => new Assert\NotBlank(allowNull: $allowNulls),
         ];
 
         $constraintsResult = [];

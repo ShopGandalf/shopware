@@ -252,7 +252,7 @@ class SalesChannelProxyController extends AbstractController
         $contextToken = $this->getContextToken($request);
 
         $server = array_merge($request->server->all(), ['REQUEST_URI' => '/store-api/' . $path]);
-        $subrequest = $request->duplicate(null, null, [], null, null, $server);
+        $subrequest = $request->duplicate(server: $server);
 
         $subrequest->headers->set(PlatformRequest::HEADER_ACCESS_KEY, $salesChannel->getAccessKey());
         $subrequest->headers->set(PlatformRequest::HEADER_CONTEXT_TOKEN, $contextToken);

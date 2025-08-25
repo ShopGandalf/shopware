@@ -79,7 +79,7 @@ class ThemeController extends AbstractController
     {
         $config = $request->request->all('config');
 
-        $validateConfig = $request->query->getBoolean('validate', false);
+        $validateConfig = $request->query->getBoolean('validate');
 
         // Validate the theme config before updating the theme.
         if ($validateConfig) {
@@ -88,7 +88,7 @@ class ThemeController extends AbstractController
                 $config,
                 $context,
                 $this->customAllowedRegex,
-                $request->query->getBoolean('sanitize', false)
+                $request->query->getBoolean('sanitize')
             );
         }
 

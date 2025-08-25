@@ -159,7 +159,7 @@ class RequestTransformer implements RequestTransformerInterface
             ['REQUEST_URI' => rtrim($request->getBaseUrl(), '/') . $resolved['pathInfo']]
         );
 
-        $transformedRequest = $request->duplicate(null, null, null, null, null, $transformedServerVars);
+        $transformedRequest = $request->duplicate(server: $transformedServerVars);
         $transformedRequest->attributes->set(self::SALES_CHANNEL_BASE_URL, $baseUrl);
         $transformedRequest->attributes->set(self::SALES_CHANNEL_ABSOLUTE_BASE_URL, rtrim($absoluteBaseUrl, '/'));
         $transformedRequest->attributes->set(

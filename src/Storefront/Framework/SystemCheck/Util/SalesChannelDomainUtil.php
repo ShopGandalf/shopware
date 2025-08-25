@@ -81,7 +81,6 @@ readonly class SalesChannelDomainUtil
             Status::SKIPPED,
             $message,
             true,
-            []
         );
     }
 
