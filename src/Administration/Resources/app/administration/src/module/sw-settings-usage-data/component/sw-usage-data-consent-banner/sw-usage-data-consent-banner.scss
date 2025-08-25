@@ -20,7 +20,7 @@
                 linear-gradient(
                     -45deg,
                     transparent 45%,
-                    var(--color-border-brand-selected) 48%,
+                    var(--color-border-brand-default) 48%,
                     var(--color-border-accent-default) 52%,
                     transparent 55%
                 );
@@ -88,7 +88,7 @@
             line-height: var(--font-line-height-xs);
 
             &:focus-visible {
-                outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+                outline: var(--scale-size-2) solid var(--color-border-brand-default);
                 outline-offset: var(--scale-size-2);
                 border-radius: var(--border-radius-xs);
             }

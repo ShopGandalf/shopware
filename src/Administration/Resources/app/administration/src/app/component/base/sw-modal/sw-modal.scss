@@ -147,7 +147,7 @@ $sw-modal-transition-timing-function: cubic-bezier(0.68, -0.55, 0.26, 1.55);
         }
 
         &:focus-visible {
-            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
             outline-offset: var(--scale-size-2);
         }
     }

@@ -11,7 +11,7 @@ $sw-context-button-color-disabled: var(--color-icon-primary-disabled);
     color: $sw-context-button-color-text;
 
     &:focus-visible {
-        outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        outline: var(--scale-size-2) solid var(--color-border-brand-default);
         outline-offset: var(--scale-size-2);
         border-radius: var(--border-radius-xs);
 

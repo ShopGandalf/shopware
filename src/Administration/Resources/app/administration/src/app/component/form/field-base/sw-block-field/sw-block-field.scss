@@ -51,7 +51,7 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
     &.has--focus {
         .sw-block-field__block {
             outline-offset: var(--scale-size-2);
-            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
         }
     }
 

@@ -30,7 +30,7 @@ $sw-label-pill-border-radius: 50px;
     }
 
     &.sw-label--dismissable:hover {
-        border-color: var(--color-border-brand-selected);
+        border-color: var(--color-border-brand-default);
         background: var(--color-background-brand-default);
 
         .sw-label__caption {

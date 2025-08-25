@@ -1,7 +1,7 @@
 @import "~scss/variables";
 
 $sw-field--switch-color-border: var(--color-border-primary-default);
-$sw-field--switch-color-background: var(--color-icon-static-default);
+$sw-field--switch-color-background: var(--color-static-white);
 $sw-field--switch-color-text: var(--color-text-primary-default);
 $sw-field--switch-color-focus: var(--color-interaction-primary-default);
 $sw-field--switch-color-error: var(--color-interaction-critical-default);
@@ -161,7 +161,7 @@ $sw-field--switch-color-error: var(--color-interaction-critical-default);
                 background: $sw-field--switch-color-error;
 
                 .sw-field__switch-state-knob {
-                    background: var(--color-icon-static-default);
+                    background: var(--color-static-white);
                 }
             }
 
@@ -204,7 +204,7 @@ $sw-field--switch-color-error: var(--color-interaction-critical-default);
     &:focus-within {
         .sw-field__switch-state {
             outline-offset: var(--scale-size-2);
-            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
         }
     }
 

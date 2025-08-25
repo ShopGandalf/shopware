@@ -21,7 +21,7 @@ $sw-sidebar-navigation-item-badge-color-success: var(--color-icon-positive-defau
     outline: none;
 
     &:focus-visible {
-        outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+        outline: var(--scale-size-2) solid var(--color-border-brand-default);
         outline-offset: calc(var(--scale-size-2) * -1);
     }
 
@@ -56,7 +56,7 @@ $sw-sidebar-navigation-item-badge-color-success: var(--color-icon-positive-defau
         position: absolute;
         transform: translate(-30%, 70%);
         border-radius: 18px;
-        color: var(--color-text-static-default);
+        color: var(--color-static-white);
         font-size: $font-size-xxs;
         font-style: normal;
 

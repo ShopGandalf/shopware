@@ -35,7 +35,7 @@
         position: absolute;
         bottom: 0;
         height: 2px;
-        background-color: var(--color-border-brand-selected);
+        background-color: var(--color-border-brand-default);
 
         &.has--error {
             background-color: var(--color-border-critical-default);

@@ -47,7 +47,7 @@
         width: 4px;
         height: 44px;
         border-radius: 0 $border-radius-pill $border-radius-pill 0;
-        background: var(--color-border-brand-selected, #0870ff);
+        background: var(--color-border-brand-default, #0870ff);
     }
 
     &__stat-content {

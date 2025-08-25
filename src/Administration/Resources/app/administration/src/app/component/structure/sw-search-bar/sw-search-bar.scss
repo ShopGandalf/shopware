@@ -2,7 +2,7 @@
 @import "~scss/variables";
 
 $sw-search-bar-border-color: var(--color-border-primary-default);
-$sw-search-bar-results-background-color: var(--color-elevation-surface-overlay);
+$sw-search-bar-results-background-color: var(--color-elevation-surface-raised);
 $sw-search-bar-border-radius: $border-radius-default;
 $sw-search-bar-results-box-shadow: 0 3px 6px 0 var(--color-elevation-shadow-default);
 $sw-search-bar-results-z-index: 800;
@@ -70,7 +70,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         height: 50px;
 
         &.is--active {
-            outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+            outline: var(--scale-size-2) solid var(--color-border-brand-default);
             outline-offset: var(--scale-size-2);
         }
 
@@ -136,7 +136,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
 
             &:focus-visible {
                 outline-offset: var(--scale-size-2);
-                outline: var(--scale-size-2) solid var(--color-border-brand-selected);
+                outline: var(--scale-size-2) solid var(--color-border-brand-default);
             }
 
             .mt-icon {
@@ -155,7 +155,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
     &__header {
         display: flex;
         justify-content: space-between;
-        background-color: var(--color-background-primary-disabled);
+        background-color: var(--color-background-tertiary-default);
         padding: 10px 24px;
     }
 
@@ -181,7 +181,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
         outline: none;
 
         &::placeholder {
-            color: var(--color-text-tertiary-default);
+            color: var(--color-text-secondary-default);
         }
     }
 
@@ -266,7 +266,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
                     text-transform: uppercase;
                     border: 1px solid var(--color-border-primary-default);
                     border-radius: 3px;
-                    background-color: var(--color-background-primary-disabled);
+                    background-color: var(--color-background-tertiary-default);
                     padding: 0 4px;
                     margin: 0 3px;
                 }
@@ -279,7 +279,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
             .sw-search-bar__results-column-header {
                 display: flex;
                 justify-content: space-between;
-                background-color: var(--color-background-primary-disabled);
+                background-color: var(--color-background-tertiary-default);
                 padding: 10px 24px;
                 margin: 0;
             }
@@ -378,7 +378,7 @@ $sw-search-bar-types-item-border-radius: $border-radius-default;
                 text-transform: uppercase;
                 border: 1px solid var(--color-border-primary-default);
                 border-radius: 3px;
-                background-color: var(--color-background-primary-disabled);
+                background-color: var(--color-background-tertiary-default);
                 padding: 0 4px;
                 margin: 0 3px;
             }
