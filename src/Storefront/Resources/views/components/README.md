@@ -101,7 +101,7 @@ components/Button/
 %}
 
 {# When I just render the component without any props, I get a renderd component with some demo content. #}
-<twig:product-card />
+<twig:Sw:ProductCard />
 ```
 
 ## Slots/Blocks
@@ -127,7 +127,7 @@ components/Button/
 %}
 
 {# Usage: #}
-<twig:ProductCard
+<twig:Sw:ProductCard
   name="{{ product.name }}"
   allowsBuyAction="false"
 />
@@ -149,7 +149,6 @@ components/Button/
 {% props
     defaultBaseClasses = 'sw-product-card card',
     defaultVariants = {},
-    defaultAttributes = { role: 'article' }
 %}
 
 {% set rootVariants = defaultVariants|merge({
@@ -158,7 +157,7 @@ components/Button/
 
 {% set rootCVA = cva(rootVariants) %}
 
-<div {{ attributes.defaults(defaultAttributes) }} class="{{ rootCVA.apply({}, attributes.render('class')) }}">
+<div {{ attributes.defaults({ role: 'article' }) }} class="{{ rootCVA.apply({}, attributes.render('class')) }}">
     ...
 </div>
 ```

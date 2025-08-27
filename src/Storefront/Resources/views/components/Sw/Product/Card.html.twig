@@ -85,7 +85,7 @@
 <div {{ attributes.defaults({ class: defaultClasses.root }) }}>
     <div {{ attributes.nested('header').defaults({ class: defaultClasses.header }) }}>
         {% block media %}
-            <twig:image:image
+            <twig:Sw:Media:Image
                 {{ ...attributes.nested('media').defaults({
                     media: product.cover.media,
                     height: mediaHeight,
@@ -96,8 +96,10 @@
             />
         {% endblock %}
 
+        <twig:Sw:Product:Badges :product="product" />
+
         {% block badges %}
-            <twig:product-card:badges :product="product" />
+            <twig:Sw:Product:Badges :product="product" />
         {% endblock %}
     </div>
 
@@ -117,28 +119,40 @@
         {% endblock %}
 
         {% if config('core.listing.showReview') and product.ratingAverage %}
-            <twig:rating:rating :stars="product.ratingAverage" />
+            <twig:Sw:Rating:Stars :stars="product.ratingAverage" />
         {% endif %}
 
         {% if not displayParent %}
-            <twig:product-card:variants :variants="product.variation" />
+            <twig:Sw:Product:Variants :productVariants="product.variation" />
         {% endif %}
     </div>
 
     <div {{ attributes.nested('footer').defaults({ class: defaultClasses.footer }) }}>
         {% block price %}
-            <twig:product-card:price :product="product" />
+            <twig:Sw:Product:Price :product="product" />
         {% endblock %}
 
         {% block actions %}
-            <twig:product-card:actions
-                :product="product"
-                :addToCartExtraFormData="{ 'foo': 'bar' }"
-            />
+            <div class="product-card-actions d-grid">
+                {% set isAvailable = not product.isCloseout or (product.stock >= product.minPurchase) %}
+                {% set displayFrom = product.calculatedPrices.count > 1 %}
+                {% set displayBuyButton = isAvailable and not displayFrom and product.childCount <= 0 %}
+
+                {% if displayBuyButton and config('core.listing.allowBuyInListing') %}
+                    <twig:Sw:Product:BuyButton :product="product" />
+                {% else %}
+                    <twig:Sw:Button
+                        href="{{ seoUrl('frontend.detail.page', { productId: product.id }) }}"
+                        variant="light"
+                    >
+                        {{ 'listing.boxProductDetails'|trans|sw_sanitize }}
+                    </twig:Sw:Button>
+                {% endif %}
+            </div>
         {% endblock %}
     </div>
 
     {% block loading_indicator %}
-        <twig:product-card:skeleton-loader />
+        <twig:Sw:Product:CardLoader />
     {% endblock %}
 </div>

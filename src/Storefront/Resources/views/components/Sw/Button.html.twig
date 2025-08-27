@@ -1,0 +1,39 @@
+{% props
+    icon = null,
+    variant = 'primary',
+    outline = false,
+%}
+
+{% set cva = cva({
+    base: 'sw-button btn',
+    variants: {
+        variant: {
+            primary: outline ? 'btn-outline-primary' : 'btn-primary',
+            secondary: outline ? 'btn-outline-secondary' : 'btn-secondary',
+            success: outline ? 'btn-outline-success' : 'btn-success',
+            danger: outline ? 'btn-outline-danger' : 'btn-danger',
+            warning: outline ? 'btn-outline-warning' : 'btn-warning',
+            info: outline ? 'btn-outline-info' : 'btn-info',
+            light: outline ? 'btn-outline-light' : 'btn-light',
+            dark: outline ? 'btn-outline-dark' : 'btn-dark',
+        },
+        size: {
+            sm: 'btn-sm',
+            lg: 'btn-lg',
+        }
+    }
+}) %}
+
+{% set content %}
+    {% block content %}{% endblock %}
+{% endset %}
+
+{% if attributes.has('href') and attributes.has('href') is not empty %}
+    <a {{ attributes.defaults({}) }} class="{{ cva.apply({variant, size}, attributes.render('class')) }}">
+        {{ content }}
+    </a>
+{% else %}
+    <button {{ attributes.defaults({}) }} class="{{ cva.apply({variant, size}, attributes.render('class')) }}">
+        {{ content }}
+    </button>
+{% endif %}
