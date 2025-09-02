@@ -472,16 +472,19 @@ class ProductGenerator implements DemodataGeneratorInterface
         return $staticProducts;
     }
 
-    private function getStaticCategoryIds(): array
+    private function getCategoryByName(string $name): ?array
     {
-        $repository = $this->registry->getRepository('category');
+        $result = $this->connection->fetchAllAssociative('
+            SELECT LOWER(HEX(category.id)) as id
+            FROM category
+            INNER JOIN category_translation 
+                ON category_translation.category_id = category.id
+            WHERE category_translation.name = :name
+            LIMIT 1',
+            ['name' => $name]
+        );
 
-        $criteria = new Criteria();
-
-        $criteria->addFilter(new EqualsFilter('name', DemodataService::DEMODATA_STATIC_CATEGORY_NAME));
-        $criteria->setLimit(1);
-
-        return ['id' => $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0]];
+        return $result ?: null;
     }
 
     /**
@@ -507,7 +510,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             'active' => true,
             'height' => 30,
             'width' => 40,
-            'categories' => $this->getCategoryIds(),
+            'categories' => $this->getCategoryByName('[Example products]'),
             'stock' => 5,
             'visibilities' => $visibilities,
             'cover' => ['mediaId' => Random::getRandomArrayElement($mediaIds)],

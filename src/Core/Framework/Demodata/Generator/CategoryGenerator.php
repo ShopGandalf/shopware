@@ -79,8 +79,10 @@ class CategoryGenerator implements DemodataGeneratorInterface
         }
 
         // Add a category with static data that will contain static products.
-        $staticCategory = $this->createStaticCategory($context, $pageIds, $tags, $rootCategoryId, $lastId);
-        $this->categoryRepository->create([$staticCategory], $context->getContext());
+        if ($this->getStaticProductsCategory($context->getContext()) === null) {
+            $staticCategory = $this->createStaticCategory($context, $pageIds, $tags, $rootCategoryId, $lastId);
+            $this->categoryRepository->create([$staticCategory], $context->getContext());
+        }
 
         $context->getConsole()->progressFinish();
     }
@@ -190,6 +192,18 @@ class CategoryGenerator implements DemodataGeneratorInterface
         \assert(\is_string($categoryId));
 
         return $categoryId;
+    }
+
+    private function getStaticProductsCategory(Context $context): ?string
+    {
+        $criteria = new Criteria();
+        $criteria->setLimit(1);
+        $criteria->addFilter(new EqualsFilter('category.name', '[Example products]'));
+
+        $categoryId = $this->categoryRepository->searchIds($criteria, $context)->firstId();
+        \assert(\is_string($categoryId));
+
+        return $categoryId ?: null;
     }
 
     /**
