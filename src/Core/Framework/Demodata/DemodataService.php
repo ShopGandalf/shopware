@@ -21,6 +21,7 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class DemodataService
 {
     public const DEMODATA_CUSTOM_FIELDS_KEY = 'shopwareDemoData';
+    public const DEMODATA_STATIC_CATEGORY_NAME = '[Example products]';
 
     /**
      * @internal

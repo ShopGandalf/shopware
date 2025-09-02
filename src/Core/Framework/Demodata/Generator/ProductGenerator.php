@@ -130,6 +130,9 @@ class ProductGenerator implements DemodataGeneratorInterface
             }
         }
 
+        // Add products with static data.
+        array_push($payload, ...$this->createStaticProducts($taxes, $manufacturers, $visibilities, $mediaIds));
+
         if (!empty($payload)) {
             $this->write($payload, $context);
         }
@@ -459,5 +462,55 @@ class ProductGenerator implements DemodataGeneratorInterface
         $id = $this->connection->fetchOne('SELECT LOWER(HEX(delivery_time_id)) FROM delivery_time_translation WHERE `name` = "Instant download" LIMIT 1');
 
         return \is_string($id) ? $id : null;
+    }
+
+    private function createStaticProducts($taxes, $manufacturers, $visibilities, $mediaIds): array {
+        $staticProducts = [];
+
+        $staticProducts[] = $this->createStaticProductSimple($taxes, $manufacturers, $visibilities, $mediaIds);
+
+        return $staticProducts;
+    }
+
+    private function getStaticCategoryIds(): array
+    {
+        $repository = $this->registry->getRepository('category');
+
+        $criteria = new Criteria();
+
+        $criteria->addFilter(new EqualsFilter('name', DemodataService::DEMODATA_STATIC_CATEGORY_NAME));
+        $criteria->setLimit(1);
+
+        return ['id' => $repository->searchIds($criteria, Context::createDefaultContext())->getIds()[0]];
+    }
+
+    /**
+     * @param array<string> $manufacturer
+     *
+     * @return array<string, mixed>
+     */
+    private function createStaticProductSimple(TaxCollection $taxes, array $manufacturer, array $visibilities, array $mediaIds): array
+    {
+        $tax = $taxes->get(array_rand($taxes->getIds()));
+        \assert($tax instanceof TaxEntity);
+        $taxRate = 1 + ($tax->getTaxRate() / 100);
+
+        return [
+            'id' => Uuid::randomHex(),
+            'productNumber' => 'SW_' . Uuid::randomHex(),
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 50 / $taxRate, 'linked' => true]],
+            'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => 40, 'net' => 40 / $taxRate, 'linked' => true]],
+            'name' => 'Product with simple price (POMMES)',
+            'description' => 'This is a simple product description.',
+            'taxId' => $tax->getId(),
+            'manufacturerId' => $this->faker->randomElement($manufacturer),
+            'active' => true,
+            'height' => 30,
+            'width' => 40,
+            'categories' => $this->getCategoryIds(),
+            'stock' => 5,
+            'visibilities' => $visibilities,
+            'cover' => ['mediaId' => Random::getRandomArrayElement($mediaIds)],
+        ];
     }
 }

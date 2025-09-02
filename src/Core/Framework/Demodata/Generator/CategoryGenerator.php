@@ -78,6 +78,10 @@ class CategoryGenerator implements DemodataGeneratorInterface
             $context->getContext()->removeState(EntityIndexerRegistry::DISABLE_INDEXING);
         }
 
+        // Add a category with static data that will contain static products.
+        $staticCategory = $this->createStaticCategory($context, $pageIds, $tags, $rootCategoryId, $lastId);
+        $this->categoryRepository->create([$staticCategory], $context->getContext());
+
         $context->getConsole()->progressFinish();
     }
 
@@ -221,5 +225,31 @@ class CategoryGenerator implements DemodataGeneratorInterface
         }
 
         return $children;
+    }
+
+    /**
+     * @param list<string> $pageIds
+     * @param array<string> $tags
+     *
+     * @return array<string, mixed>
+     */
+    private function createStaticCategory(DemodataContext $context, array $pageIds, array $tags, string $parentId, ?string $afterId): array
+    {
+        $id = Uuid::randomHex();
+
+        $cat = [
+            'id' => $id,
+            'parentId' => $parentId,
+            'afterCategoryId' => $afterId,
+            'name' => DemodataService::DEMODATA_STATIC_CATEGORY_NAME,
+            'active' => true,
+            'cmsPageId' => $context->getFaker()->randomElement($pageIds),
+            'mediaId' => $context->getRandomId('media'),
+            'description' => 'Category containing example products',
+            'tags' => $this->getTags($tags),
+            'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
+        ];
+
+        return array_filter($cat);
     }
 }
