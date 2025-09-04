@@ -20,6 +20,8 @@ use Shopware\Core\Framework\Uuid\Uuid;
 #[Package('framework')]
 class ProductReviewGenerator implements DemodataGeneratorInterface
 {
+    private const STATIC_PRODUCT_REVIEW_COUNT = 25;
+
     /**
      * @internal
      */
@@ -83,6 +85,27 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
             }
         }
 
+        for ($i = 0; $i < self::STATIC_PRODUCT_REVIEW_COUNT; ++$i) {
+            $customerId = $context->getFaker()->randomElement($customerIds);
+            \assert(\is_string($customerId));
+            $customerIdsWithReviews[$customerId] = true;
+
+            $payload[] = [
+                'id' => Uuid::randomHex(),
+                'productId' => $this->getStaticProductId(),
+                'customerId' => $customerId,
+                'salesChannelId' => $salesChannelIds[array_rand($salesChannelIds)],
+                'languageId' => Defaults::LANGUAGE_SYSTEM,
+                'externalUser' => $context->getFaker()->name(),
+                'externalEmail' => $context->getFaker()->email(),
+                'title' => $context->getFaker()->sentence(),
+                'content' => $context->getFaker()->text(),
+                'points' => $context->getFaker()->randomElement($points),
+                'status' => true,
+                'customFields' => [DemodataService::DEMODATA_CUSTOM_FIELDS_KEY => true],
+            ];
+        }
+
         if (!empty($payload)) {
             $this->writer->upsert($this->productReviewDefinition, $payload, $writeContext);
 
@@ -118,5 +141,18 @@ class ProductReviewGenerator implements DemodataGeneratorInterface
         $productIds = $this->connection->fetchAllAssociative($sql, ['liveVersionId' => Uuid::fromHexToBytes(Defaults::LIVE_VERSION)]);
 
         return array_column($productIds, 'id');
+    }
+
+    private function getStaticProductId(): ?string {
+        $sql = '
+            SELECT LOWER(HEX(p.id)) 
+            FROM product p
+            JOIN product_translation pt ON p.id = pt.product_id
+            WHERE pt.name = :name
+            LIMIT 1';
+
+        $staticProductId = $this->connection->fetchOne($sql, ['name' => 'Product with many reviews']);
+
+        return $staticProductId ?: null;
     }
 }

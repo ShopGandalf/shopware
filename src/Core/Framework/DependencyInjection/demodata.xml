@@ -165,6 +165,7 @@
 
         <service id="Shopware\Core\Framework\Demodata\Generator\SalesChannelDomainGenerator">
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriter" />
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry" />
             <argument type="service" id="Shopware\Core\System\SalesChannel\Aggregate\SalesChannelDomain\SalesChannelDomainDefinition" />
 
             <tag name="shopware.demodata_generator" option-name="users" option-default="0"/>

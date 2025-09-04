@@ -467,7 +467,16 @@ class ProductGenerator implements DemodataGeneratorInterface
     private function createStaticProducts($taxes, $manufacturers, $visibilities, $mediaIds): array {
         $staticProducts = [];
 
-        $staticProducts[] = $this->createStaticProductSimple($taxes, $manufacturers, $visibilities, $mediaIds);
+        $staticProducts[] = $this->createStaticProductSimplePrice($taxes, $manufacturers, $visibilities, $mediaIds);
+        $staticProducts[] = $this->createStaticProductManyReviews($taxes, $manufacturers, $visibilities, $mediaIds);
+        $staticProducts[] = $this->createStaticProductWithListPrice($taxes, $manufacturers, $visibilities, $mediaIds);
+        $staticProducts[] = $this->createStaticProductLongDescription($taxes, $manufacturers, $visibilities, $mediaIds);
+        // Product with list price
+        // Product with many media items
+        // Product with extensive description
+        // Media video
+        // Free shipping
+        // New date
 
         return $staticProducts;
     }
@@ -492,7 +501,7 @@ class ProductGenerator implements DemodataGeneratorInterface
      *
      * @return array<string, mixed>
      */
-    private function createStaticProductSimple(TaxCollection $taxes, array $manufacturer, array $visibilities, array $mediaIds): array
+    private function createStaticProductSimplePrice(TaxCollection $taxes, array $manufacturer, array $visibilities, array $mediaIds): array
     {
         $tax = $taxes->get(array_rand($taxes->getIds()));
         \assert($tax instanceof TaxEntity);
@@ -503,7 +512,7 @@ class ProductGenerator implements DemodataGeneratorInterface
             'productNumber' => 'SW_' . Uuid::randomHex(),
             'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 50, 'net' => 50 / $taxRate, 'linked' => true]],
             'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => 40, 'net' => 40 / $taxRate, 'linked' => true]],
-            'name' => 'Product with simple price (POMMES)',
+            'name' => 'Product with simple price',
             'description' => 'This is a simple product description.',
             'taxId' => $tax->getId(),
             'manufacturerId' => $this->faker->randomElement($manufacturer),
@@ -515,5 +524,171 @@ class ProductGenerator implements DemodataGeneratorInterface
             'visibilities' => $visibilities,
             'cover' => ['mediaId' => Random::getRandomArrayElement($mediaIds)],
         ];
+    }
+
+    private function createStaticProductManyReviews(TaxCollection $taxes, array $manufacturer, array $visibilities, array $mediaIds): array
+    {
+        $tax = $taxes->get(array_rand($taxes->getIds()));
+        \assert($tax instanceof TaxEntity);
+        $taxRate = 1 + ($tax->getTaxRate() / 100);
+
+        return [
+            'id' => Uuid::randomHex(),
+            'productNumber' => 'SW_' . Uuid::randomHex(),
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 249.99, 'net' => 249.99 / $taxRate, 'linked' => true]],
+            'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => 220, 'net' => 220 / $taxRate, 'linked' => true]],
+            'name' => 'Product with many reviews',
+            'description' => 'This is a simple product description.',
+            'taxId' => $tax->getId(),
+            'manufacturerId' => $this->faker->randomElement($manufacturer),
+            'active' => true,
+            'height' => 30,
+            'width' => 40,
+            'categories' => $this->getCategoryByName('[Example products]'),
+            'stock' => 20,
+            'visibilities' => $visibilities,
+            'cover' => ['mediaId' => Random::getRandomArrayElement($mediaIds)],
+        ];
+    }
+
+    private function createStaticProductLongDescription(TaxCollection $taxes, array $manufacturer, array $visibilities, array $mediaIds): array
+    {
+        $tax = $taxes->get(array_rand($taxes->getIds()));
+        \assert($tax instanceof TaxEntity);
+        $taxRate = 1 + ($tax->getTaxRate() / 100);
+
+        return [
+            'id' => Uuid::randomHex(),
+            'productNumber' => 'SW_' . Uuid::randomHex(),
+            'price' => [['currencyId' => Defaults::CURRENCY, 'gross' => 249.99, 'net' => 249.99 / $taxRate, 'linked' => true]],
+            'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => 220, 'net' => 220 / $taxRate, 'linked' => true]],
+            'name' => 'Product with long description',
+            'description' => $this->getLongDescription(),
+            'taxId' => $tax->getId(),
+            'manufacturerId' => $this->faker->randomElement($manufacturer),
+            'active' => true,
+            'height' => 30,
+            'width' => 40,
+            'categories' => $this->getCategoryByName('[Example products]'),
+            'stock' => 20,
+            'visibilities' => $visibilities,
+            'cover' => ['mediaId' => Random::getRandomArrayElement($mediaIds)],
+        ];
+    }
+
+    private function createStaticProductWithListPrice(TaxCollection $taxes, array $manufacturer, array $visibilities, array $mediaIds): array
+    {
+        $tax = $taxes->get(array_rand($taxes->getIds()));
+        \assert($tax instanceof TaxEntity);
+        $taxRate = 1 + ($tax->getTaxRate() / 100);
+
+        // Base price
+        $grossPrice = 199.99;
+        $netPrice = $grossPrice / $taxRate;
+
+        // List price (original price before discount)
+        $listGrossPrice = 299.99;
+        $listNetPrice = $listGrossPrice / $taxRate;
+
+        return [
+            'id' => Uuid::randomHex(),
+            'productNumber' => 'SW_' . Uuid::randomHex(),
+            'price' => [
+                [
+                    'currencyId' => Defaults::CURRENCY,
+                    'gross' => $grossPrice,
+                    'net' => $netPrice,
+                    'linked' => true,
+                    'listPrice' => [
+                        'gross' => $listGrossPrice,
+                        'net' => $listNetPrice,
+                        'linked' => true,
+                    ],
+                ],
+            ],
+            'purchasePrices' => [['currencyId' => Defaults::CURRENCY, 'gross' => 150, 'net' => 150 / $taxRate, 'linked' => true]],
+            'name' => 'Product with list price',
+            'description' => 'This product shows a strikethrough list price to indicate a discount.',
+            'taxId' => $tax->getId(),
+            'manufacturerId' => $this->faker->randomElement($manufacturer),
+            'active' => true,
+            'height' => 30,
+            'width' => 40,
+            'categories' => $this->getCategoryByName('[Example products]'),
+            'stock' => 10,
+            'visibilities' => $visibilities,
+            'cover' => ['mediaId' => Random::getRandomArrayElement($mediaIds)],
+        ];
+    }
+
+    private function getLongDescription(): string
+    {
+        return <<<HTML
+            <div class="laptop-description">
+                <h2>EliteBook Pro X1 - The Ultimate Laptop Experience</h2>
+
+                <p>Experience unparalleled performance and style with the EliteBook Pro X1, designed for professionals who demand the best in mobile computing. With its sleek aluminum unibody design and cutting-edge technology, this laptop redefines what's possible in a portable device.</p>
+
+                <h3>Key Features</h3>
+                <ul>
+                    <li><strong>Next-Gen Performance:</strong> Powered by the latest 12th Gen Intel® Core™ i9 processor</li>
+                    <li><strong>Stunning Display:</strong> 14.2" Liquid Retina XDR display with ProMotion technology</li>
+                    <li><strong>All-Day Battery Life:</strong> Up to 22 hours of battery life for uninterrupted productivity</li>
+                    <li><strong>Advanced Cooling:</strong> Revolutionary thermal system keeps the laptop cool under pressure</li>
+                    <li><strong>Professional Graphics:</strong> NVIDIA® GeForce RTX™ 3080 with 16GB GDDR6 memory</li>
+                </ul>
+
+                <h3>Technical Specifications</h3>
+                <table class="specs-table table table-striped">
+                    <tr>
+                        <th>Component</th>
+                        <th>Specification</th>
+                    </tr>
+                    <tr>
+                        <td>Processor</td>
+                        <td>12th Gen Intel® Core™ i9, 14-core CPU, up to 5.3GHz</td>
+                    </tr>
+                    <tr>
+                        <td>Memory</td>
+                        <td>32GB unified memory (configurable up to 64GB)</td>
+                    </tr>
+                    <tr>
+                        <td>Storage</td>
+                        <td>1TB SSD (configurable up to 8TB)</td>
+                    </tr>
+                    <tr>
+                        <td>Display</td>
+                        <td>14.2" Liquid Retina XDR, 3024 x 1964 resolution, 1,000 nits sustained brightness</td>
+                    </tr>
+                    <tr>
+                        <td>Graphics</td>
+                        <td>NVIDIA® GeForce RTX™ 3080 with 16GB GDDR6 memory</td>
+                    </tr>
+                    <tr>
+                        <td>Battery Life</td>
+                        <td>Up to 22 hours video playback, up to 17 hours wireless web</td>
+                    </tr>
+                    <tr>
+                        <td>Ports</td>
+                        <td>3x Thunderbolt 4 (USB-C), HDMI, SDXC card slot, 3.5mm headphone jack</td>
+                    </tr>
+                    <tr>
+                        <td>Wireless</td>
+                        <td>Wi-Fi 6E (802.11ax), Bluetooth 5.3</td>
+                    </tr>
+                </table>
+
+                <h3>Designed for Professionals</h3>
+                <p>The EliteBook Pro X1 features a stunning aluminum unibody design that's both lightweight and durable. The backlit keyboard with full-height function row and Touch ID provides a seamless typing experience, while the Force Touch trackpad offers precise cursor control and pressure-sensing capabilities.</p>
+
+                <h3>Immersive Multimedia Experience</h3>
+                <p>Enjoy your favorite content on the brilliant 14.2" Liquid Retina XDR display with ProMotion technology that automatically adjusts the refresh rate up to 120Hz for smoother scrolling and more responsive gaming. The six-speaker sound system with force-cancelling woofers delivers an immersive audio experience.</p>
+
+                <h3>Eco-Friendly Design</h3>
+                <p>We're committed to the environment, which is why the EliteBook Pro X1 is made with 100% recycled aluminum in the enclosure and 100% recycled rare earth elements in all magnets. It's also free of harmful substances like mercury, BFRs, PVC, and beryllium.</p>
+
+                <p class="disclaimer">Specifications may vary by configuration. Battery life varies by use and configuration. See <a href="/batteries">battery information</a> for details.</p>
+            </div>
+        HTML;
     }
 }
