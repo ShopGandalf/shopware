@@ -1,0 +1,8 @@
+id: find-alter-table
+language: php
+rule:
+  kind: string
+  regex: "ALTER TABLE"
+message: Database schema alteration
+severity: hint
+note: "Locates ALTER TABLE statements in migrations"

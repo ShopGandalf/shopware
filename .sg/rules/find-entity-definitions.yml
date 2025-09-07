@@ -1,0 +1,10 @@
+id: find-entity-definitions
+language: php
+rule:
+  kind: class_declaration
+  has:
+    kind: base_clause
+    has:
+      pattern: EntityDefinition
+message: Entity definition class extending EntityDefinition
+severity: error

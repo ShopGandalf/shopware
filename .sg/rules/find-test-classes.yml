@@ -1,0 +1,11 @@
+id: find-test-classes
+language: php
+rule:
+  kind: class_declaration
+  has:
+    kind: base_clause
+    has:
+      pattern: TestCase
+message: PHPUnit test class
+severity: hint
+note: "Locates all test classes extending TestCase"

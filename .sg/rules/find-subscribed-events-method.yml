@@ -1,0 +1,10 @@
+id: find-subscribed-events-method
+language: php
+rule:
+  kind: method_declaration
+  has:
+    field: name
+    regex: "^getSubscribedEvents$"
+message: Event subscriber registration method
+severity: hint
+note: "Locates getSubscribedEvents method implementations"

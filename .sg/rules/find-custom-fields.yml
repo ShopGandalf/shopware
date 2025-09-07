@@ -1,0 +1,7 @@
+id: find-custom-fields
+language: php
+rule:
+  pattern: CustomFields::class
+message: Entity with custom fields support
+severity: hint
+note: "Locates entities that support custom fields"

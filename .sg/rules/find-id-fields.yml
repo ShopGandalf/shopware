@@ -1,0 +1,7 @@
+id: find-id-fields
+language: php
+rule:
+  pattern: new IdField($$$)
+message: ID field definition
+severity: hint
+note: "Locates all ID field definitions in entities"

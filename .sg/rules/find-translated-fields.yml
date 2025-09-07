@@ -1,0 +1,7 @@
+id: find-translated-fields
+language: php
+rule:
+  pattern: TranslatedField
+message: Entity with translatable fields
+severity: hint
+note: "Locates entities with translatable field definitions"

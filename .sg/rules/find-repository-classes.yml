@@ -1,0 +1,11 @@
+id: find-repository-classes
+language: php
+rule:
+  kind: class_declaration
+  has:
+    kind: base_clause
+    has:
+      pattern: EntityRepository
+message: Repository class extending EntityRepository
+severity: hint
+note: "Locates all repository class implementations"

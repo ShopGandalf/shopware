@@ -1,0 +1,7 @@
+id: find-json-fields
+language: php
+rule:
+  pattern: new JsonField($$$)
+message: JSON field definition
+severity: hint
+note: "Locates all JSON field definitions in entities"

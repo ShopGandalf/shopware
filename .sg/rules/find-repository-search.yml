@@ -1,0 +1,10 @@
+id: find-repository-search
+language: php
+rule:
+  kind: member_call_expression
+  has:
+    field: name
+    regex: "^search$"
+message: Repository search operation
+severity: hint
+note: "Locates all repository->search() method calls"

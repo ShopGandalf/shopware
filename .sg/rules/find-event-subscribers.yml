@@ -1,0 +1,11 @@
+id: find-event-subscribers
+language: php
+rule:
+  kind: class_declaration
+  has:
+    kind: declaration_list
+    has:
+      pattern: EventSubscriberInterface
+message: Event subscriber implementation
+severity: hint
+note: "Locates classes implementing EventSubscriberInterface"

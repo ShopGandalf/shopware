@@ -1,0 +1,10 @@
+id: find-event-dispatch
+language: php
+rule:
+  kind: member_call_expression
+  has:
+    field: name
+    regex: "^dispatch$"
+message: Event dispatch call
+severity: hint
+note: "Locates all event dispatcher calls"

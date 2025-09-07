@@ -1,0 +1,9 @@
+id: find-route-attributes
+language: php
+rule:
+  kind: attribute
+  has:
+    pattern: Route
+message: PHP 8 Route attribute
+severity: hint
+note: "Locates all Route attributes used in controllers"

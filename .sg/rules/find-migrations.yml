@@ -1,0 +1,11 @@
+id: find-migrations
+language: php
+rule:
+  kind: class_declaration
+  has:
+    kind: base_clause
+    has:
+      pattern: MigrationStep
+message: Database migration class
+severity: hint
+note: "Locates all database migration classes"
