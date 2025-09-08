@@ -46,6 +46,8 @@
             :disabled="!acl.can('order.creator') || undefined"
             variant="primary"
             size="default"
+            data-product-analytics-button-action="add-order"
+            data-product-analytics-button-id="sw-order.sw-order-list.add-order"
             @click="$router.push({ name: 'sw.order.create' })"
         >
             {{ $tc('sw-order.list.buttonAddOrder') }}

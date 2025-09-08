@@ -3,41 +3,93 @@
  */
 
 // eslint-disable-next-line import/no-named-default
-import type { RouteLocation, Router } from 'vue-router';
-import Analytics from 'analytics'
-import amplitudePlugin from '@analytics/amplitude'
+import { type RouteLocation, type Router } from 'vue-router';
+import * as amplitude from '@amplitude/analytics-browser';
+
+// todo: fetch user consent
+const userConsent = true;
+
+let currentRoute: RouteLocation | null = null;
 
 /**
  * @private
  */
 export default function initializeTracking(): void {
-    const analytics = Analytics({
-        app: 'shopware/administration',
-        plugins: [
-            amplitudePlugin({
-                apiKey: 'd7a37694a5abd58224663408d109ec84',
-                options: {
-                    autocapture: false,
-                    trackingOptions: {
-                        ip_address: false
-                    }
-                }
-            })
-        ]
-    });
+    if (!userConsent) {
+        return;
+    }
 
     // Wait until the view is initialized
     void Shopware.Application.viewInitialized.then(() => {
         // todo: check for consent
         // todo: identify user
 
+        amplitude.init('d7a37694a5abd58224663408d109ec84', undefined, {
+            autocapture: false,
+            appVersion: Shopware.Store.get('context').app.config.version as string,
+            trackingOptions: {
+                ipAddress: false,
+            },
+        });
+
         const router = Shopware.Application.view?.router as Router;
 
         router.beforeEach((to: RouteLocation, from: RouteLocation) => {
-            console.log('[Tracking] beforeEach', to, from);
-            analytics.page({ from: from.name, to: to.name });
+            if (from.name === to.name) {
+                return;
+            }
+
+            console.log('[Product Analytics] beforeEach', to, from);
+
+            currentRoute = to;
+
+            amplitude.track('Page Viewed', { sw_route_from: from.name, sw_route_to: to.name, ...defaultEventProperties() });
         });
     });
 }
 
-// todo: add global event listeners
+export function track(event: string, properties?: Record<string, any>, options?: Record<string, any>) {
+    if (!Shopware.Application.view?.router) {
+        console.warn('[Product Analytics] Tracker is not yet initialized.');
+
+        return;
+    }
+
+    amplitude.track(event, { ...(properties || {}), ...defaultEventProperties() }, options);
+}
+
+function defaultEventProperties(): Record<string, any> {
+    return {
+        sw_version: Shopware.Store.get('context').app.config.version,
+        sw_module: currentRoute?.meta.$module.name,
+        sw_route: currentRoute?.name,
+        sw_user_language: Shopware.Store.get('session').currentLocale,
+        sw_user_is_admin: Shopware.Store.get('session').currentUser?.admin === true,
+        sw_user_timezone: Shopware.Store.get('session').currentUser?.timeZone,
+    };
+}
+
+// Function to handle button clicks
+function handleButtonClick(event: MouseEvent) {
+    let target = event.target as HTMLElement | null;
+
+    // Walk up the DOM tree until a <button> is found
+    while (target && target !== document.body) {
+        if (target.tagName === 'BUTTON') {
+            console.log('[Product Analytics] Button Clicked:', target);
+
+            track('Button Clicked', {
+                sw_button_text: target.innerText,
+                sw_button_action: target.getAttribute('data-product-analytics-button-action') || undefined,
+                sw_button_id: target.getAttribute('data-product-analytics-button-id') || target.id || undefined,
+            });
+
+            break;
+        }
+
+        target = target.parentElement;
+    }
+}
+
+// Add a global listener for click events
+document.addEventListener('click', handleButtonClick);
