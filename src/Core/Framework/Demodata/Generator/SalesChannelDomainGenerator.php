@@ -41,16 +41,17 @@ class SalesChannelDomainGenerator implements DemodataGeneratorInterface
 
     public function generate(int $numberOfItems, DemodataContext $context, array $options = []): void
     {
-        $context->getConsole()->progressStart($numberOfItems);
-
         $storefrontSalesChannelId = $this->getStorefrontSalesChannelId($context);
 
+        // If there is already more than one sales channel domain, do nothing.
         if ($this->getCurrentSalesChannelDomains($context, $storefrontSalesChannelId)->count() > 1) {
-            $context->getConsole()->progressFinish();
+            $context->getConsole()->note('Skipping sales_channel_domain generation. Already exists.');
             return;
         }
 
-        // Get the language that is not already the system language
+        $context->getConsole()->progressStart($numberOfItems);
+
+        // Get the language that is not already the system language.
         $nonSystemLanguage = $this->getNonSystemLanguage($context);
 
         $isDE = $nonSystemLanguage->getName() === 'Deutsch';
