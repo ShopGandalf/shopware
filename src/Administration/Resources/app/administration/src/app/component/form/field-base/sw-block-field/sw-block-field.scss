@@ -8,6 +8,7 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         border-radius: $border-radius-default;
         overflow: hidden;
         height: 48px;
+        background: var(--color-background-primary-default);
     }
 
     .sw-field--select__options .mt-icon {
@@ -22,7 +23,7 @@ $sw-field-transition: border-color 0.3s ease-out, background 0.3s ease;
         min-width: 0;
         padding: 12px 16px;
         border: none;
-        background: var(--color-elevation-surface-raised);
+        background: var(--color-background-primary-default);
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
         transition: $sw-field-transition;
