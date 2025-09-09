@@ -34,12 +34,12 @@ export default function initializeTracking(): void {
 
         const router = Shopware.Application.view?.router as Router;
 
-        router.beforeEach((to: RouteLocation, from: RouteLocation) => {
+        router.afterEach((to: RouteLocation, from: RouteLocation) => {
             if (from.name === to.name) {
                 return;
             }
 
-            console.log('[Product Analytics] beforeEach', to, from);
+            console.log('[Product Analytics] afterEach', to, from);
 
             currentRoute = to;
 
@@ -66,6 +66,8 @@ function defaultEventProperties(): Record<string, any> {
         sw_user_language: Shopware.Store.get('session').currentLocale,
         sw_user_is_admin: Shopware.Store.get('session').currentUser?.admin === true,
         sw_user_timezone: Shopware.Store.get('session').currentUser?.timeZone,
+        sw_shop_id: Shopware.Store.get('context').app.config.shopId,
+        sw_environment: Shopware.Store.get('context').app.environment,
     };
 }
 
