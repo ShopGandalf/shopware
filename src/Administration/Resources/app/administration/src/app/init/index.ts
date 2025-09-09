@@ -35,7 +35,7 @@ import initializeInAppPurchaseCheckout from './in-app-purchase-checkout.init';
 import initializeTopBarButtons from './topbar-button.init';
 import initializeTeaserPopovers from './teaser-popover.init';
 import initializeMediaModal from './media-modal.init';
-import initTracking from './product-analytics';
+import initTracking from './product-analytics.init';
 
 // eslint-disable-next-line sw-deprecation-rules/private-feature-declarations
 export default {
