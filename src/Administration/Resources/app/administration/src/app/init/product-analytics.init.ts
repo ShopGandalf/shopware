@@ -5,6 +5,7 @@
 // eslint-disable-next-line import/no-named-default
 import { type RouteLocation, type Router } from 'vue-router';
 import * as amplitude from '@amplitude/analytics-browser';
+import { BaseEvent, EventOptions } from '@amplitude/analytics-browser/lib/esm/types';
 
 // todo: fetch user consent
 const userConsent = true;
@@ -48,7 +49,7 @@ export default function initializeTracking(): void {
     });
 }
 
-export function track(event: string, properties?: Record<string, any>, options?: Record<string, any>) {
+export function track(event: BaseEvent | string, properties?: Record<string, any>, options?: EventOptions) {
     if (!Shopware.Application.view?.router) {
         console.warn('[Product Analytics] Tracker is not yet initialized.');
 
