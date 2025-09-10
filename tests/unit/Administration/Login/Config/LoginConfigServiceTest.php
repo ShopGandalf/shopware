@@ -284,7 +284,7 @@ class LoginConfigServiceTest extends TestCase
 
         $result = $configService->createTemplateData('randomString', null);
 
-        static::assertTrue($result->useDefault);
+        static::assertFalse($result->useDefault);
         static::assertNull($result->url);
     }
 

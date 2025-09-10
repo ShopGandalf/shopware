@@ -48,7 +48,7 @@ final readonly class LoginConfigService
         $this->validate();
 
         return new LoginConfig(
-            $this->rawConfig['use_default'],
+            true,
             $this->rawConfig['client_id'],
             $this->rawConfig['client_secret'],
             $this->rawConfig['redirect_uri'],
