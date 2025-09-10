@@ -25,7 +25,7 @@ export default function initializeTracking(): void {
         // todo: check for consent
         // todo: identify user
 
-        amplitude.init('', undefined, {
+        amplitude.init('AMPLITUDE_API_KEY', undefined, {
             autocapture: false,
             appVersion: Shopware.Store.get('context').app.config.version as string,
             trackingOptions: {
