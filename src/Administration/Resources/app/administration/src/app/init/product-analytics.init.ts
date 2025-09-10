@@ -25,12 +25,13 @@ export default function initializeTracking(): void {
         // todo: check for consent
         // todo: identify user
 
-        amplitude.init('d7a37694a5abd58224663408d109ec84', undefined, {
+        amplitude.init('', undefined, {
             autocapture: false,
             appVersion: Shopware.Store.get('context').app.config.version as string,
             trackingOptions: {
                 ipAddress: false,
             },
+            serverUrl: 'https://jwib85zthc.execute-api.eu-central-1.amazonaws.com/amplitude2'
         });
 
         const router = Shopware.Application.view?.router as Router;
@@ -49,7 +50,7 @@ export default function initializeTracking(): void {
     });
 }
 
-export function track(event: BaseEvent | string, properties?: Record<string, any>, options?: EventOptions) {
+export function track(event: BaseEvent | string, properties?: Record<string, any>, options?: EventOptions) {
     if (!Shopware.Application.view?.router) {
         console.warn('[Product Analytics] Tracker is not yet initialized.');
 
@@ -62,6 +63,7 @@ export function track(event: BaseEvent | string, properties?: Record<string, an
 function defaultEventProperties(): Record<string, any> {
     return {
         sw_version: Shopware.Store.get('context').app.config.version,
+        // @ts-expect-error
         sw_module: currentRoute?.meta.$module.name,
         sw_route: currentRoute?.name,
         sw_user_language: Shopware.Store.get('session').currentLocale,

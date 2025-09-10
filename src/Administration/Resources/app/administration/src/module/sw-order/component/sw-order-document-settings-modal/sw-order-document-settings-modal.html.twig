@@ -97,6 +97,7 @@
                 :disabled="isLoadingDocument"
                 :is-loading="isLoadingPreview"
                 variant="secondary"
+                data-product-analytics-button-id="sw-order.sw-order-document-settings-modal.preview"
                 @click="onPreview()"
             >
                 {{ $tc('sw-order.documentModal.labelPreview') }}
@@ -132,6 +133,7 @@
             <mt-button
                 size="small"
                 variant="secondary"
+                data-product-analytics-button-id="sw-order.sw-order-document-settings-modal.cancel"
                 @click="onCancel"
             >
                 {{ $tc('sw-order.documentModal.labelCancel') }}
@@ -147,6 +149,7 @@
                     size="small"
                     :disabled="!documentPreconditionsFulfilled || isLoadingPreview"
                     :is-loading="isLoadingDocument"
+                    data-product-analytics-button-id="sw-order.sw-order-document-settings-modal.create"
                     @click="onCreateDocument"
                 >
                     {{ $tc('sw-order.documentModal.labelCreate') }}

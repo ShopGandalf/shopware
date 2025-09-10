@@ -46,7 +46,6 @@
             :disabled="!acl.can('order.creator') || undefined"
             variant="primary"
             size="default"
-            data-product-analytics-button-action="add-order"
             data-product-analytics-button-id="sw-order.sw-order-list.add-order"
             @click="$router.push({ name: 'sw.order.create' })"
         >
@@ -117,6 +116,7 @@
                         class="sw-order-list__tooltip-order-comment"
                         size="x-small"
                         variant="secondary"
+                        data-product-analytics-button-id="sw-order.sw-order-list.show-order-comment"
                     >
                         <mt-icon
                             name="regular-comments"
@@ -277,6 +277,7 @@
                             <mt-button
                                 size="small"
                                 variant="secondary"
+                                data-product-analytics-button-id="sw-order.sw-order-list.delete-cancel"
                                 @click="onCloseDeleteModal"
                             >
                                 {{ $tc('global.default.cancel') }}
@@ -287,6 +288,7 @@
                             <mt-button
                                 variant="critical"
                                 size="small"
+                                data-product-analytics-button-id="sw-order.sw-order-list.delete-confirm"
                                 @click="onConfirmDelete(item.id)"
                             >
                                 {{ $tc('sw-order.list.buttonDelete') }}

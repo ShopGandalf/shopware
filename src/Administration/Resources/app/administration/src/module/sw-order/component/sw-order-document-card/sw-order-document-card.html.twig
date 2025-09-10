@@ -36,6 +36,7 @@
                         :disabled="!acl.can('document.viewer') || isEditing"
                         class="sw-order-document-grid-button"
                         variant="secondary"
+                        data-product-analytics-button-id="sw-order.sw-order-document-card.create-document"
                         @click="onShowSelectDocumentTypeModal"
                     >
 
@@ -226,7 +227,7 @@
         :title="emptyStateTitle"
         :show-description="false"
         :absolute="false"
-    >/
+    >/ 
         <template #icon>
             <img
                 :src="assetFilter('/administration/administration/static/img/empty-states/order-empty-state.svg')"
@@ -247,6 +248,7 @@
                 :disabled="!acl.can('document.viewer') || isEditing"
                 class="sw-order-document-grid-button"
                 variant="secondary"
+                data-product-analytics-button-id="sw-order.sw-order-document-card.create-document"
                 @click="onShowSelectDocumentTypeModal"
             >
 

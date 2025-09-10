@@ -26,6 +26,7 @@
             <mt-button
                 size="small"
                 variant="secondary"
+                data-product-analytics-button-id="sw-order.sw-order-address-selection.cancel"
                 @click="currentAddress = null"
             >
                 {{ $tc('global.default.cancel') }}
@@ -36,6 +37,7 @@
             <mt-button
                 variant="primary"
                 size="small"
+                data-product-analytics-button-id="sw-order.sw-order-address-selection.apply"
                 @click="onSaveAddress"
             >
                 {{ $tc('global.default.apply') }}

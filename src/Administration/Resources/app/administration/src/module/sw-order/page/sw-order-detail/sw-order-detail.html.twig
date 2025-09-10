@@ -55,6 +55,7 @@
             :disabled="loading.order || !acl.can('order.editor')"
             variant="secondary"
             size="default"
+            data-product-analytics-button-id="sw-order.sw-order-detail.cancel-editing"
             @click="onCancelEditing"
         >
             {{ $tc('global.default.cancel') }}
