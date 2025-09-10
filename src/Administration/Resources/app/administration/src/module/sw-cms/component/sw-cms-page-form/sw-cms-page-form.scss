@@ -35,7 +35,7 @@
 
     .sw-cms-page-form__element-config {
         margin-bottom: 22px;
-        border-bottom: 1px solid $color-gray-300;
+        border-bottom: 1px solid var(--color-border-primary-default);
 
         &:last-child {
             margin-bottom: 0;
@@ -116,11 +116,11 @@
     &__section-action-icon {
         display: inline-block;
         margin-right: 10px;
-        color: $color-gray-900;
+        color: var(--color-icon-primary-default);
     }
 
     &__section-action-label {
-        color: #52667a;
+        color: var(--color-text-primary-default);
         font-weight: $font-weight-semi-bold;
         line-height: 22px;
         width: 190px;
@@ -163,7 +163,7 @@
     &__device-actions,
     &__block-device-actions {
         width: 96px;
-        color: $color-gray-500;
+        color: var(--color-icon-secondary-default);
         display: flex;
         gap: 10px;
         align-items: center;

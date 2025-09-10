@@ -3,8 +3,8 @@
 @import "~scss/mixins";
 
 $sw-tree-item-color-border: $color-gray-300;
-$sw-tree-item-color-background: $color-gray-50;
-$sw-tree-item-color-text: $color-darkgray-200;
+$sw-tree-item-color-background: var(--color-interaction-secondary-default);
+$sw-tree-item-color-text: var(--color-text-primary-default);
 
 .sw-tree-item {
     &.is--dragging {
@@ -90,7 +90,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
 
             .sw-tree-item__icon,
             .sw-tree-item__content {
-                color: $color-shopware-brand-500;
+                color: var(--color-icon-brand-default);
             }
         }
     }
@@ -101,7 +101,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
 
             .sw-tree-item__icon,
             .sw-tree-item__content {
-                color: $color-shopware-brand-500;
+                color: var(--color-icon-brand-default);
             }
         }
     }
@@ -129,7 +129,7 @@ $sw-tree-item-color-text: $color-darkgray-200;
 
     &.is--highlighted > .sw-tree-item__element {
         .sw-tree-item__label {
-            background-color: $color-gray-100;
+            background-color: var(--color-background-brand-default);
             padding: 1px 3px;
             border-radius: $border-radius-default;
         }

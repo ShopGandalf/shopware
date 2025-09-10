@@ -150,8 +150,8 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
 .mt-card__toolbar {
     flex-basis: 100%;
     padding: 30px;
-    background-color: $color-gray-100;
-    border-bottom: 1px solid $color-gray-300;
+    background-color: var(--color-elevation-surface-sunken);
+    border-bottom: 1px solid var(--color-border-primary-default);
 }
 
 .mt-button {
@@ -160,4 +160,17 @@ a[target="_blank"]:not(.sw-external-link, .sw-internal-link, .mt-button, .mt-lin
 
 .mt-inheritance-switch {
     margin-right: 8px;
+}
+
+// TODO: remove this after SCD demo
+.sw-dashboard-statistics-promotion-banner__app-card-app-info-name {
+    color: var(--color-text-primary-default) !important;
+}
+
+.saas-rufus-dashboard-test-orders__icon {
+    background-color: var(--color-background-accent-default);
+
+    &.sw-label__caption {
+        color: var(--color-text-accent-default);
+    }
 }

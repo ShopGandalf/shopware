@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-language-info-color-text: $color-darkgray-200;
+$sw-language-info-color-text: var(--color-text-primary-default);
 $sw-language-info-font-size: $font-size-xs;
 $sw-language-info-color-language: $color-shopware-brand-500;
 

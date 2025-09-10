@@ -25,7 +25,7 @@
     }
 
     &__description {
-        color: $color-darkgray-200;
+        color: var(--color-text-primary-default);
         font-size: $font-size-xs;
     }
 

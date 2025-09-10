@@ -143,6 +143,7 @@
                     <mt-icon
                         class="sw-media-upload-v2__fallback-icon"
                         name="regular-image"
+                        color="var(--color-icon-primary-default)"
                     />
                 </div>
                 {% endblock %}
@@ -151,7 +152,7 @@
             <template v-if="!showPreview && variant === 'regular'">
                 {% block sw_media_upload_v2_regular_caption %}
                 <div class="sw-media-upload-v2__upload-caption">
-                    <mt-icon name="regular-cloud-upload" />
+                    <mt-icon name="regular-cloud-upload" color="var(--color-icon-primary-default)" />
                     {{ $tc('global.sw-media-upload-v2.caption') }}
                 </div>
                 {% endblock %}

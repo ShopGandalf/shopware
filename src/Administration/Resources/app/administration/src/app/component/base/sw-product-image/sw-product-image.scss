@@ -3,10 +3,10 @@
 .sw-product-image {
     position: relative;
     border-radius: $border-radius-default;
-    border: 2px solid $color-gray-300;
+    border: 2px solid var(--color-border-primary-default);
 
     &.is--placeholder {
-        border: 2px dashed $color-gray-300;
+        border: 2px dashed var(--color-border-primary-default);
         display: flex;
         align-items: center;
         justify-content: center;

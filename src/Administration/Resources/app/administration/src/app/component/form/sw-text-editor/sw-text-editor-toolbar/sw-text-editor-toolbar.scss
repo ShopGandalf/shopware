@@ -1,6 +1,6 @@
 @import "~scss/variables";
 
-$sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
+$sw-text-editor-toolbar-item-color-boxed: var(--color-icon-primary-default);
 
 .sw-text-editor-toolbar {
     padding: 0 6px;
@@ -35,8 +35,8 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
         top: 0;
         left: 0;
         position: initial;
-        background: $color-gray-100;
-        border-bottom: 1px solid $color-gray-300;
+        background: var(--color-elevation-surface-sunken);
+        border-bottom: 1px solid var(--color-border-primary-default);
         color: $sw-text-editor-toolbar-item-color-boxed;
         display: grid;
         grid-template-columns: auto;
@@ -47,11 +47,11 @@ $sw-text-editor-toolbar-item-color-boxed: #9aa8b5;
 
         .sw-text-editor-buttons {
             &.is--middle {
-                border-left: 1px solid $color-gray-300;
+                border-left: 1px solid var(--color-border-primary-default);
             }
 
             &.is--right {
-                border-left: 1px solid $color-gray-300;
+                border-left: 1px solid var(--color-border-primary-default);
             }
         }
     }

@@ -15,8 +15,8 @@
 
     .sw-property-option-list__toolbar {
         padding: 25px 35px;
-        background-color: $color-gray-100;
-        border-bottom: 1px solid $color-gray-300;
+        background-color: var(--color-background-primary-default);
+        border-bottom: 1px solid var(--color-border-primary-default);
 
         .sw-property-option-list__delete-button {
             border-color: $color-crimson-500;
