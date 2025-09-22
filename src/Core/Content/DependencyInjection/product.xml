@@ -166,6 +166,7 @@
             <argument type="service" id="Shopware\Core\Content\MeasurementSystem\ProductMeasurement\ProductMeasurementUnitBuilder"/>
             <argument type="service" id="Shopware\Core\Content\MeasurementSystem\Unit\MeasurementUnitConverter"/>
             <argument type="service" id="request_stack"/>
+            <argument type="service" id="sales_channel.product.repository"/>
 
             <tag name="kernel.event_subscriber"/>
         </service>

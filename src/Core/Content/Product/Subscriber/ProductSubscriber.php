@@ -11,11 +11,17 @@ use Shopware\Core\Content\Product\AbstractIsNewDetector;
 use Shopware\Core\Content\Product\AbstractProductMaxPurchaseCalculator;
 use Shopware\Core\Content\Product\AbstractProductVariationBuilder;
 use Shopware\Core\Content\Product\AbstractPropertyGroupSorter;
+use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPrice;
 use Shopware\Core\Content\Product\DataAbstractionLayer\CheapestPrice\CheapestPriceContainer;
 use Shopware\Core\Content\Product\ProductDefinition;
 use Shopware\Core\Content\Product\ProductEntity;
 use Shopware\Core\Content\Product\ProductEvents;
 use Shopware\Core\Content\Product\SalesChannel\Price\AbstractProductPriceCalculator;
+use Shopware\Core\Content\Product\SalesChannel\SalesChannelProductEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
+use Shopware\Core\Content\Product\Aggregate\ProductVisibility\ProductVisibilityDefinition;
 use Shopware\Core\Framework\Api\Context\AdminApiSource;
 use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\Event\EntityLoadedEvent;
@@ -24,6 +30,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\PartialEntity;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\PlatformRequest;
 use Shopware\Core\System\SalesChannel\Entity\SalesChannelEntityLoadedEvent;
+use Shopware\Core\System\SalesChannel\Entity\SalesChannelRepository;
+use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -36,6 +44,8 @@ class ProductSubscriber implements EventSubscriberInterface
 {
     /**
      * @internal
+     *
+     * @param SalesChannelRepository<SalesChannelProductEntity> $productRepository
      */
     public function __construct(
         private readonly AbstractProductVariationBuilder $productVariationBuilder,
@@ -46,7 +56,8 @@ class ProductSubscriber implements EventSubscriberInterface
         private readonly SystemConfigService $systemConfigService,
         private readonly ProductMeasurementUnitBuilder $measurementUnitBuilder,
         private readonly AbstractMeasurementUnitConverter $measurementUnitConverter,
-        private readonly RequestStack $requestStack
+        private readonly RequestStack $requestStack,
+        private readonly SalesChannelRepository $productRepository
     ) {
     }
 
@@ -88,14 +99,30 @@ class ProductSubscriber implements EventSubscriberInterface
      */
     public function salesChannelLoaded(SalesChannelEntityLoadedEvent $event): void
     {
+        $parentProducts = [];
+
         foreach ($event->getEntities() as $product) {
             $price = $product->get('cheapestPrice');
 
-            if ($price instanceof CheapestPriceContainer) {
+            // Check if this product needs dynamic cheapest price calculation
+            $needsDynamicCalculation = ($product->get('childCount') > 0 && $product->get('parentId') === null) || 
+                                     ($product->get('parentId') !== null);
+
+            if ($price instanceof CheapestPriceContainer && !$needsDynamicCalculation) {
+                // Only resolve from container for single products that don't need dynamic calculation
+                $resolvedPrice = $price->resolve($event->getSalesChannelContext()->getContext());
                 $product->assign([
-                    'cheapestPrice' => $price->resolve($event->getContext()),
+                    'cheapestPrice' => $resolvedPrice,
                     'cheapestPriceContainer' => $price,
                 ]);
+            } elseif ($price instanceof CheapestPriceContainer) {
+                // For products that need dynamic calculation, just store the container
+                $product->assign(['cheapestPriceContainer' => $price]);
+            }
+
+            // Collect products that need dynamic cheapest price calculation
+            if ($needsDynamicCalculation) {
+                $parentProducts[] = $product;
             }
 
             $assigns = [];
@@ -115,6 +142,11 @@ class ProductSubscriber implements EventSubscriberInterface
             $this->setDefaultLayout($product, $event->getSalesChannelContext()->getSalesChannelId());
 
             $this->productVariationBuilder->build($product);
+        }
+
+        // Calculate dynamic cheapest prices for parent products
+        if (!empty($parentProducts)) {
+            $this->calculateDynamicCheapestPrices($parentProducts, $event->getSalesChannelContext());
         }
 
         $this->calculator->calculate($event->getEntities(), $event->getSalesChannelContext());
@@ -179,6 +211,123 @@ class ProductSubscriber implements EventSubscriberInterface
 
         $product->assign(['cmsPageId' => $cmsPageId]);
     }
+
+    /**
+     * @param array<Entity> $products
+     */
+    private function calculateDynamicCheapestPrices(array $products, SalesChannelContext $context): void
+    {
+        $processedParents = [];
+
+        foreach ($products as $product) {
+            $parentId = $product->get('parentId');
+
+            // Determine the parent ID
+            if ($parentId === null) {
+                // This is a parent product
+                $parentId = $product->getParentId();
+            }
+
+            // Skip if we already processed this parent
+            if (isset($processedParents[$parentId])) {
+                continue;
+            }
+
+            $variants = $this->loadVariantsForParent($parentId, $context);
+
+            if (empty($variants)) {
+                continue;
+            }
+
+            $cheapestPrice = $this->findCheapestPriceFromVariants($variants, $context);
+
+            if ($cheapestPrice !== null) {
+                // Assign the cheapest price to all products that belong to this parent
+                foreach ($products as $productToUpdate) {
+                    $productParentId = $productToUpdate->get('parentId');
+                    if ($productParentId === null) {
+                        $productParentId = $productToUpdate->getId();
+                    }
+
+                    if ($productParentId === $parentId) {
+                        $productToUpdate->assign(['cheapestPrice' => $cheapestPrice]);
+                    }
+                }
+            }
+
+            $processedParents[$parentId] = true;
+        }
+    }
+
+    /**
+     * @return array<SalesChannelProductEntity>
+     */
+    private function loadVariantsForParent(string $parentId, SalesChannelContext $context): array
+    {
+        $criteria = new Criteria();
+        $criteria->addFilter(new EqualsFilter('parentId', $parentId));
+        $criteria->addFilter(new EqualsFilter('active', true));
+
+        // Add sales channel visibility filter
+        $criteria->addFilter(new EqualsFilter('visibilities.salesChannelId', $context->getSalesChannelId()));
+        $criteria->addFilter(new EqualsFilter('visibilities.visibility', ProductVisibilityDefinition::VISIBILITY_LINK));
+
+        // Add associations for price calculation
+        $criteria->addAssociation('prices');
+        $criteria->addAssociation('tax');
+        $criteria->addAssociation('unit');
+
+        $criteria->setTitle('product-subscriber::variants-for-cheapest-price');
+
+        return $this->productRepository->search($criteria, $context)->getEntities()->getElements();
+    }
+
+    /**
+     * @param array<SalesChannelProductEntity> $variants
+     */
+    private function findCheapestPriceFromVariants(array $variants, SalesChannelContext $context): ?CheapestPrice
+    {
+        $cheapestVariant = null;
+        $cheapestPrice = null;
+
+        foreach ($variants as $variant) {
+            $price = $variant->get('price');
+            if ($price === null) {
+                continue;
+            }
+
+            // Get the price for the current currency and tax state
+            $currencyPrice = $price->getCurrencyPrice($context->getCurrencyId());
+            if ($currencyPrice === null) {
+                continue;
+            }
+
+            $variantPrice = $context->getTaxState() === 'gross'
+                ? $currencyPrice->getGross()
+                : $currencyPrice->getNet();
+
+            if ($cheapestPrice === null || $variantPrice < $cheapestPrice) {
+                $cheapestPrice = $variantPrice;
+                $cheapestVariant = $variant;
+            }
+        }
+
+        if ($cheapestVariant === null) {
+            return null;
+        }
+
+        // Create a CheapestPrice object from the cheapest variant
+        $cheapestPriceObj = new CheapestPrice();
+        $cheapestPriceObj->setVariantId($cheapestVariant->getId());
+        $cheapestPriceObj->setParentId($cheapestVariant->getParentId());
+        $cheapestPriceObj->setHasRange(count($variants) > 1);
+
+        // Set the price collection from the cheapest variant
+        $cheapestPriceObj->setPrice($cheapestVariant->get('price'));
+
+        return $cheapestPriceObj;
+    }
+
 
     private function convertMeasurementUnit(ProductEntity|PartialEntity $product): void
     {
