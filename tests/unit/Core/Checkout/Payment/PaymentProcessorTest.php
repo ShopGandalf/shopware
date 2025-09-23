@@ -30,6 +30,7 @@ use Shopware\Core\System\StateMachine\Loader\InitialStateIdLoader;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Generator;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
@@ -58,8 +59,11 @@ class PaymentProcessorTest extends TestCase
 
     private OrderTransactionStateHandler&MockObject $stateHandler;
 
+    private MockClock $clock;
+
     protected function setUp(): void
     {
+        $this->clock = new MockClock('2024-01-01 12:00:00');
         $this->processor = new PaymentProcessor(
             $this->tokenGenerator = $this->createMock(TokenFactoryInterfaceV2::class),
             $this->paymentHandlerRegistry = $this->createMock(PaymentHandlerRegistry::class),
@@ -70,6 +74,7 @@ class PaymentProcessorTest extends TestCase
             $this->createMock(InitialStateIdLoader::class),
             $this->router = $this->createMock(RouterInterface::class),
             $this->createMock(SystemConfigService::class),
+            $this->clock,
         );
     }
 
@@ -326,6 +331,7 @@ class PaymentProcessorTest extends TestCase
             paymentMethodId: 'payment-method-id',
             transactionId: 'order-transaction-id',
             expires: \PHP_INT_MAX,
+            clock: $this->clock,
         );
 
         $response = $this->processor->finalize(
@@ -343,7 +349,7 @@ class PaymentProcessorTest extends TestCase
         $this->expectExceptionMessage('The provided token  is invalid and the payment could not be processed.');
 
         $this->processor->finalize(
-            new TokenStruct(),
+            new TokenStruct(clock: $this->clock),
             new Request(),
             Generator::generateSalesChannelContext(),
         );
@@ -368,6 +374,7 @@ class PaymentProcessorTest extends TestCase
             paymentMethodId: 'payment-method-id',
             transactionId: 'order-transaction-id',
             expires: \PHP_INT_MAX,
+            clock: $this->clock,
         );
 
         $this->expectException(PaymentException::class);
@@ -414,6 +421,7 @@ class PaymentProcessorTest extends TestCase
             paymentMethodId: 'payment-method-id',
             transactionId: 'order-transaction-id',
             expires: \PHP_INT_MAX,
+            clock: $this->clock,
         );
 
         $this->stateHandler
@@ -463,6 +471,7 @@ class PaymentProcessorTest extends TestCase
             paymentMethodId: 'payment-method-id',
             transactionId: 'order-transaction-id',
             expires: \PHP_INT_MAX,
+            clock: $this->clock,
         );
 
         $this->stateHandler

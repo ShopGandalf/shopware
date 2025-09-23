@@ -3,12 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Checkout\Customer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\DoesNotPerformAssertions;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\Customer\CustomerException;
 use Shopware\Core\Checkout\Customer\Exception\InvalidImitateCustomerTokenException;
 use Shopware\Core\Checkout\Customer\ImitateCustomerTokenGenerator;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -22,63 +23,53 @@ class ImitateCustomerTokenGeneratorTest extends TestCase
     private const USER_ID = 'bcf76884cb764eb2b9650bb2fcf1073f';
     private const APP_SECRET = 'testAppSecret';
 
+    private MockClock $clock;
+
     private ImitateCustomerTokenGenerator $imitateCustomerTokenGenerator;
 
     protected function setUp(): void
     {
-        $this->imitateCustomerTokenGenerator = new ImitateCustomerTokenGenerator(self::APP_SECRET);
+        $this->clock = new MockClock('2025-01-01 12:00:00');
+        $this->imitateCustomerTokenGenerator = new ImitateCustomerTokenGenerator(self::APP_SECRET, $this->clock);
     }
 
-    #[DoesNotPerformAssertions]
-    public function testValidate(): void
+    #[DataProvider('validTokenProvider')]
+    #[TestDox('Token remains valid before lifetime is exceeded')]
+    public function testTokenRemainsValid(int $secondsBeforeExpiry): void
     {
         $token = $this->imitateCustomerTokenGenerator->generate(self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
 
+        $this->clock->modify(\sprintf('+%d seconds', ImitateCustomerTokenGenerator::TOKEN_LIFETIME - $secondsBeforeExpiry));
+
+        $this->expectNotToPerformAssertions();
         $this->imitateCustomerTokenGenerator->validate($token, self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
     }
 
-    public function testValidateWithInvalidToken(): void
+    #[TestDox('Token expires after lifetime is exceeded')]
+    public function testTokenExpires(): void
+    {
+        $token = $this->imitateCustomerTokenGenerator->generate(self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
+
+        $this->clock->modify(\sprintf('+%d seconds', ImitateCustomerTokenGenerator::TOKEN_LIFETIME + 1));
+
+        $this->expectException(InvalidImitateCustomerTokenException::class);
+        $this->imitateCustomerTokenGenerator->validate($token, self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
+    }
+
+    #[TestDox('Invalid token format throws InvalidImitateCustomerTokenException')]
+    public function testInvalidTokenFormat(): void
     {
         $this->expectException(InvalidImitateCustomerTokenException::class);
 
         $this->imitateCustomerTokenGenerator->validate('invalidToken', self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
     }
 
-    public function testValidateWithInvalidTimeToken(): void
+    /**
+     * @return \Generator<string, array{int}>
+     */
+    public static function validTokenProvider(): \Generator
     {
-        $this->expectException(InvalidImitateCustomerTokenException::class);
-
-        $token = $this->generate(self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID, time() - ImitateCustomerTokenGenerator::TOKEN_LIFETIME - 1);
-
-        $this->imitateCustomerTokenGenerator->validate($token, self::SALES_CHANNEL_ID, self::CUSTOMER_ID, self::USER_ID);
-    }
-
-    private function generate(string $salesChannelId, string $customerId, string $userId, int $time): string
-    {
-        $tokenData = [
-            'salesChannelId' => $salesChannelId,
-            'customerId' => $customerId,
-            'userId' => $userId,
-        ];
-
-        $data = json_encode($tokenData);
-
-        if ($data === false) {
-            throw CustomerException::invalidImitationToken($salesChannelId . ':' . $customerId . ':' . $userId);
-        }
-
-        return $this->encrypt(hash_hmac(ImitateCustomerTokenGenerator::HMAC_HASH_ALGORITHM, $data, self::APP_SECRET) . '.' . $time);
-    }
-
-    private function encrypt(string $token): string
-    {
-        $iv = openssl_random_pseudo_bytes((int) openssl_cipher_iv_length(ImitateCustomerTokenGenerator::OPENSSL_CIPHER_ALGORITHM));
-        $encrypted = openssl_encrypt($token, ImitateCustomerTokenGenerator::OPENSSL_CIPHER_ALGORITHM, self::APP_SECRET, 0, $iv);
-
-        if ($encrypted === false) {
-            throw CustomerException::invalidImitationToken($token);
-        }
-
-        return base64_encode($iv . $encrypted);
+        yield 'valid before expiry' => [1];
+        yield 'valid at exact boundary' => [0];
     }
 }

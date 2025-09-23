@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Customer;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 
 #[Package('checkout')]
@@ -15,7 +16,8 @@ class ImitateCustomerTokenGenerator
      * @internal
      */
     public function __construct(
-        private readonly string $appSecret
+        private readonly string $appSecret,
+        private readonly ClockInterface $clock
     ) {
     }
 
@@ -33,7 +35,7 @@ class ImitateCustomerTokenGenerator
             throw CustomerException::invalidImitationToken($salesChannelId . ':' . $customerId . ':' . $userId);
         }
 
-        return $this->encrypt(hash_hmac(self::HMAC_HASH_ALGORITHM, $data, $this->appSecret) . '.' . time());
+        return $this->encrypt(hash_hmac(self::HMAC_HASH_ALGORITHM, $data, $this->appSecret) . '.' . $this->clock->now()->getTimestamp());
     }
 
     public function validate(string $givenToken, string $salesChannelId, string $customerId, string $userId): void
@@ -47,7 +49,7 @@ class ImitateCustomerTokenGenerator
         }
 
         $hash = $tokenData[0];
-        $timeDiff = time() - (int) $tokenData[1];
+        $timeDiff = $this->clock->now()->getTimestamp() - (int) $tokenData[1];
 
         if ($timeDiff > self::TOKEN_LIFETIME) {
             throw CustomerException::invalidImitationToken($givenToken);

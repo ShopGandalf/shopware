@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Payment;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\Cart;
 use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionCollection;
@@ -48,6 +49,7 @@ class PaymentProcessor
         private readonly InitialStateIdLoader $initialStateIdLoader,
         private readonly RouterInterface $router,
         private readonly SystemConfigService $systemConfigService,
+        private readonly ClockInterface $clock,
     ) {
     }
 
@@ -195,7 +197,8 @@ class PaymentProcessor
             $transaction->getId(),
             $finishUrl,
             $paymentFinalizeTransactionTime,
-            $errorUrl
+            $errorUrl,
+            $this->clock
         );
 
         return $this->tokenFactory->generateToken($tokenStruct);

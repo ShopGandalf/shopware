@@ -2,8 +2,10 @@
 
 namespace Shopware\Core\Checkout\Payment\Cart\Token;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Struct\Struct;
+use Symfony\Component\Clock\NativeClock;
 
 #[Package('checkout')]
 class TokenStruct extends Struct
@@ -12,6 +14,8 @@ class TokenStruct extends Struct
 
     protected int $expires;
 
+    protected ClockInterface $clock;
+
     public function __construct(
         protected ?string $id = null,
         protected ?string $token = null,
@@ -19,9 +23,11 @@ class TokenStruct extends Struct
         protected ?string $transactionId = null,
         protected ?string $finishUrl = null,
         ?int $expires = null,
-        protected ?string $errorUrl = null
+        protected ?string $errorUrl = null,
+        ?ClockInterface $clock = null
     ) {
         $this->expires = $expires ?? 1800;
+        $this->clock = $clock ?? new NativeClock();
     }
 
     public function getId(): ?string
@@ -66,7 +72,7 @@ class TokenStruct extends Struct
 
     public function isExpired(): bool
     {
-        return $this->expires < time();
+        return $this->expires < $this->clock->now()->getTimestamp();
     }
 
     public function getException(): ?\Throwable
