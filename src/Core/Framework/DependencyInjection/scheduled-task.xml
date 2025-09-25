@@ -13,6 +13,7 @@
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="messenger.default_bus"/>
             <argument type="service" id="parameter_bag"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument>%shopware.messenger.scheduled_task.requeue_timeout%</argument>
         </service>
 
@@ -20,6 +21,7 @@
             <argument type="tagged_iterator" tag="shopware.scheduled.task" />
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="parameter_bag"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
         </service>
 
         <service id="Shopware\Core\Framework\MessageQueue\ScheduledTask\SymfonyBridge\ScheduleProvider">

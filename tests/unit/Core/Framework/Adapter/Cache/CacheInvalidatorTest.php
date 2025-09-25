@@ -12,6 +12,7 @@ use Shopware\Core\PlatformRequest;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapter;
 use Symfony\Component\Cache\Adapter\TagAwareAdapterInterface;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -43,6 +44,7 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
+            new MockClock(),
             $this->createMock(TagAwareAdapterInterface::class),
             false,
             true
@@ -70,6 +72,7 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
+            new MockClock(),
             $this->createMock(TagAwareAdapterInterface::class),
             false,
             true
@@ -97,6 +100,7 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
+            new MockClock(),
             $this->createMock(TagAwareAdapterInterface::class),
             false,
             false
@@ -127,6 +131,7 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([$request]),
+            new MockClock(),
             $this->createMock(TagAwareAdapterInterface::class),
             false,
             true
@@ -153,6 +158,7 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
+            new MockClock(),
             $this->createMock(TagAwareAdapterInterface::class),
             false,
             true
@@ -182,6 +188,7 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
+            new MockClock(),
             $this->createMock(TagAwareAdapterInterface::class),
             false,
             false
@@ -212,6 +219,7 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
+            new MockClock(),
             $this->createMock(TagAwareAdapterInterface::class),
             false,
             false
@@ -234,6 +242,7 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
+            new MockClock(),
             new TagAwareAdapter($adapter, $adapter),
             true,
             true
@@ -264,6 +273,7 @@ class CacheInvalidatorTest extends TestCase
             new EventDispatcher(),
             new NullLogger(),
             new RequestStack([new Request()]),
+            new MockClock(),
             new TagAwareAdapter($adapter, $adapter),
             false,
             true

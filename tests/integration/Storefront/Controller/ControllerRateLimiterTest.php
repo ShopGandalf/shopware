@@ -48,6 +48,7 @@ use Shopware\Storefront\Page\Account\RecoverPassword\AccountRecoverPasswordPageL
 use Shopware\Storefront\Page\GenericPageLoader;
 use Shopware\Storefront\Test\Controller\StorefrontControllerTestBehaviour;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\DomCrawler\Crawler;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\RedirectResponse;
@@ -113,7 +114,7 @@ class ControllerRateLimiterTest extends TestCase
     public function testGenerateAccountRecoveryRateLimit(): void
     {
         $passwordRecoveryMailRoute = $this->createMock(SendPasswordRecoveryMailRoute::class);
-        $passwordRecoveryMailRoute->method('sendRecoveryMail')->willThrowException(new RateLimitExceededException(time() + 10));
+        $passwordRecoveryMailRoute->method('sendRecoveryMail')->willThrowException(new RateLimitExceededException(time() + 10, new MockClock()));
 
         $controller = new AuthController(
             static::getContainer()->get(AccountLoginPageLoader::class),
@@ -217,7 +218,7 @@ class ControllerRateLimiterTest extends TestCase
     public function testFormControllerRateLimit(): void
     {
         $contactFormRoute = $this->createMock(AbstractContactFormRoute::class);
-        $contactFormRoute->method('load')->willThrowException(new RateLimitExceededException(time() + 5));
+        $contactFormRoute->method('load')->willThrowException(new RateLimitExceededException(time() + 5, new MockClock()));
 
         $controller = new FormController(
             $contactFormRoute,

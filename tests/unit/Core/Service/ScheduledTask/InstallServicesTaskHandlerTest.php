@@ -8,6 +8,7 @@ use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Service\LifecycleManager;
 use Shopware\Core\Service\ScheduledTask\InstallServicesTaskHandler;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -24,7 +25,8 @@ class InstallServicesTaskHandlerTest extends TestCase
         $handler = new InstallServicesTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
-            $manager,
+            new MockClock(),
+            $manager
         );
 
         $handler->run();

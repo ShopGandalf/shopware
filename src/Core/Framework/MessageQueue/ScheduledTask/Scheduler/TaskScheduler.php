@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -40,6 +41,7 @@ class TaskScheduler
         private readonly EntityRepository $scheduledTaskRepository,
         private readonly MessageBusInterface $bus,
         private readonly ParameterBagInterface $parameterBag,
+        private readonly ClockInterface $clock,
         private readonly int $requeueTimeout,
     ) {
     }
@@ -83,7 +85,7 @@ class TaskScheduler
             return null;
         }
 
-        return new \DateTime((string) $aggregation->getMin());
+        return \DateTime::createFromInterface($this->clock->now()->modify((string) $aggregation->getMin()));
     }
 
     public function getMinRunInterval(): ?int
@@ -116,7 +118,7 @@ class TaskScheduler
                             new RangeFilter(
                                 'nextExecutionTime',
                                 [
-                                    RangeFilter::LT => (new \DateTime())->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+                                    RangeFilter::LT => $this->clock->now()->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                                 ]
                             ),
                             new EqualsAnyFilter('status', [
@@ -132,7 +134,7 @@ class TaskScheduler
                             new RangeFilter(
                                 'updatedAt',
                                 [
-                                    RangeFilter::LT => (new \DateTime())
+                                    RangeFilter::LT => $this->clock->now()
                                         ->modify(\sprintf('-%d hours', $this->requeueTimeout))
                                         ->format(Defaults::STORAGE_DATE_TIME_FORMAT),
                                 ]
@@ -216,7 +218,7 @@ class TaskScheduler
 
     private function calculateNextExecutionTime(ScheduledTaskEntity $taskEntity): \DateTimeImmutable
     {
-        $now = new \DateTimeImmutable();
+        $now = $this->clock->now();
 
         $nextExecutionTimeString = $taskEntity->getNextExecutionTime()->format(Defaults::STORAGE_DATE_TIME_FORMAT);
         $nextExecutionTime = new \DateTimeImmutable($nextExecutionTimeString);

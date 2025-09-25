@@ -26,6 +26,7 @@ use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Storefront\Framework\Seo\SeoUrlRoute\ProductPageSeoUrlRoute;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -123,6 +124,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         return new ProductExportGenerateTaskHandler(
             static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
+            new MockClock(),
             static::getContainer()->get(SalesChannelContextFactory::class),
             static::getContainer()->get('sales_channel.repository'),
             static::getContainer()->get('product_export.repository'),

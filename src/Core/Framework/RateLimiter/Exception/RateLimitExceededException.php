@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter\Exception;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\ShopwareHttpException;
 use Symfony\Component\HttpFoundation\Response;
@@ -13,9 +14,10 @@ class RateLimitExceededException extends ShopwareHttpException
 
     public function __construct(
         private readonly int $retryAfter,
-        ?\Throwable $e = null
+        ClockInterface $clock,
+        ?\Throwable $e = null,
     ) {
-        $this->now = time();
+        $this->now = $clock->now()->getTimestamp();
 
         parent::__construct(
             'Too many requests, try again in {{ seconds }} seconds.',

@@ -547,6 +547,7 @@
         <service id="Shopware\Core\Content\Product\Cleanup\CleanupProductKeywordDictionaryTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <tag name="messenger.message_handler"/>
         </service>
@@ -558,6 +559,7 @@
         <service id="Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="service" id="Shopware\Core\Content\Media\UnusedMediaPurger"/>
             <tag name="messenger.message_handler"/>
         </service>

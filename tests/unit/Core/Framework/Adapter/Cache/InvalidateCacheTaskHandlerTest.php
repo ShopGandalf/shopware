@@ -3,11 +3,13 @@
 namespace Shopware\Tests\Unit\Core\Framework\Adapter\Cache;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Adapter\Cache\CacheInvalidator;
 use Shopware\Core\Framework\Adapter\Cache\InvalidateCacheTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -15,7 +17,8 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 #[CoversClass(InvalidateCacheTaskHandler::class)]
 class InvalidateCacheTaskHandlerTest extends TestCase
 {
-    public function testRunWithoutDelay(): void
+    #[TestDox('Invalidates expired cache entries')]
+    public function testInvalidatesExpiredCache(): void
     {
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
         $cacheInvalidator->expects($this->once())->method('invalidateExpired');
@@ -23,24 +26,13 @@ class InvalidateCacheTaskHandlerTest extends TestCase
         $handler = new InvalidateCacheTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            new MockClock(),
             $cacheInvalidator
         );
         $handler->run();
     }
 
-    public function testRunWithDelay(): void
-    {
-        $cacheInvalidator = $this->createMock(CacheInvalidator::class);
-        $cacheInvalidator->expects($this->once())->method('invalidateExpired');
-
-        $handler = new InvalidateCacheTaskHandler(
-            $this->createMock(EntityRepository::class),
-            $this->createMock(LoggerInterface::class),
-            $cacheInvalidator
-        );
-        $handler->run();
-    }
-
+    #[TestDox('Handles invalidation errors gracefully')]
     public function testRunDoesCatchException(): void
     {
         $cacheInvalidator = $this->createMock(CacheInvalidator::class);
@@ -51,6 +43,7 @@ class InvalidateCacheTaskHandlerTest extends TestCase
         $handler = new InvalidateCacheTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            new MockClock(),
             $cacheInvalidator
         );
         $handler->run();

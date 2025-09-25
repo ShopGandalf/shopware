@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\MessageQueue\Stats;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Adapter\Messenger\Stamp\SentAtStamp;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsResponseEntity;
@@ -15,6 +16,7 @@ class StatsService
 {
     public function __construct(
         private readonly AbstractStatsRepository $statsRepository,
+        private readonly ClockInterface $clock,
         private readonly bool $enabled,
     ) {
     }
@@ -42,7 +44,7 @@ class StatsService
             return;
         }
 
-        $timeInQueue = time() - $sentAtStamp->getSentAt()->getTimestamp();
+        $timeInQueue = $this->clock->now()->getTimestamp() - $sentAtStamp->getSentAt()->getTimestamp();
         $messageFqcn = $envelope->getMessage()::class;
         $this->statsRepository->updateMessageStats($messageFqcn, $timeInQueue);
     }

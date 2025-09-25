@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\RateLimiter;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 
@@ -27,7 +28,15 @@ class RateLimiter
     /**
      * @var array<string, RateLimiterFactory>
      */
-    private array $factories;
+    private array $factories = [];
+
+    /**
+     * @internal
+     */
+    public function __construct(
+        private readonly ClockInterface $clock
+    ) {
+    }
 
     public function reset(string $route, string $key): void
     {
@@ -39,7 +48,7 @@ class RateLimiter
         $limiter = $this->getFactory($route)->create($key)->consume();
 
         if (!$limiter->isAccepted()) {
-            throw new RateLimitExceededException($limiter->getRetryAfter()->getTimestamp());
+            throw new RateLimitExceededException($limiter->getRetryAfter()->getTimestamp(), $this->clock);
         }
     }
 

@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductStream\ScheduledTask;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ProductStream\ProductStreamCollection;
 use Shopware\Core\Framework\Context;
@@ -30,9 +31,10 @@ final class UpdateProductStreamMappingTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $repository,
         LoggerInterface $logger,
+        ClockInterface $clock,
         private readonly EntityRepository $productStreamRepository
     ) {
-        parent::__construct($repository, $logger);
+        parent::__construct($repository, $logger, $clock);
     }
 
     public function run(): void

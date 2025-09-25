@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\App\ScheduledTask;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\App\Lifecycle\Update\AbstractAppUpdater;
 use Shopware\Core\Framework\Context;
@@ -23,9 +24,10 @@ final class UpdateAppsHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
+        ClockInterface $clock,
         private readonly AbstractAppUpdater $appUpdater
     ) {
-        parent::__construct($scheduledTaskRepository, $logger);
+        parent::__construct($scheduledTaskRepository, $logger, $clock);
     }
 
     public function run(): void

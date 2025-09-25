@@ -6,6 +6,7 @@ use Doctrine\DBAL\Connection;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
 use GuzzleHttp\Psr7\Request;
+use Psr\Clock\ClockInterface;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\App\AppLocaleProvider;
@@ -59,6 +60,7 @@ class WebhookManager implements ResetInterface
         private readonly AppPayloadServiceHelper $appPayloadServiceHelper,
         private readonly Client $guzzle,
         private readonly MessageBusInterface $bus,
+        private readonly ClockInterface $clock,
         private readonly string $shopUrl,
         private readonly string $shopwareVersion,
         private readonly bool $isAdminWorkerEnabled,
@@ -206,7 +208,7 @@ class WebhookManager implements ResetInterface
                 continue;
             }
 
-            $timestamp = time();
+            $timestamp = $this->clock->now()->getTimestamp();
             $webhookData['timestamp'] = $timestamp;
 
             $jsonPayload = json_encode($webhookData, \JSON_THROW_ON_ERROR);

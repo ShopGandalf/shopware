@@ -13,6 +13,7 @@ use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelApiTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\Traits\CustomerTestTrait;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\Exception\ReserveNotSupportedException;
 use Symfony\Component\RateLimiter\LimiterInterface;
@@ -67,7 +68,8 @@ class TimeBackoffLimiterTest extends TestCase
             $this->config,
             new CacheStorage(new ArrayAdapter()),
             $this->createMock(SystemConfigService::class),
-            $this->createMock(LockFactory::class)
+            $this->createMock(LockFactory::class),
+            new MockClock()
         );
 
         $this->limiter = $factory->create('example');

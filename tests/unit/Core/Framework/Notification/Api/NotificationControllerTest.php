@@ -16,6 +16,7 @@ use Shopware\Core\Framework\Notification\NotificationService;
 use Shopware\Core\Framework\RateLimiter\Exception\RateLimitExceededException;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\Routing\RoutingException;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
 
 /**
@@ -74,7 +75,7 @@ class NotificationControllerTest extends TestCase
 
     public function testSaveNotificationThrowsApiExceptionWhenLimitIsReachedAndUserIdExists(): void
     {
-        $exception = new RateLimitExceededException(42);
+        $exception = new RateLimitExceededException(42, new MockClock());
         $this->expectExceptionObject(ApiException::notificationThrottled($exception->getWaitTime(), $exception));
 
         $this->rateLimiter->expects($this->once())->method('ensureAccepted')
@@ -88,7 +89,7 @@ class NotificationControllerTest extends TestCase
     public function testSaveNotificationThrowsApiExceptionWhenLimitIsReachedAndUserIdIsNull(): void
     {
         $this->context = Context::createDefaultContext(new AdminApiSource(null, '345'));
-        $exception = new RateLimitExceededException(12);
+        $exception = new RateLimitExceededException(12, new MockClock());
         $this->expectExceptionObject(ApiException::notificationThrottled($exception->getWaitTime(), $exception));
 
         $this->rateLimiter->expects($this->once())->method('ensureAccepted')

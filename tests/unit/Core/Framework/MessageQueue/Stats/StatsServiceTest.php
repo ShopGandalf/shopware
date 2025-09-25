@@ -12,6 +12,7 @@ use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageTypeStatsEntity;
 use Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository;
 use Shopware\Core\Framework\MessageQueue\Stats\StatsService;
 use Symfony\Bridge\PhpUnit\ClockMock;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Messenger\Envelope;
 
 /**
@@ -39,7 +40,7 @@ class StatsServiceTest extends TestCase
         $repositoryMock->expects($this->once())
             ->method('getStats')
             ->willReturn($returnVal);
-        $service = new StatsService($repositoryMock, true);
+        $service = new StatsService($repositoryMock, new MockClock(), true);
         $response = $service->getStats();
 
         static::assertTrue($response->enabled);
@@ -52,7 +53,7 @@ class StatsServiceTest extends TestCase
         $repositoryMock->expects($this->once())
             ->method('getStats')
             ->willReturn(null);
-        $service = new StatsService($repositoryMock, true);
+        $service = new StatsService($repositoryMock, new MockClock(), true);
         $response = $service->getStats();
 
         static::assertTrue($response->enabled);
@@ -65,7 +66,7 @@ class StatsServiceTest extends TestCase
         $repositoryMock->expects($this->never())
             ->method('getStats');
 
-        $service = new StatsService($repositoryMock, false);
+        $service = new StatsService($repositoryMock, new MockClock(), false);
         $response = $service->getStats();
 
         static::assertFalse($response->enabled);
@@ -78,7 +79,7 @@ class StatsServiceTest extends TestCase
         $repository->expects($this->never())
             ->method('updateMessageStats');
 
-        $service = new StatsService($repository, true);
+        $service = new StatsService($repository, new MockClock(), true);
         $envelope = new Envelope(new \stdClass());
 
         $service->registerMessage($envelope);
@@ -90,7 +91,7 @@ class StatsServiceTest extends TestCase
         $repository->expects($this->never())
             ->method('updateMessageStats');
 
-        $service = new StatsService($repository, false);
+        $service = new StatsService($repository, new MockClock(), false);
         $envelope = new Envelope(new \stdClass(), [
             new SentAtStamp(new \DateTimeImmutable('@' . 123456789)),
         ]);
@@ -113,7 +114,7 @@ class StatsServiceTest extends TestCase
                 static::equalTo(time() - 123456789),
             );
 
-        $service = new StatsService($repository, true);
+        $service = new StatsService($repository, new MockClock(), true);
         $envelope = new Envelope(new \stdClass(), [
             new SentAtStamp(new \DateTimeImmutable('@' . 123456789)),
         ]);

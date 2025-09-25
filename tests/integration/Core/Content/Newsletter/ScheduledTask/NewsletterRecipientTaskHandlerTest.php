@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\RangeFilter;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseHelper\ReflectionHelper;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -85,6 +86,7 @@ class NewsletterRecipientTaskHandlerTest extends TestCase
         return new NewsletterRecipientTaskHandler(
             static::getContainer()->get('scheduled_task.repository'),
             $this->createMock(LoggerInterface::class),
+            new MockClock(),
             static::getContainer()->get('newsletter_recipient.repository')
         );
     }

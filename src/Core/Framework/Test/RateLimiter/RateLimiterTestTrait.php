@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Test\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiter;
 use Shopware\Core\Framework\RateLimiter\RateLimiterFactory;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\RateLimiter\LimiterInterface;
 use Symfony\Component\RateLimiter\RateLimit;
 
@@ -17,7 +18,7 @@ trait RateLimiterTestTrait
      */
     private function mockResetLimiter(array $factories): RateLimiter
     {
-        $rateLimiter = new RateLimiter();
+        $rateLimiter = new RateLimiter(new MockClock());
 
         foreach ($factories as $factory => $expects) {
             $limiter = $this->createMock(LimiterInterface::class);

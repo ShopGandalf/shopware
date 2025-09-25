@@ -33,6 +33,7 @@ use Shopware\Core\Framework\Webhook\Service\WebhookManager;
 use Shopware\Core\Framework\Webhook\Webhook;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Contracts\EventDispatcher\Event;
 
@@ -423,6 +424,7 @@ class WebhookManagerTest extends TestCase
             $appPayloadServiceHelper,
             $this->client,
             $this->bus,
+            new MockClock(),
             'https://example.com',
             '0.0.0',
             $isAdminWorkerEnabled

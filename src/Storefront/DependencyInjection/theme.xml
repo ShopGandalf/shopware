@@ -172,6 +172,7 @@
         <service id="Shopware\Storefront\Theme\ScheduledTask\DeleteThemeFilesTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="service" id="Doctrine\DBAL\Connection"/>
             <argument type="service" id="shopware.filesystem.theme"/>
             <argument type="service" id="Shopware\Storefront\Theme\AbstractThemePathBuilder"/>

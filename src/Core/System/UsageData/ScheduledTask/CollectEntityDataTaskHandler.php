@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\System\UsageData\ScheduledTask;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -23,9 +24,10 @@ final class CollectEntityDataTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $repository,
         LoggerInterface $logger,
+        ClockInterface $clock,
         private readonly EntityDispatchService $entityDispatchService,
     ) {
-        parent::__construct($repository, $logger);
+        parent::__construct($repository, $logger, $clock);
     }
 
     public function run(): void

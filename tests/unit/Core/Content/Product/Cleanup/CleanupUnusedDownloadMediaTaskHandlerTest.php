@@ -3,6 +3,7 @@
 namespace Shopware\Tests\Unit\Core\Content\Product\Cleanup;
 
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -10,6 +11,7 @@ use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
 use Shopware\Core\Content\Product\Cleanup\CleanupUnusedDownloadMediaTaskHandler;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -28,10 +30,12 @@ class CleanupUnusedDownloadMediaTaskHandlerTest extends TestCase
         $this->handler = new CleanupUnusedDownloadMediaTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            new MockClock(),
             $this->purger
         );
     }
 
+    #[TestDox('Delegates unused media cleanup to purger service')]
     public function testRun(): void
     {
         $this->purger

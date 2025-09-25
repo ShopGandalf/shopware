@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -22,10 +23,11 @@ final class DummyScheduledTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
+        ClockInterface $clock,
         private readonly string $taskId,
         private readonly bool $shouldThrowException = false
     ) {
-        parent::__construct($scheduledTaskRepository, $logger);
+        parent::__construct($scheduledTaskRepository, $logger, $clock);
     }
 
     public function run(): void

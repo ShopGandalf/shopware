@@ -3,6 +3,7 @@
 namespace Shopware\Core\Framework\MessageQueue\Stats;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\Entity\MessageStatsEntity;
@@ -21,9 +22,10 @@ class MySQLStatsRepository extends AbstractStatsRepository
 
     public function __construct(
         private readonly Connection $connection,
+        ClockInterface $clock,
         int $timeSpan,
     ) {
-        parent::__construct($timeSpan);
+        parent::__construct($timeSpan, $clock);
     }
 
     public function updateMessageStats(string $messageFqcn, int $timeInQueue): void

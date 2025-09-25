@@ -11,6 +11,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\System\UsageData\ScheduledTask\CollectEntityDataTaskHandler;
 use Shopware\Core\System\UsageData\Services\EntityDispatchService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -31,6 +32,7 @@ class CollectEntityDataTaskHandlerTest extends TestCase
         $taskHandler = new CollectEntityDataTaskHandler(
             $repository,
             $this->createMock(LoggerInterface::class),
+            new MockClock(),
             $entityDispatchService
         );
 

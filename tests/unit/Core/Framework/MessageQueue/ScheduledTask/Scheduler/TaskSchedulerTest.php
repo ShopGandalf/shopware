@@ -20,6 +20,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskDefinition;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskEntity;
 use Shopware\Core\Framework\MessageQueue\ScheduledTask\Scheduler\TaskScheduler;
 use Shopware\Core\Test\Annotation\DisabledFeatures;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\Messenger\Envelope;
@@ -45,6 +46,7 @@ class TaskSchedulerTest extends TestCase
             $scheduledTaskRepository,
             $this->createMock(MessageBusInterface::class),
             new ParameterBag(),
+            new MockClock(),
             12
         );
 
@@ -93,6 +95,7 @@ class TaskSchedulerTest extends TestCase
             $scheduledTaskRepository,
             $this->createMock(MessageBusInterface::class),
             new ParameterBag(),
+            new MockClock(),
             12
         );
 
@@ -139,6 +142,7 @@ class TaskSchedulerTest extends TestCase
             $scheduledTaskRepository,
             $bus,
             new ParameterBag(),
+            new MockClock(),
             12
         );
 
@@ -181,6 +185,7 @@ class TaskSchedulerTest extends TestCase
             new ParameterBag([
                 'shopware.test.active' => false,
             ]),
+            new MockClock(),
             12
         );
 
@@ -230,6 +235,7 @@ class TaskSchedulerTest extends TestCase
             $scheduledTaskRepository,
             $bus,
             new ParameterBag(['shopware.test.active' => $shouldSchedule]),
+            new MockClock(),
             12
         );
 
@@ -263,6 +269,7 @@ class TaskSchedulerTest extends TestCase
             $scheduledTaskRepository,
             $this->createMock(MessageBusInterface::class),
             new ParameterBag(),
+            new MockClock(),
             12
         );
 

@@ -3,6 +3,7 @@
 namespace Shopware\Core\System\SalesChannel\Context\Cleanup;
 
 use Doctrine\DBAL\Connection;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Defaults;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -26,10 +27,11 @@ final class CleanupSalesChannelContextTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $repository,
         LoggerInterface $logger,
+        ClockInterface $clock,
         private readonly Connection $connection,
         private readonly int $days
     ) {
-        parent::__construct($repository, $logger);
+        parent::__construct($repository, $logger, $clock);
     }
 
     public function run(): void

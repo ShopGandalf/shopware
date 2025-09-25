@@ -5,6 +5,7 @@ namespace Shopware\Core\Framework\Webhook\Handler;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\BadResponseException;
 use GuzzleHttp\Exception\RequestException;
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\App\Exception\AppNotFoundException;
 use Shopware\Core\Framework\App\Hmac\Guzzle\AuthMiddleware;
 use Shopware\Core\Framework\Context;
@@ -37,6 +38,7 @@ final readonly class WebhookEventMessageHandler
         private Client $client,
         private EntityRepository $webhookEventLogRepository,
         private RelatedWebhooks $relatedWebhooks,
+        private ClockInterface $clock
     ) {
     }
 
@@ -47,7 +49,7 @@ final readonly class WebhookEventMessageHandler
         $payload = $message->getPayload();
         $url = $message->getUrl();
 
-        $timestamp = time();
+        $timestamp = $this->clock->now()->getTimestamp();
         $payload['timestamp'] = $timestamp;
 
         $jsonPayload = json_encode($payload, \JSON_THROW_ON_ERROR);
@@ -91,7 +93,7 @@ final readonly class WebhookEventMessageHandler
                 [
                     'id' => $message->getWebhookEventId(),
                     'deliveryStatus' => WebhookEventLogDefinition::STATUS_SUCCESS,
-                    'processingTime' => time() - $timestamp,
+                    'processingTime' => $this->clock->now()->getTimestamp() - $timestamp,
                     'responseContent' => [
                         'headers' => $response->getHeaders(),
                         'body' => \json_decode($response->getBody()->getContents(), true),
@@ -111,7 +113,7 @@ final readonly class WebhookEventMessageHandler
             $payload = [
                 'id' => $message->getWebhookEventId(),
                 'deliveryStatus' => WebhookEventLogDefinition::STATUS_QUEUED, // we use the message retry mechanism to retry the message here so we set the status to queued, because it will be automatically executed again.
-                'processingTime' => time() - $timestamp,
+                'processingTime' => $this->clock->now()->getTimestamp() - $timestamp,
             ];
 
             if ($e instanceof RequestException && $e->getResponse() !== null) {

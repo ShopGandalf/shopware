@@ -8,6 +8,7 @@ use Doctrine\DBAL\Connection;
 use League\Flysystem\FilesystemOperator;
 use League\Flysystem\FilesystemReader;
 use League\Flysystem\StorageAttributes;
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
@@ -25,11 +26,12 @@ final class DeleteThemeFilesTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $exceptionLogger,
+        ClockInterface $clock,
         private readonly Connection $connection,
         private readonly FilesystemOperator $themeFileSystem,
         private readonly AbstractThemePathBuilder $themePathBuilder,
     ) {
-        parent::__construct($scheduledTaskRepository, $exceptionLogger);
+        parent::__construct($scheduledTaskRepository, $exceptionLogger, $clock);
     }
 
     public function run(): void

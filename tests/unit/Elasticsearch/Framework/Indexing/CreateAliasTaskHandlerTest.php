@@ -12,6 +12,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Elasticsearch\Framework\ElasticsearchHelper;
 use Shopware\Elasticsearch\Framework\Indexing\CreateAliasTaskHandler;
 use Shopware\Elasticsearch\Framework\Indexing\Event\ElasticsearchIndexAliasSwitchedEvent;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
 /**
@@ -36,11 +37,12 @@ class CreateAliasTaskHandlerTest extends TestCase
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            new MockClock(),
             $this->createMock(Client::class),
             $connection,
             $elasticsearchHelper,
             [],
-            new EventDispatcher(),
+            new EventDispatcher()
         );
 
         $handler->run();
@@ -60,11 +62,12 @@ class CreateAliasTaskHandlerTest extends TestCase
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            new MockClock(),
             $client,
             $connection,
             $this->createMock(ElasticsearchHelper::class),
             [],
-            new EventDispatcher(),
+            new EventDispatcher()
         );
 
         $handler->run();
@@ -134,11 +137,12 @@ class CreateAliasTaskHandlerTest extends TestCase
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            new MockClock(),
             $client,
             $connection,
             $this->createMock(ElasticsearchHelper::class),
             ['settings' => ['index' => ['number_of_replicas' => 1]]],
-            $eventDispatcher,
+            $eventDispatcher
         );
 
         $handler->run();
@@ -208,11 +212,12 @@ class CreateAliasTaskHandlerTest extends TestCase
         $handler = new CreateAliasTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            new MockClock(),
             $client,
             $connection,
             $this->createMock(ElasticsearchHelper::class),
             ['settings' => ['index' => ['number_of_replicas' => 1]]],
-            new EventDispatcher(),
+            new EventDispatcher()
         );
 
         $handler->run();

@@ -19,6 +19,7 @@ use Shopware\Core\System\SalesChannel\SalesChannelCollection;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\MessageBus\CollectingMessageBus;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -38,6 +39,7 @@ class ProductExportGenerateTaskHandlerTest extends TestCase
         $productExportGenerateTaskHandler = new ProductExportGenerateTaskHandler(
             $this->createMock(EntityRepository::class),
             $this->createMock(LoggerInterface::class),
+            new MockClock(),
             $salesChannelContextFactoryMock,
             $salesChannelRepositoryMock,
             $productExportRepositoryMock,

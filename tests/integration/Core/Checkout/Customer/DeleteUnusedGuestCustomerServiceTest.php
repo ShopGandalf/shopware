@@ -2,6 +2,8 @@
 
 namespace Shopware\Tests\Integration\Core\Checkout\Customer;
 
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
@@ -46,6 +48,64 @@ class DeleteUnusedGuestCustomerServiceTest extends TestCase
         static::getContainer()
             ->get(SystemConfigService::class)
             ->set('core.loginRegistration.unusedGuestCustomerLifetime', 86400);
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function guestsOlderThanThresholdProvider(): \Generator
+    {
+        yield 'at threshold (24 hours old)' => ['- 24 hours'];
+        yield 'just past threshold (25 hours old)' => ['- 25 hours'];
+    }
+
+    #[DataProvider('guestsOlderThanThresholdProvider')]
+    #[TestDox('Deletes guest customers older than threshold')]
+    public function testDeletesGuestCustomersOlderThanThreshold(string $age): void
+    {
+        $context = Context::createDefaultContext();
+        $customerRepository = static::getContainer()->get('customer.repository');
+
+        $customer = (new CustomerBuilder($this->ids, '10000'))
+            ->add('guest', true)
+            ->add('createdAt', new \DateTime($age));
+
+        $customerRepository->create([$customer->build()], $context);
+
+        $this->service->deleteUnusedCustomers($context);
+
+        $result = $customerRepository->search(new Criteria([$this->ids->get('10000')]), $context);
+
+        static::assertSame(0, $result->getTotal(), 'Customer should have been deleted');
+    }
+
+    /**
+     * @return \Generator<string, array{string}>
+     */
+    public static function guestsYoungerThanThresholdProvider(): \Generator
+    {
+        yield 'fresh guest (1 hour old)' => ['- 1 hour'];
+        yield 'near threshold (23 hours old)' => ['- 23 hours'];
+    }
+
+    #[DataProvider('guestsYoungerThanThresholdProvider')]
+    #[TestDox('Retains guest customers younger than threshold')]
+    public function testRetainsGuestCustomersYoungerThanThreshold(string $age): void
+    {
+        $context = Context::createDefaultContext();
+        $customerRepository = static::getContainer()->get('customer.repository');
+
+        $customer = (new CustomerBuilder($this->ids, '10000'))
+            ->add('guest', true)
+            ->add('createdAt', new \DateTime($age));
+
+        $customerRepository->create([$customer->build()], $context);
+
+        $this->service->deleteUnusedCustomers($context);
+
+        $result = $customerRepository->search(new Criteria([$this->ids->get('10000')]), $context);
+
+        static::assertSame(1, $result->getTotal(), 'Customer should not have been deleted');
     }
 
     public function testItDeletesUnusedGuestCustomer(): void

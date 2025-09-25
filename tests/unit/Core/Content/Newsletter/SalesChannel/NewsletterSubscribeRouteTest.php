@@ -32,6 +32,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticEntityRepository;
 use Shopware\Core\Test\Stub\SystemConfigService\StaticSystemConfigService;
 use Shopware\Core\Test\TestDefaults;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Validator\Constraints\NotBlank;
@@ -297,7 +298,7 @@ class NewsletterSubscribeRouteTest extends TestCase
         $rateLimiterMock
             ->expects($this->once())
             ->method('ensureAccepted')
-            ->willThrowException(new RateLimitExceededException(2));
+            ->willThrowException(new RateLimitExceededException(2, new MockClock()));
 
         $newsletterSubscribeRoute = new NewsletterSubscribeRoute(
             $this->createMock(EntityRepository::class),

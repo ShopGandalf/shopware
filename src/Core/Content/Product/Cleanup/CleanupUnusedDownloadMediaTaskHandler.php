@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\Product\Cleanup;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\Media\UnusedMediaPurger;
 use Shopware\Core\Content\Product\Aggregate\ProductDownload\ProductDownloadDefinition;
@@ -24,9 +25,10 @@ final class CleanupUnusedDownloadMediaTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $repository,
         LoggerInterface $logger,
+        ClockInterface $clock,
         private readonly UnusedMediaPurger $unusedMediaPurger
     ) {
-        parent::__construct($repository, $logger);
+        parent::__construct($repository, $logger, $clock);
     }
 
     public function run(): void

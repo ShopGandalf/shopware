@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Checkout\Cart\Cleanup;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Checkout\Cart\AbstractCartPersister;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -25,10 +26,11 @@ final class CleanupCartTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
+        ClockInterface $clock,
         private readonly AbstractCartPersister $cartPersister,
         private readonly int $days
     ) {
-        parent::__construct($scheduledTaskRepository, $logger);
+        parent::__construct($scheduledTaskRepository, $logger, $clock);
     }
 
     public function run(): void

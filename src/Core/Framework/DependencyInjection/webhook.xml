@@ -23,6 +23,7 @@
             <argument type="service" id="Shopware\Core\Framework\App\Payload\AppPayloadServiceHelper"/>
             <argument type="service" id="shopware.app_system.guzzle"/>
             <argument type="service" id="Symfony\Component\Messenger\MessageBusInterface"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="string">%env(APP_URL)%</argument>
             <argument>%kernel.shopware_version%</argument>
             <argument>%shopware.admin_worker.enable_admin_worker%</argument>
@@ -73,6 +74,7 @@
             <argument type="service" id="shopware.app_system.guzzle"/>
             <argument type="service" id="webhook_event_log.repository"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\RelatedWebhooks"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
 
             <tag name="messenger.message_handler"/>
         </service>
@@ -96,6 +98,7 @@
         <service id="Shopware\Core\Framework\Webhook\ScheduledTask\CleanupWebhookEventLogTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="service" id="Shopware\Core\Framework\Webhook\Service\WebhookCleanup"/>
             <tag name="messenger.message_handler"/>
         </service>

@@ -528,6 +528,7 @@ frame-ancestors 'none';
         <service id="Shopware\Core\Framework\Log\ScheduledTask\LogCleanupTaskHandler">
             <argument type="service" id="scheduled_task.repository"/>
             <argument type="service" id="logger"/>
+            <argument type="service" id="Psr\Clock\ClockInterface"/>
             <argument type="service" id="Shopware\Core\System\SystemConfig\SystemConfigService" />
             <argument type="service" id="Doctrine\DBAL\Connection" />
 

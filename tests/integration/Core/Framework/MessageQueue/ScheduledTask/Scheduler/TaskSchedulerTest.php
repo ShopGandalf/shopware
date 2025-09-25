@@ -5,6 +5,7 @@ namespace Shopware\Tests\Integration\Core\Framework\MessageQueue\ScheduledTask\S
 use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Defaults;
@@ -19,6 +20,7 @@ use Shopware\Core\Framework\Test\MessageQueue\fixtures\FooMessage;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Tests\Integration\Core\Framework\MessageQueue\fixtures\TestTask;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
@@ -47,7 +49,7 @@ class TaskSchedulerTest extends TestCase
         $this->scheduledTaskRepo = static::getContainer()->get('scheduled_task.repository');
         $this->messageBus = $this->createMock(MessageBusInterface::class);
 
-        $this->scheduler = new TaskScheduler($this->scheduledTaskRepo, $this->messageBus, new ParameterBag(), 12);
+        $this->scheduler = new TaskScheduler($this->scheduledTaskRepo, $this->messageBus, new ParameterBag(), new MockClock(), 12);
 
         $this->connection = static::getContainer()->get(Connection::class);
     }
@@ -85,7 +87,19 @@ class TaskSchedulerTest extends TestCase
         static::assertSame(ScheduledTaskDefinition::STATUS_QUEUED, $task->getStatus());
     }
 
-    public function testScheduleTasksGetsRequeuedAfterItIsStuck(): void
+    /**
+     * @return \Generator<string, array{int}>
+     */
+    public static function notStuckTaskTimeProvider(): \Generator
+    {
+        yield 'well before threshold (6 hours)' => [6 * 60];
+        yield 'before threshold (11 hours)' => [11 * 60];
+        yield 'just before threshold (11 hours 59 min)' => [11 * 60 + 59];
+    }
+
+    #[DataProvider('notStuckTaskTimeProvider')]
+    #[TestDox('Does not requeue tasks running for $stuckMinutes minutes')]
+    public function testDoesNotRequeueTasksNotStuck(int $stuckMinutes): void
     {
         $this->connection->executeStatement('DELETE FROM scheduled_task');
 
@@ -102,14 +116,64 @@ class TaskSchedulerTest extends TestCase
             ],
         ], Context::createDefaultContext());
 
-        // Fake that the task was updated 12 hours ago, so it is stuck
+        // Fake that the task was updated X minutes ago
         $this->connection->executeStatement('
             UPDATE scheduled_task
             SET updated_at = :time
             WHERE id = :id
         ', [
             'id' => Uuid::fromHexToBytes($taskId),
-            'time' => (new \DateTime())->modify('-12 hours')->modify('-1 seconds')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+            'time' => (new \DateTime())->modify(\sprintf('-%d minutes', $stuckMinutes))->modify('-1 seconds')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
+        ]);
+
+        $this->messageBus->expects($this->never())
+            ->method('dispatch');
+
+        $this->scheduler->queueScheduledTasks();
+
+        $task = $this->scheduledTaskRepo->search(new Criteria([$taskId]), Context::createDefaultContext())->get($taskId);
+        static::assertInstanceOf(ScheduledTaskEntity::class, $task);
+        static::assertSame(ScheduledTaskDefinition::STATUS_RUNNING, $task->getStatus());
+    }
+
+    /**
+     * @return \Generator<string, array{int}>
+     */
+    public static function stuckTaskTimeProvider(): \Generator
+    {
+        yield 'at threshold (12 hours)' => [12 * 60];
+        yield 'just after threshold (12 hours 1 min)' => [12 * 60 + 1];
+        yield 'well after threshold (13 hours)' => [13 * 60];
+        yield 'significantly stuck (24 hours)' => [24 * 60];
+    }
+
+    #[DataProvider('stuckTaskTimeProvider')]
+    #[TestDox('Requeues tasks stuck for $stuckMinutes minutes')]
+    public function testRequeuesStuckTasks(int $stuckMinutes): void
+    {
+        $this->connection->executeStatement('DELETE FROM scheduled_task');
+
+        $taskId = Uuid::randomHex();
+        $this->scheduledTaskRepo->create([
+            [
+                'id' => $taskId,
+                'name' => 'test',
+                'scheduledTaskClass' => TestTask::class,
+                'runInterval' => 300,
+                'defaultRunInterval' => 300,
+                'status' => ScheduledTaskDefinition::STATUS_RUNNING,
+                'nextExecutionTime' => (new \DateTime()),
+            ],
+        ], Context::createDefaultContext());
+
+        // Fake that the task was updated X minutes ago
+        $this->connection->executeStatement('
+            UPDATE scheduled_task
+            SET updated_at = :time
+            WHERE id = :id
+        ', [
+            'id' => Uuid::fromHexToBytes($taskId),
+            'time' => (new \DateTime())->modify(\sprintf('-%d minutes', $stuckMinutes))->modify('-1 seconds')->format(Defaults::STORAGE_DATE_TIME_FORMAT),
         ]);
 
         $this->messageBus->expects($this->once())

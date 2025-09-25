@@ -18,6 +18,7 @@ use Shopware\Core\Framework\MessageQueue\ScheduledTask\ScheduledTaskCollection;
 use Shopware\Core\Framework\Test\TestCaseBase\DatabaseTransactionBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\System\SystemConfig\SystemConfigService;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -103,6 +104,7 @@ class LogCleanupTaskHandlerTest extends TestCase
         $handler = new LogCleanupTaskHandler(
             $this->scheduledTaskRepository,
             $this->createMock(LoggerInterface::class),
+            new MockClock(),
             $this->systemConfigService,
             $this->connection
         );

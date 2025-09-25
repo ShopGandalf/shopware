@@ -8,6 +8,7 @@ use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\MessageQueue\Stats\MySQLStatsRepository;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -40,7 +41,7 @@ class MySQLStatsRepositoryTest extends TestCase
         $dateInsideTimespan = $this->dateTimeFromTime($now - $timespan);
         $dateOutsideTimespan = $this->dateTimeFromTime($now - $timespan - 1);
 
-        $repository = new MySQLStatsRepositoryTestable($this->connection, $timespan);
+        $repository = new MySQLStatsRepositoryTestable($this->connection, new MockClock(), $timespan);
 
         // inserting "old" record
         $repository->setNow($dateOutsideTimespan);
@@ -60,7 +61,7 @@ class MySQLStatsRepositoryTest extends TestCase
 
     public function testGetStats(): void
     {
-        $repository = new MySQLStatsRepositoryTestable($this->connection, 20);
+        $repository = new MySQLStatsRepositoryTestable($this->connection, new MockClock(), 20);
 
         $now = $this->dateTimeFromTime(time());
         $expired = $this->dateTimeFromTime(time() - 30);

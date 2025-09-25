@@ -11,6 +11,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Store\InAppPurchase\Handler\InAppPurchaseUpdateHandler;
 use Shopware\Core\Framework\Store\InAppPurchase\Services\InAppPurchaseUpdater;
+use Symfony\Component\Clock\MockClock;
 
 /**
  * @internal
@@ -33,6 +34,7 @@ class InAppPurchaseUpdateHandlerTest extends TestCase
         $this->iapUpdateHandler = new InAppPurchaseUpdateHandler(
             $this->createMock(EntityRepository::class),
             $this->logger,
+            new MockClock(),
             $this->iapUpdater,
         );
     }

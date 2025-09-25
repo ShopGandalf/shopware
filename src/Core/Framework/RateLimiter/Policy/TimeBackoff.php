@@ -2,7 +2,9 @@
 
 namespace Shopware\Core\Framework\RateLimiter\Policy;
 
+use Psr\Clock\ClockInterface;
 use Shopware\Core\Framework\Log\Package;
+use Symfony\Component\Clock\NativeClock;
 use Symfony\Component\RateLimiter\LimiterStateInterface;
 use Symfony\Component\RateLimiter\Util\TimeUtil;
 
@@ -24,15 +26,19 @@ class TimeBackoff implements LimiterStateInterface
 
     private string $stringLimits;
 
+    private ClockInterface $clock;
+
     /**
      * @param list<TimeBackoffLimit> $limits
      */
     public function __construct(
         private readonly string $id,
         private array $limits,
-        ?int $timer = null
+        ?int $timer = null,
+        ?ClockInterface $clock = null
     ) {
-        $this->timer = $timer ?? time();
+        $this->clock = $clock ?? new NativeClock();
+        $this->timer = $timer ?? $this->clock->now()->getTimestamp();
         $this->unthrottledAttempts = min(array_column($this->limits, 'limit')) ?: 0;
     }
 
@@ -46,12 +52,15 @@ class TimeBackoff implements LimiterStateInterface
     public function __wakeup(): void
     {
         try {
-            $this->limits = json_decode($this->stringLimits, true, 512, \JSON_THROW_ON_ERROR);
+            /** @var list<TimeBackoffLimit> $limits */
+            $limits = json_decode($this->stringLimits, true, 512, \JSON_THROW_ON_ERROR);
+            $this->limits = $limits;
         } catch (\JsonException) {
             throw new \BadMethodCallException('Cannot unserialize ' . self::class);
         }
 
         unset($this->stringLimits);
+        $this->clock = new NativeClock();
     }
 
     public function getId(): string
@@ -107,7 +116,7 @@ class TimeBackoff implements LimiterStateInterface
         $limit = $this->getLimit($this->attempts + 1);
 
         if ($limit === null) {
-            $retryAfter = time();
+            $retryAfter = $this->clock->now()->getTimestamp();
         } else {
             $retryAfter = $this->timer + $this->intervalToSeconds($limit['interval']);
         }

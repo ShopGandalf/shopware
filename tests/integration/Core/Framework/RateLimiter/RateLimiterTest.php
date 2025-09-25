@@ -6,7 +6,9 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\ServerRequest;
 use League\OAuth2\Server\AuthorizationServer;
 use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\Group;
+use PHPUnit\Framework\Attributes\TestDox;
 use PHPUnit\Framework\TestCase;
 use Psr\Http\Message\ResponseInterface;
 use Shopware\Core\Checkout\Customer\SalesChannel\AccountService;
@@ -34,6 +36,7 @@ use Shopware\Core\Test\TestDefaults;
 use Symfony\Bridge\PsrHttpMessage\Factory\PsrHttpFactory;
 use Symfony\Bundle\FrameworkBundle\KernelBrowser;
 use Symfony\Component\Cache\Adapter\ArrayAdapter;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Lock\LockFactory;
 use Symfony\Component\RateLimiter\Policy\NoLimiter;
@@ -90,13 +93,24 @@ class RateLimiterTest extends TestCase
         DisableRateLimiterCompilerPass::enableNoLimit();
     }
 
-    public function testRateLimitLoginRoute(): void
+    /**
+     * @return \Generator<string, array{int}>
+     */
+    public static function authFailureWithinLimitProvider(): \Generator
+    {
+        yield 'first attempt' => [1];
+        yield 'at limit boundary' => [10];
+    }
+
+    #[DataProvider('authFailureWithinLimitProvider')]
+    #[TestDox('Rejects invalid credentials within rate limit')]
+    public function testAuthFailureWithinRateLimit(int $attemptNumber): void
     {
         $email = Uuid::randomHex() . '@example.com';
         $password = 'wrongPassword';
         $this->createCustomer($email);
 
-        for ($i = 0; $i <= 10; ++$i) {
+        for ($i = 1; $i <= $attemptNumber; ++$i) {
             $this->browser
                 ->request(
                     'POST',
@@ -106,20 +120,134 @@ class RateLimiterTest extends TestCase
                         'password' => $password,
                     ]
                 );
-
-            $response = $this->browser->getResponse()->getContent();
-            $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
-
-            static::assertArrayHasKey('errors', $response);
-
-            if ($i >= 10) {
-                static::assertSame(429, (int) $response['errors'][0]['status']);
-                static::assertSame('CHECKOUT__CUSTOMER_AUTH_THROTTLED', $response['errors'][0]['code']);
-            } else {
-                static::assertSame(401, (int) $response['errors'][0]['status']);
-                static::assertSame('Unauthorized', $response['errors'][0]['title']);
-            }
         }
+
+        $response = $this->browser->getResponse()->getContent();
+        $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame(401, (int) $response['errors'][0]['status']);
+        static::assertSame('Unauthorized', $response['errors'][0]['title']);
+    }
+
+    #[TestDox('Resets rate limit after time window')]
+    public function testRateLimitResetsAfterWindow(): void
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'wrongPassword';
+        $this->createCustomer($email);
+
+        // Exhaust the rate limit (11 attempts to trigger 429)
+        for ($i = 1; $i <= 11; ++$i) {
+            $this->browser->request(
+                'POST',
+                '/store-api/account/login',
+                [
+                    'email' => $email,
+                    'password' => $password,
+                ]
+            );
+        }
+
+        // Verify we're throttled
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame(429, (int) $response['errors'][0]['status'], 'Should be throttled after 11 attempts');
+
+        // Clear rate limiter cache to simulate time window expiry
+        $this->clearCache();
+
+        // Make another attempt after time window reset
+        $this->browser->request(
+            'POST',
+            '/store-api/account/login',
+            [
+                'email' => $email,
+                'password' => $password,
+            ]
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame(401, (int) $response['errors'][0]['status']);
+        static::assertSame('Unauthorized', $response['errors'][0]['title']);
+    }
+
+    #[TestDox('Persists rate limit within time window')]
+    public function testRateLimitPersistsWithinWindow(): void
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'wrongPassword';
+        $this->createCustomer($email);
+
+        // Exhaust the rate limit (11 attempts to trigger 429)
+        for ($i = 1; $i <= 11; ++$i) {
+            $this->browser->request(
+                'POST',
+                '/store-api/account/login',
+                [
+                    'email' => $email,
+                    'password' => $password,
+                ]
+            );
+        }
+
+        // Verify we're throttled
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame(429, (int) $response['errors'][0]['status'], 'Should be throttled after 11 attempts');
+
+        // Make another attempt without clearing cache (simulating time within window)
+        $this->browser->request(
+            'POST',
+            '/store-api/account/login',
+            [
+                'email' => $email,
+                'password' => $password,
+            ]
+        );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame(429, (int) $response['errors'][0]['status']);
+        static::assertSame('CHECKOUT__CUSTOMER_AUTH_THROTTLED', $response['errors'][0]['code']);
+    }
+
+    /**
+     * @return \Generator<string, array{int}>
+     */
+    public static function rateLimitExceededProvider(): \Generator
+    {
+        yield 'just exceeds limit' => [11];
+        yield 'well over limit' => [15];
+    }
+
+    #[DataProvider('rateLimitExceededProvider')]
+    #[TestDox('Blocks requests exceeding rate limit')]
+    public function testRateLimitExceeded(int $attemptNumber): void
+    {
+        $email = Uuid::randomHex() . '@example.com';
+        $password = 'wrongPassword';
+        $this->createCustomer($email);
+
+        for ($i = 1; $i <= $attemptNumber; ++$i) {
+            $this->browser
+                ->request(
+                    'POST',
+                    '/store-api/account/login',
+                    [
+                        'email' => $email,
+                        'password' => $password,
+                    ]
+                );
+        }
+
+        $response = $this->browser->getResponse()->getContent();
+        $response = json_decode((string) $response, true, 512, \JSON_THROW_ON_ERROR);
+
+        static::assertArrayHasKey('errors', $response);
+        static::assertSame(429, (int) $response['errors'][0]['status']);
+        static::assertSame('CHECKOUT__CUSTOMER_AUTH_THROTTLED', $response['errors'][0]['code']);
     }
 
     public function testResetRateLimitLoginRoute(): void
@@ -275,7 +403,7 @@ class RateLimiterTest extends TestCase
 
     public function testItThrowsExceptionOnInvalidRoute(): void
     {
-        $rateLimiter = new RateLimiter();
+        $rateLimiter = new RateLimiter(new MockClock());
 
         $this->expectException(\RuntimeException::class);
         $rateLimiter->reset('test', 'test-key');
@@ -301,6 +429,7 @@ class RateLimiterTest extends TestCase
             new CacheStorage(new ArrayAdapter()),
             $this->createMock(SystemConfigService::class),
             $this->createMock(LockFactory::class),
+            new MockClock(),
         );
 
         static::assertInstanceOf(NoLimiter::class, $factory->create('example'));

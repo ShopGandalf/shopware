@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Content\ProductExport\ScheduledTask;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Content\ProductExport\ProductExportCollection;
 use Shopware\Core\Content\ProductExport\ProductExportEntity;
@@ -37,12 +38,13 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
+        private readonly ClockInterface $clock,
         private readonly AbstractSalesChannelContextFactory $salesChannelContextFactory,
         private readonly EntityRepository $salesChannelRepository,
         private readonly EntityRepository $productExportRepository,
         private readonly MessageBusInterface $messageBus
     ) {
-        parent::__construct($scheduledTaskRepository, $logger);
+        parent::__construct($scheduledTaskRepository, $logger, $clock);
     }
 
     public function run(): void
@@ -56,7 +58,7 @@ final class ProductExportGenerateTaskHandler extends ScheduledTaskHandler
                 continue;
             }
 
-            $now = new \DateTimeImmutable('now');
+            $now = $this->clock->now();
 
             foreach ($productExports as $productExport) {
                 if (!$this->shouldBeRun($productExport, $now)) {

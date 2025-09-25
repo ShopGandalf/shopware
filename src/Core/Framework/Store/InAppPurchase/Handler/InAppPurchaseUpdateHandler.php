@@ -2,6 +2,7 @@
 
 namespace Shopware\Core\Framework\Store\InAppPurchase\Handler;
 
+use Psr\Clock\ClockInterface;
 use Psr\Log\LoggerInterface;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -23,9 +24,10 @@ final class InAppPurchaseUpdateHandler extends ScheduledTaskHandler
     public function __construct(
         EntityRepository $scheduledTaskRepository,
         LoggerInterface $logger,
-        private readonly InAppPurchaseUpdater $iapUpdater
+        ClockInterface $clock,
+        private readonly InAppPurchaseUpdater $iapUpdater,
     ) {
-        parent::__construct($scheduledTaskRepository, $logger);
+        parent::__construct($scheduledTaskRepository, $logger, $clock);
     }
 
     public function run(): void

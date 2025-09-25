@@ -46,6 +46,7 @@ use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\Integration\App\GuzzleHistoryCollector;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Framework\App\GuzzleTestClientBehaviour;
+use Symfony\Component\Clock\MockClock;
 use Symfony\Component\Messenger\Envelope;
 use Symfony\Component\Messenger\MessageBusInterface;
 
@@ -1066,6 +1067,7 @@ class WebhookManagerTest extends TestCase
             static::getContainer()->get(AppPayloadServiceHelper::class),
             $client ?? static::getContainer()->get('shopware.app_system.guzzle'),
             $this->bus,
+            new MockClock(),
             $this->shopUrl,
             Kernel::SHOPWARE_FALLBACK_VERSION,
             $adminWorkerEnabled
