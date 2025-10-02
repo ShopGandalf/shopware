@@ -115,6 +115,25 @@ const MODULES = [
         ]
     },
     {
+        id: 'automations',
+        name: 'Automations',
+        to: 'sw.flow.index.flows',
+        icon: 'bolt',
+        match(route) {
+            return route.name.startsWith('sw.flow') ? 'exact' : 'none';
+        },
+        children: [
+            {
+                id: 'rules',
+                name: 'Rule Builder',
+                to: 'sw.settings.rule.index',
+                match(route) {
+                    return route.name.startsWith('sw.settings.rule') ? 'exact' : 'none';
+                }
+            }
+        ]
+    },
+    {
         id: 'marketing',
         name: 'Marketing',
         icon: 'megaphone',
@@ -148,6 +167,11 @@ const MODULES = [
         icon: 'cog',
         to: 'sw.settings.index',
         match(route) {
+            const isRuleBuilderRoute = route.name?.startsWith('sw.settings.rule.');
+            if (isRuleBuilderRoute) {
+                return 'none';
+            }
+
             return route.name.startsWith('sw.settings') ? 'exact' : 'none';
         }
     },
