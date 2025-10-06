@@ -261,6 +261,10 @@ class NewsletterSubscribeRouteTest extends TestCase
                     'storefrontUrl' => 'http://localhost',
                 ]
             );
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('status', $response);
+        static::assertSame('optIn', $response['status']);
     }
 
     public function testSubscribeIfAlreadyRegisteredWithCustomFields(): void
@@ -460,6 +464,10 @@ class NewsletterSubscribeRouteTest extends TestCase
             'SELECT COUNT(*) FROM newsletter_recipient WHERE email = \'test@xn--exmple-cua.com\' AND status = \'direct\''
         );
         static::assertSame(1, $count);
+
+        $response = json_decode((string) $this->browser->getResponse()->getContent(), true, 512, \JSON_THROW_ON_ERROR);
+        static::assertArrayHasKey('status', $response);
+        static::assertSame('direct', $response['status']);
     }
 
     public static function subscribeWithDomainProvider(): \Generator
