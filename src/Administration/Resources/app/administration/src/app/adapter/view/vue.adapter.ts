@@ -403,6 +403,7 @@ export default class VueAdapter extends ViewAdapter {
             'MtSwitch',
             'MtTextField',
             'MtTextarea',
+            "MtText",
             'MtIcon',
             'MtDataTable',
             'MtPagination',
