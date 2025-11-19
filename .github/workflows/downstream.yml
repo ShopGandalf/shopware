@@ -37,7 +37,7 @@ jobs:
           repo: shopware/rufus
           workflow: .github/workflows/downstream.yml
           ref: .auto
-          timeout: 30m
+          timeout: 60m
           token: ${{ steps.sts.outputs.token }}
           env:
             NIGHTLY=${{ inputs.nightly }}
