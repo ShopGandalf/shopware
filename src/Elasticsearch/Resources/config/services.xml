@@ -57,6 +57,7 @@
             <argument type="service" id="Shopware\Core\System\Language\LanguageLoader" />
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils" />
             <argument>%elasticsearch.language_analyzer_mapping%</argument>
+            <argument type="service" id="Shopware\Core\System\Language\SalesChannelLanguageLoader" />
         </service>
 
         <service id="Shopware\Elasticsearch\Framework\ElasticsearchFieldMapper">
@@ -335,6 +336,14 @@
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
             <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
             <argument type="service" id="OpenSearch\Client"/>
+            <tag name="kernel.event_subscriber"/>
+        </service>
+
+        <service id="Shopware\Elasticsearch\Product\SalesChannelLanguageSubscriber">
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchHelper"/>
+            <argument type="service" id="Shopware\Elasticsearch\Framework\ElasticsearchRegistry"/>
+            <argument type="service" id="OpenSearch\Client"/>
+            <argument type="service" id="Shopware\Core\System\Language\SalesChannelLanguageLoader"/>
             <tag name="kernel.event_subscriber"/>
         </service>
 

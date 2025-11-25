@@ -5,6 +5,7 @@ namespace Shopware\Elasticsearch\Framework;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Language\LanguageLoaderInterface;
+use Shopware\Core\System\Language\SalesChannelLanguageLoader;
 use Shopware\Elasticsearch\Product\CustomFieldUpdater;
 
 #[Package('inventory')]
@@ -18,20 +19,24 @@ class ElasticsearchFieldBuilder
     public function __construct(
         private readonly LanguageLoaderInterface $languageLoader,
         private readonly ElasticsearchIndexingUtils $indexingUtils,
-        private readonly array $languageAnalyzerMapping
+        private readonly array $languageAnalyzerMapping,
+        private readonly SalesChannelLanguageLoader $salesChannelLanguageLoader
     ) {
     }
 
     /**
      * @param array<string, mixed> $fieldConfig
      *
-     * @description This method is used to build the mapping for translated fields
+     * @description This method is used to build the mapping for translated fields.
+     * Only languages associated with sales channels are included to optimize resource usage.
      *
      * @return array{properties: array<string, mixed>}
      */
     public function translated(array $fieldConfig): array
     {
-        $languages = $this->languageLoader->loadLanguages();
+        $allLanguages = $this->languageLoader->loadLanguages();
+
+        $languages = $this->getSalesChannelLanguages($allLanguages);
 
         $languageFields = [];
 
@@ -51,13 +56,16 @@ class ElasticsearchFieldBuilder
     }
 
     /**
-     * @description This method is used to build the mapping for translated custom fields
+     * @description This method is used to build the mapping for translated custom fields.
+     * Only languages associated with sales channels are included to optimize resource usage.
      *
      * @return array{ properties: array<string, array<string, string>> }
      */
     public function customFields(string $entity, Context $context): array
     {
-        $languages = $this->languageLoader->loadLanguages();
+        $allLanguages = $this->languageLoader->loadLanguages();
+
+        $languages = $this->getSalesChannelLanguages($allLanguages);
 
         $customFields = [];
 
@@ -100,6 +108,19 @@ class ElasticsearchFieldBuilder
                 '_count' => AbstractElasticsearchDefinition::INT_FIELD,
             ], $properties)),
         ];
+    }
+
+    /**
+     * @param array<string, array{id: string, code: string, parentId?: ?string, parentCode?: ?string}> $allLanguages
+     *
+     * @return array<string, array{id: string, code: string, parentId?: ?string, parentCode?: ?string}>
+     */
+    private function getSalesChannelLanguages(array $allLanguages): array
+    {
+        $salesChannelLanguages = $this->salesChannelLanguageLoader->loadLanguages();
+        $salesChannelLanguageIds = array_keys($salesChannelLanguages);
+
+        return array_intersect_key($allLanguages, array_flip($salesChannelLanguageIds));
     }
 
     /**

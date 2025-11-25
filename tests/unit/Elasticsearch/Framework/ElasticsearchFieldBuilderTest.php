@@ -12,6 +12,7 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 use Shopware\Elasticsearch\Framework\ElasticsearchFieldBuilder;
 use Shopware\Elasticsearch\Framework\ElasticsearchIndexingUtils;
 use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticLanguageLoader;
+use Shopware\Tests\Unit\Core\System\Language\Stubs\StaticSalesChannelLanguageLoader;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\EventDispatcher\EventDispatcher;
 
@@ -60,10 +61,21 @@ class ElasticsearchFieldBuilderTest extends TestCase
             $parameterBag,
         );
 
-        $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, [
-            'en' => 'sw_english_analyzer',
-            'de' => 'sw_german_analyzer',
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            $deLanguageId => ['sales_channel_1'],
+            $enLanguageId => ['sales_channel_1'],
+            $enInheritedLanguageId => ['sales_channel_1'],
         ]);
+
+        $builder = new ElasticsearchFieldBuilder(
+            $languageLoader,
+            $utils,
+            [
+                'en' => 'sw_english_analyzer',
+                'de' => 'sw_german_analyzer',
+            ],
+            $salesChannelLanguageLoader
+        );
 
         $result = $builder->translated(AbstractElasticsearchDefinition::SEARCH_FIELD);
 
@@ -144,7 +156,12 @@ class ElasticsearchFieldBuilderTest extends TestCase
             $parameterBag,
         );
 
-        $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, []);
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            $deLanguageId => ['sales_channel_1'],
+            $enLanguageId => ['sales_channel_1'],
+        ]);
+
+        $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, [], $salesChannelLanguageLoader);
 
         $result = $builder->customFields('product', new Context(new SystemSource()));
 
@@ -226,7 +243,11 @@ class ElasticsearchFieldBuilderTest extends TestCase
             $parameterBag,
         );
 
-        $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, []);
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            $languageId => ['sales_channel_1'],
+        ]);
+
+        $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, [], $salesChannelLanguageLoader);
 
         $result = $builder->customFields('product', Context::createDefaultContext());
 
@@ -276,5 +297,88 @@ class ElasticsearchFieldBuilderTest extends TestCase
                 ],
             ],
         ], $nestedFields);
+    }
+
+    public function testTranslatedFieldFiltersBySalesChannelLanguages(): void
+    {
+        $deLanguageId = Uuid::randomHex();
+        $enLanguageId = Uuid::randomHex();
+        $frLanguageId = Uuid::randomHex(); // Not used by any sales channel
+
+        $languageLoader = new StaticLanguageLoader([
+            $deLanguageId => [
+                'id' => $deLanguageId,
+                'code' => 'de-DE',
+            ],
+            $enLanguageId => [
+                'id' => $enLanguageId,
+                'code' => 'en-GB',
+            ],
+            $frLanguageId => [
+                'id' => $frLanguageId,
+                'code' => 'fr-FR',
+            ],
+        ]);
+
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            $deLanguageId => ['sales_channel_1'],
+            $enLanguageId => ['sales_channel_1'],
+        ]);
+
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag();
+        $connection = $this->createMock(Connection::class);
+
+        $utils = new ElasticsearchIndexingUtils($connection, $dispatcher, $parameterBag);
+
+        $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, [], $salesChannelLanguageLoader);
+
+        $result = $builder->translated(AbstractElasticsearchDefinition::SEARCH_FIELD);
+
+        static::assertArrayHasKey($deLanguageId, $result['properties']);
+        static::assertArrayHasKey($enLanguageId, $result['properties']);
+        static::assertArrayNotHasKey($frLanguageId, $result['properties']);
+    }
+
+    public function testCustomFieldsFiltersBySalesChannelLanguages(): void
+    {
+        $deLanguageId = Uuid::randomHex();
+        $enLanguageId = Uuid::randomHex();
+        $frLanguageId = Uuid::randomHex(); // Not used by any sales channel
+
+        $languageLoader = new StaticLanguageLoader([
+            $deLanguageId => [
+                'id' => $deLanguageId,
+                'code' => 'de-DE',
+            ],
+            $enLanguageId => [
+                'id' => $enLanguageId,
+                'code' => 'en-GB',
+            ],
+            $frLanguageId => [
+                'id' => $frLanguageId,
+                'code' => 'fr-FR',
+            ],
+        ]);
+
+        $salesChannelLanguageLoader = new StaticSalesChannelLanguageLoader([
+            $deLanguageId => ['sales_channel_1'],
+            $enLanguageId => ['sales_channel_1'],
+        ]);
+
+        $dispatcher = new EventDispatcher();
+        $parameterBag = new ParameterBag();
+        $connection = $this->createMock(Connection::class);
+        $connection->expects($this->once())->method('fetchAllKeyValue')->willReturn([]);
+
+        $utils = new ElasticsearchIndexingUtils($connection, $dispatcher, $parameterBag);
+
+        $builder = new ElasticsearchFieldBuilder($languageLoader, $utils, [], $salesChannelLanguageLoader);
+
+        $result = $builder->customFields('product', Context::createDefaultContext());
+
+        static::assertArrayHasKey($deLanguageId, $result['properties']);
+        static::assertArrayHasKey($enLanguageId, $result['properties']);
+        static::assertArrayNotHasKey($frLanguageId, $result['properties']);
     }
 }
