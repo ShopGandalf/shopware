@@ -1,18 +1,14 @@
 /**
  * @sw-package framework
  */
-import type { PropType } from 'vue';
 import { MtModal, MtModalAction, MtModalRoot } from '@shopware-ag/meteor-component-library';
+import useConsentStore from 'src/core/consent/consent.store';
 import template from './sw-settings-usage-data-consent-modal.html.twig';
 import './sw-settings-usage-data-consent-modal.scss';
 
 import SwSettingsUsageDataStoreDataConsentCard from './subcomponents/sw-settings-usage-data-store-data-consent-card';
 import SwSettingsUsageDataUserDataConsentCard from './subcomponents/sw-settings-usage-data-user-data-consent-card';
 import SwSettingsUsageDataConsentCheckList from './subcomponents/sw-settings-usage-data-consent-check-list';
-
-type ConsentStruct = {
-    value: boolean;
-};
 
 /**
  * @private
@@ -31,30 +27,26 @@ export default Shopware.Component.wrapComponentConfig({
 
     inject: ['acl'],
 
-    props: {
-        initialStoreDataConsent: {
-            type: Object as PropType<ConsentStruct>,
-            required: true,
-        },
-        initialUserDataConsent: {
-            type: Object as PropType<ConsentStruct>,
-            required: true,
-        },
-    },
-
     data() {
         return {
             unionPath: Shopware.Filter.getByName('asset')(
                 '/administration/administration/static/img/data-sharing/union.svg',
             ),
+            initialStoreDataConsent: false,
+            initialUserDataConsent: false,
             storeDataConsent: false,
             userDataConsent: false,
         };
     },
 
-    create() {
-        this.storeDataConsent = this.initialStoreDataConsent.value;
-        this.userDataConsent = this.initialUserDataConsent.value;
+    created() {
+        const consentStore = useConsentStore();
+
+        this.initialStoreDataConsent = consentStore.isAccepted('backend_data_consent');
+        this.storeDataConsent = this.initialStoreDataConsent;
+
+        this.initialUserDataConsent = consentStore.isAccepted('tracking_consent');
+        this.userDataConsent = this.initialUserDataConsent;
     },
 
     computed: {
@@ -63,7 +55,7 @@ export default Shopware.Component.wrapComponentConfig({
         },
 
         showStoreDataConsent() {
-            if (this.initialStoreDataConsent.value) {
+            if (this.initialStoreDataConsent) {
                 return false;
             }
 
@@ -88,16 +80,42 @@ export default Shopware.Component.wrapComponentConfig({
     },
 
     methods: {
-        savePreferences(done: () => void) {
-            done();
+        async savePreferences(done: () => void) {
+            if (this.storeDataConsent !== this.initialStoreDataConsent) {
+                if (this.storeDataConsent) {
+                    await useConsentStore().accept('backend_data_consent');
+                } else {
+                    await useConsentStore().revoke('backend_data_consent');
+                }
+            }
+
+            if (this.userDataConsent !== this.initialUserDataConsent) {
+                if (this.userDataConsent) {
+                    await useConsentStore().accept('tracking_consent');
+                } else {
+                    await useConsentStore().revoke('tracking_consent');
+                }
+            }
+
+            done()
         },
 
-        shareAll(done: () => void) {
-            done();
+        async shareAll(done: () => void) {
+            const consentStore = useConsentStore();
+
+            await consentStore.accept('tracking_consent');
+            await consentStore.accept('backend_data_consent');
+
+            done()
         },
 
-        shareNothing(done: () => void) {
-            done();
+        async shareNothing(done: () => void) {
+            const consentStore = useConsentStore();
+
+            await consentStore.revoke('tracking_consent');
+            await consentStore.revoke('backend_data_consent');
+
+            done()
         },
     },
 });
