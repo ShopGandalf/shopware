@@ -4,13 +4,10 @@
 $sw-admin-menu-color-text-secondary: darken($color-gray-300, 20%);
 $sw-admin-menu-width-expanded: 300px;
 $sw-admin-menu-width-collapsed: 80px;
-$sw-admin-menu-width-flyout: 260px;
-$sw-admin-menu-z-index-flyout: $z-index-flyout;
 $sw-admin-menu-z-index-off-canvas: $z-index-off-canvas;
 $sw-admin-menu-transition: 0.4s cubic-bezier(0.5, 0.32, 0.01, 1);
 $sw-admin-menu-off-canvas-transition: 0.4s cubic-bezier(0.3, 0, 0.15, 1);
 $sw-admin-menu-sub-menu-transition: 0.35s cubic-bezier(0.5, 0.32, 0.01, 1);
-$sw-admin-menu-flyout-transition: 0.2s cubic-bezier(0.5, 0.32, 0.01, 1);
 $sw-admin-menu-color-active: #172b4f;
 $sw-admin-menu-color-hover: #293f65;
 $sw-admin-menu-shop-status-ok: $color-emerald-500;
@@ -88,10 +85,6 @@ $sw-admin-menu-active-text: $color-white;
 
         .sw-admin-menu__headline {
             width: $sw-admin-menu-width-expanded;
-        }
-
-        .sw-admin-menu__flyout {
-            left: $sw-admin-menu-width-expanded;
         }
     }
 
@@ -410,8 +403,8 @@ $sw-admin-menu-active-text: $color-white;
         .sw-admin-menu__user-actions {
             border-left: 2px solid $sw-admin-menu-color-text-secondary;
             left: $sw-admin-menu-width-collapsed;
-            z-index: $sw-admin-menu-z-index-flyout;
-            width: $sw-admin-menu-width-flyout;
+            z-index: $z-index-flyout;
+            width: 260px;
             position: absolute;
             bottom: 0;
 
@@ -425,49 +418,6 @@ $sw-admin-menu-active-text: $color-white;
             opacity: 0;
             pointer-events: none;
         }
-    }
-
-    .flyout-enter-active,
-    .flyout-leave-active {
-        transition: all $sw-admin-menu-flyout-transition;
-        transform: translateX(0);
-    }
-
-    .flyout-enter,
-    .flyout-leave-to {
-        opacity: 0;
-        transform: translateX(-8px);
-    }
-
-    // Flyout holder
-    .sw-admin-menu_flyout-holder {
-        position: absolute;
-        left: $sw-admin-menu-width-expanded;
-        width: $sw-admin-menu-width-flyout;
-        top: 0;
-        display: block;
-        z-index: $sw-admin-menu-z-index-flyout;
-        background: $sw-admin-menu-background;
-        list-style: none;
-
-        .sw-admin-menu__navigation-list-item {
-            border-left: 2px solid transparent;
-            position: relative;
-        }
-
-        .collapsible-text {
-            opacity: 1;
-            transform: translateX(-8px);
-        }
-
-        .sw-admin-menu__navigation-link.router-link-active {
-            background: $sw-admin-menu-background-active-first-level;
-        }
-    }
-
-    // Flyout in collapsed mode
-    &.is--collapsed .sw-admin-menu_flyout-holder {
-        left: $sw-admin-menu-width-collapsed;
     }
 
     // Active menu item
@@ -493,13 +443,7 @@ $sw-admin-menu-active-text: $color-white;
         transition: all $sw-admin-menu-sub-menu-transition;
     }
 
-    .sw-admin-menu_flyout-holder .sw-admin-menu__separator {
-        padding: 0 20px;
-        border-left: 2px solid transparent;
-    }
-
-    .is--entry-expanded .sw-admin-menu__separator,
-    .sw-admin-menu_flyout-holder .sw-admin-menu__separator {
+    .is--entry-expanded .sw-admin-menu__separator {
         display: block;
 
         .sw-admin-menu__separator-line {
@@ -509,15 +453,6 @@ $sw-admin-menu-active-text: $color-white;
 
     .sw-admin-menu__sub-navigation-list .sw-admin-menu__separator:first-child {
         display: none;
-    }
-
-    // Entry is not active but flyout is open
-    .sw-admin-menu__navigation-list-item.is--flyout-enabled {
-        background: $sw-admin-menu-background-hover;
-
-        .collapsible-text {
-            color: $sw-admin-menu-active-text;
-        }
     }
 
     // Entry is expanded (but not necessarily active)
@@ -569,8 +504,7 @@ $sw-admin-menu-active-text: $color-white;
         display: none;
     }
 
-    .navigation-list-item__level-2:hover,
-    .navigation-list-item__level-2.is--flyout-enabled {
+    .navigation-list-item__level-2:hover {
         & > .sw-admin-menu__navigation-link {
             background: $sw-admin-menu-background-hover;
 
