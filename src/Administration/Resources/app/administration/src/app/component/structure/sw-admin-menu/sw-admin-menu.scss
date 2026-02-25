@@ -520,9 +520,9 @@ $sw-admin-menu-active-text: $color-white;
         }
     }
 
-    // Entry is expanded
+    // Entry is expanded (but not necessarily active)
     .sw-admin-menu__navigation-list-item.is--entry-expanded {
-        background: $sw-admin-menu-background-active-first-level;
+        background: $sw-admin-menu-background-hover;
 
         .collapsible-text,
         &:hover .collapsible-text {
@@ -534,7 +534,7 @@ $sw-admin-menu-active-text: $color-white;
         }
 
         & > .sw-admin-menu__navigation-link .collapsible-text {
-            color: $sw-admin-menu-active-text;
+            color: $sw-admin-menu-color-text-primary;
         }
 
         &:hover {

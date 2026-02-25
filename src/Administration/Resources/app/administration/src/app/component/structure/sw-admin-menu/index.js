@@ -451,23 +451,15 @@ The admin menu only supports up to three levels of nesting.`,
             );
 
             const isEntryExpanded = target.classList.contains('is--entry-expanded');
-            const isChildRouterActive = target.querySelector('a.router-link-active');
-            if (!isChildRouterActive) {
-                firstChild.classList.remove('router-link-active');
-            } else {
-                firstChild.classList.add('router-link-active');
-            }
 
             if (isEntryExpanded) {
                 this.adminMenuStore.collapseMenuEntry(entry);
 
-                firstChild.classList.remove('router-link-active');
                 firstChild.classList.remove('is--entry-expanded');
             } else {
                 this.adminMenuStore.clearExpandedMenuEntries();
                 this.adminMenuStore.expandMenuEntry(entry);
 
-                firstChild.classList.add('router-link-active');
                 target.classList.add('is--entry-expanded');
             }
 
