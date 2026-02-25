@@ -464,6 +464,7 @@ The admin menu only supports up to three levels of nesting.`,
                 firstChild.classList.remove('router-link-active');
                 firstChild.classList.remove('is--entry-expanded');
             } else {
+                this.adminMenuStore.clearExpandedMenuEntries();
                 this.adminMenuStore.expandMenuEntry(entry);
 
                 firstChild.classList.add('router-link-active');
