@@ -213,10 +213,6 @@ $sw-admin-menu-active-text: $color-white;
         position: relative;
         font-weight: $font-weight-medium;
 
-        &:hover {
-            color: #fff;
-        }
-
         .mt-icon {
             flex-shrink: 0;
         }
@@ -457,23 +453,14 @@ $sw-admin-menu-active-text: $color-white;
 
     // Entry is expanded (but not necessarily active)
     .sw-admin-menu__navigation-list-item.is--entry-expanded {
-        background: $sw-admin-menu-background-hover;
+        background: $sw-admin-menu-background;
 
-        .collapsible-text,
-        &:hover .collapsible-text {
+        .collapsible-text {
             color: $sw-admin-menu-color-text-primary;
-        }
-
-        &:hover .router-link-active .collapsible-text {
-            color: $sw-admin-menu-active-text;
         }
 
         & > .sw-admin-menu__navigation-link .collapsible-text {
             color: $sw-admin-menu-color-text-primary;
-        }
-
-        &:hover {
-            background: $sw-admin-menu-background-active-first-level;
         }
 
         .sw-admin-menu__navigation-list-item {
@@ -492,45 +479,7 @@ $sw-admin-menu-active-text: $color-white;
         }
     }
 
-    .sw-admin-menu__navigation-list-item:hover {
-        background: $sw-admin-menu-background-hover;
-
-        .collapsible-text {
-            color: $sw-admin-menu-active-text;
-        }
-    }
-
     .navigation-list-item__level-2 .sw-admin-menu__separator {
         display: none;
-    }
-
-    .navigation-list-item__level-2:hover {
-        & > .sw-admin-menu__navigation-link {
-            background: $sw-admin-menu-background-hover;
-
-            .collapsible-text {
-                color: $sw-admin-menu-active-text;
-            }
-        }
-
-        .sw-admin-menu__sub-navigation-list {
-            display: block;
-            position: absolute;
-            top: 0;
-            left: 100%;
-            background: $sw-admin-menu-background;
-
-            .sw-admin-menu__navigation-list-item {
-                display: block;
-
-                &:hover {
-                    background: $sw-admin-menu-background-hover;
-                }
-            }
-
-            .sw-admin-menu__navigation-link {
-                padding: 12px 30px;
-            }
-        }
     }
 }

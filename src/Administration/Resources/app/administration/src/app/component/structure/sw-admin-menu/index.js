@@ -456,33 +456,6 @@ The admin menu only supports up to three levels of nesting.`,
             }
         },
 
-        onMenuLeave() {
-            if (this.subMenuTimer) {
-                window.clearTimeout(this.subMenuTimer);
-            }
-
-            this.deactivatePreviousMenuItem();
-        },
-
-        onMenuItemEnter(entry, event) {
-            const target = event.target;
-
-            if (this.subMenuTimer) {
-                window.clearTimeout(this.subMenuTimer);
-            }
-
-            if (target.classList.contains('is--entry-expanded')) {
-                return;
-            }
-
-            if (!target.classList.contains('navigation-list-item__has-children')) {
-                this.deactivatePreviousMenuItem();
-                return;
-            }
-
-            this.deactivatePreviousMenuItem();
-        },
-
         getChildren(entry) {
             return entry.children.filter((child) => {
                 if (!child.privilege) {
