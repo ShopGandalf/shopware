@@ -419,12 +419,16 @@ The admin menu only supports up to three levels of nesting.`,
             const target = eventTarget.closest('.sw-admin-menu__navigation-list-item');
             const level = entry.level;
 
+            if (!this.isExpanded) {
+                this.expandAdminMenu();
+            }
+
             // Clear previous delay of the menu
             if (this.subMenuTimer) {
                 window.clearTimeout(this.subMenuTimer);
             }
 
-            if (level > 1 || !target.classList.contains('navigation-list-item__has-children') || !this.isExpanded) {
+            if (level > 1 || !target.classList.contains('navigation-list-item__has-children')) {
                 return;
             }
 
