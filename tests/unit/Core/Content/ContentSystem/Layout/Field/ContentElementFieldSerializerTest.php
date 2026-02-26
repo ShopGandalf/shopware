@@ -16,12 +16,15 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\BroadcastDistributionConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Format\Display;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Format\ElementFormat;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementFieldSerializer;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContextConsumersFieldSerializer;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContextProvidersFieldSerializer;
 use Shopware\Core\Content\ContentSystem\Layout\Field\DataRequirementsFieldSerializer;
+use Shopware\Core\Content\ContentSystem\Layout\Field\ElementFormatFieldSerializer;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ElementSlotsFieldSerializer;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -327,6 +330,22 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertInstanceOf(ContextConsumer::class, $result->getAcceptsContext()['parentData']);
     }
 
+    #[TestDox('decodes element with format data into a ContentElement with deserialized ElementFormat')]
+    public function testDecodeElementWithFormatReturnsContentElementWithFormat(): void
+    {
+        $data = [
+            'id' => 'elem-fmt',
+            'component' => 'banner',
+            'format' => [
+                'display' => ['xs' => true, 'sm' => null, 'md' => null, 'lg' => null, 'xl' => null, 'xxl' => null],
+            ],
+        ];
+
+        $result = $this->serializer->decodeElement($data);
+
+        static::assertNotSame([], $result->getFormat()->toArray());
+    }
+
     /**
      * @param array<string, string> $data
      */
@@ -429,6 +448,20 @@ class ContentElementFieldSerializerTest extends TestCase
         static::assertArrayHasKey('parentData', $result['accepts_context']);
         static::assertSame('single', $result['accepts_context']['parentData']['type']);
         static::assertFalse($result['accepts_context']['parentData']['required']);
+    }
+
+    #[TestDox('serializes ContentElement with non-empty format to array including format key')]
+    public function testSerializeContentElementWithFormatIncludesFormat(): void
+    {
+        $format = new ElementFormat(new Display(xs: true));
+        $element = ContentElementBuilder::create('banner', 'elem-with-format')
+            ->withFormat($format)
+            ->build();
+
+        $result = $this->serializer->serializeContentElement($element);
+
+        static::assertArrayHasKey('format', $result);
+        static::assertSame($format->toArray(), $result['format']);
     }
 
     #[TestDox('serializes ContentElement property using toArray when value is object with toArray method')]
@@ -561,6 +594,10 @@ class ContentElementFieldSerializerTest extends TestCase
         $contextProvidersSerializer = new ContextProvidersFieldSerializer($validator, $definitionRegistry);
         $contextConsumersSerializer = new ContextConsumersFieldSerializer($validator, $definitionRegistry);
 
+        $formatSerializer = static::createStub(ElementFormatFieldSerializer::class);
+        $formatSerializer->method('buildConstraints')->willReturn([new Type('array')]);
+        $formatSerializer->method('deserializeFormat')->willReturn(new ElementFormat(new Display(xs: true)));
+
         $realSerializer = new ContentElementFieldSerializer(
             $validator,
             $definitionRegistry,
@@ -569,7 +606,8 @@ class ContentElementFieldSerializerTest extends TestCase
             $contextConsumersSerializer,
             // ElementSlotsFieldSerializer needs ContentElementFieldSerializer — build placeholder first
             // and inject after construction via closure binding
-            new ElementSlotsFieldSerializer($validator, $definitionRegistry, $this->buildPlaceholderElementSerializer($validator, $definitionRegistry))
+            new ElementSlotsFieldSerializer($validator, $definitionRegistry, $this->buildPlaceholderElementSerializer($validator, $definitionRegistry)),
+            $formatSerializer,
         );
 
         // Build the canonical serializer with a real ElementSlotsFieldSerializer that references back
@@ -580,7 +618,8 @@ class ContentElementFieldSerializerTest extends TestCase
             $dataRequirementsSerializer,
             $contextProvidersSerializer,
             $contextConsumersSerializer,
-            $slotsSerializer
+            $slotsSerializer,
+            $formatSerializer,
         );
 
         // Passthrough validator - never raises violations for ContentElement objects
@@ -601,7 +640,8 @@ class ContentElementFieldSerializerTest extends TestCase
             $dataRequirementsSerializerPassthrough,
             $contextProvidersSerializerPassthrough,
             $contextConsumersSerializerPassthrough,
-            new ElementSlotsFieldSerializer($passthroughValidator, $definitionRegistry, $canonicalSerializer)
+            new ElementSlotsFieldSerializer($passthroughValidator, $definitionRegistry, $canonicalSerializer),
+            $formatSerializer,
         );
 
         return [$canonicalSerializer, $passthroughSerializer];
@@ -621,13 +661,18 @@ class ContentElementFieldSerializerTest extends TestCase
         $slotsSerializer->method('serializeSlots')->willReturn([]);
         $slotsSerializer->method('buildConstraints')->willReturn([new Type('array')]);
 
+        $formatSerializer = static::createStub(ElementFormatFieldSerializer::class);
+        $formatSerializer->method('buildConstraints')->willReturn([new Type('array')]);
+        $formatSerializer->method('deserializeFormat')->willReturn(new ElementFormat(new Display(xs: true)));
+
         return new ContentElementFieldSerializer(
             $validator,
             $definitionRegistry,
             $dataRequirementsSerializer,
             $contextProvidersSerializer,
             $contextConsumersSerializer,
-            $slotsSerializer
+            $slotsSerializer,
+            $formatSerializer,
         );
     }
 }

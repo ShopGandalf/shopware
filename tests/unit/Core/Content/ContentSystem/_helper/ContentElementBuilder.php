@@ -10,6 +10,7 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDefinition
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\Distribution\DistributionConfig;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Format\ElementFormat;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Uuid\Uuid;
@@ -46,6 +47,8 @@ final class ContentElementBuilder
      * @var array<string, list<ContentElement>>
      */
     private array $slots = [];
+
+    private ?ElementFormat $format = null;
 
     private function __construct(
         private readonly string $component,
@@ -103,6 +106,13 @@ final class ContentElementBuilder
         return $this;
     }
 
+    public function withFormat(ElementFormat $format): self
+    {
+        $this->format = $format;
+
+        return $this;
+    }
+
     /**
      * @param list<ContentElement> $children
      */
@@ -129,6 +139,7 @@ final class ContentElementBuilder
             component: $this->component,
             dataRequirements: $this->dataRequirements,
             properties: $this->properties,
+            format: $this->format ?? new ElementFormat(),
             slots: $slots,
             contextDefinitions: new ContextDefinitions($this->providers, $this->consumers)
         );

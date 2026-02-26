@@ -131,11 +131,12 @@ class ElementTreeUtil
             $currentElement->getComponent(),
             $currentElement->getDataRequirements(),
             $currentElement->getProperties(),
+            $currentElement->getFormat(),
             [$slotName => new SlotContent([$child])],
             new ContextDefinitions(
                 $currentElement->getProvidesContext(),
                 $currentElement->getAcceptsContext()
-            )
+            ),
         );
     }
 

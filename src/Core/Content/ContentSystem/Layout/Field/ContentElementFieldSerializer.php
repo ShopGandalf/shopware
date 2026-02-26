@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\ContentSystem\Layout\Field;
 use Shopware\Core\Content\ContentSystem\ContentSystemException;
 use Shopware\Core\Content\ContentSystem\Layout\Element\ContentElement;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDefinitions;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Format\ElementFormat;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Field;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\Required;
@@ -31,6 +32,7 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
  *   component: string,
  *   properties: array<string, mixed>,
  *   data_requirements?: array<string, DataRequirementData>,
+ *   format?: array<string, array<string, string|bool|float|null>>,
  *   slots?: array<string, list<array<string, mixed>>>,
  *   provides_context?: array<string, array<string, mixed>>,
  *   accepts_context?: array<string, ContextConsumerData>
@@ -47,7 +49,8 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
         private readonly DataRequirementsFieldSerializer $dataRequirementsSerializer,
         private readonly ContextProvidersFieldSerializer $contextProvidersSerializer,
         private readonly ContextConsumersFieldSerializer $contextConsumersSerializer,
-        private readonly ElementSlotsFieldSerializer $elementSlotsSerializer
+        private readonly ElementSlotsFieldSerializer $elementSlotsSerializer,
+        private readonly ElementFormatFieldSerializer $elementFormatSerializer,
     ) {
         parent::__construct($validator, $definitionRegistry);
     }
@@ -142,13 +145,18 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             ? ($this->elementSlotsSerializer->decode($slotsField, $data['slots']) ?? [])
             : [];
 
+        $format = \array_key_exists('format', $data) && \is_array($data['format'])
+            ? $this->elementFormatSerializer->deserializeFormat($data['format'])
+            : new ElementFormat();
+
         return new ContentElement(
-            $data['id'],
-            $data['component'],
-            $dataRequirements ?? [],
-            $data['properties'] ?? [],
-            $slots,
-            $contextDefinitions
+            id: $data['id'],
+            component: $data['component'],
+            dataRequirements: $dataRequirements ?? [],
+            properties: $data['properties'] ?? [],
+            format: $format,
+            slots: $slots,
+            contextDefinitions: $contextDefinitions,
         );
     }
 
@@ -194,6 +202,11 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             $array['accepts_context'] = $serializedConsumers;
         }
 
+        $formatData = $element->getFormat()->toArray();
+        if ($formatData !== []) {
+            $array['format'] = $formatData;
+        }
+
         return $array;
     }
 
@@ -231,6 +244,11 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
             ? $acceptsContextConstraints
             : new Optional($acceptsContextConstraints);
 
+        $formatConstraints = $this->elementFormatSerializer->buildConstraints($nestedFields['format']);
+        $formatField = $nestedFields['format']->is(Required::class)
+            ? $formatConstraints
+            : new Optional($formatConstraints);
+
         $constraints = [
             new Type('array'),
             new Collection(
@@ -242,6 +260,7 @@ class ContentElementFieldSerializer extends AbstractFieldSerializer
                     'slots' => $slotsField,
                     'provides_context' => $providesContextField,
                     'accepts_context' => $acceptsContextField,
+                    'format' => $formatField,
                 ],
                 allowExtraFields: false,
                 allowMissingFields: false

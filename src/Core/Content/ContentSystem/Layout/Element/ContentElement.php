@@ -7,6 +7,7 @@ use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextConsumer;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextDefinitions;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Context\ContextProvider;
 use Shopware\Core\Content\ContentSystem\Layout\Element\DataRequirement\DataRequirement;
+use Shopware\Core\Content\ContentSystem\Layout\Element\Format\ElementFormat;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Slot\SlotContent;
 use Shopware\Core\Content\ContentSystem\Layout\Element\Visitor\ElementVisitor;
 use Shopware\Core\Content\ContentSystem\PlaceholderValues;
@@ -42,8 +43,9 @@ class ContentElement extends Struct
         protected string $component,
         protected array $dataRequirements = [],
         array $properties = [],
+        protected ElementFormat $format = new ElementFormat(),
         protected array $slots = [],
-        protected ContextDefinitions $contextDefinitions = new ContextDefinitions([], [])
+        protected ContextDefinitions $contextDefinitions = new ContextDefinitions([], []),
     ) {
         $this->setProperties($properties);
     }
@@ -210,6 +212,14 @@ class ContentElement extends Struct
         $this->contextDefinitions = $contextDefinitions;
     }
 
+    /**
+     * @codeCoverageIgnore
+     */
+    public function getFormat(): ElementFormat
+    {
+        return $this->format;
+    }
+
     public function acceptsContext(string $key, ContextPathResolver $pathResolver): bool
     {
         $acceptedKeys = array_keys($this->contextDefinitions->getAllConsumers());
@@ -277,6 +287,13 @@ class ContentElement extends Struct
             $this->structProperties,
             $this->nonStructProperties
         );
+
+        $formatData = $this->format->toArray();
+        if ($formatData !== []) {
+            $data['format'] = $formatData;
+        } else {
+            unset($data['format']);
+        }
 
         return $data;
     }

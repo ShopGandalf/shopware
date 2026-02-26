@@ -126,6 +126,15 @@
             <file>src/Core/Content/ContentSystem/Layout/Element/Context/ContextProvider.php</file>
             <file>src/Core/Content/ContentSystem/Layout/Element/DataRequirement/DataRequirement.php</file>
             <file>src/Core/Content/ContentSystem/Layout/Element/Slot/SlotContent.php</file>
+            <file>src/Core/Content/ContentSystem/Layout/Element/Format/AlignSelf.php</file>
+            <file>src/Core/Content/ContentSystem/Layout/Element/Format/ColSpan.php</file>
+            <file>src/Core/Content/ContentSystem/Layout/Element/Format/Display.php</file>
+            <file>src/Core/Content/ContentSystem/Layout/Element/Format/JustifySelf.php</file>
+            <file>src/Core/Content/ContentSystem/Layout/Element/Format/Margin.php</file>
+            <file>src/Core/Content/ContentSystem/Layout/Element/Format/Padding.php</file>
+            <file>src/Core/Content/ContentSystem/Layout/Element/Format/FormatOption.php</file>
+            <file>src/Core/Content/ContentSystem/Layout/Element/Format/FormatOptionRegistry.php</file>
+            <file>src/Core/Content/ContentSystem/Layout/Element/Format/RowSpan.php</file>
             <file>src/Core/Content/ContentSystem/Output/Struct/ContentDataPage.php</file>
             <file>src/Core/Content/ContentSystem/Output/Struct/ContentDecomposedPage.php</file>
             <file>src/Core/Content/ContentSystem/Output/Struct/ContentSkeletonPage.php</file>

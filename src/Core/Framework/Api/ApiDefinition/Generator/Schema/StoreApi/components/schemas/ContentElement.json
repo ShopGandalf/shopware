@@ -51,6 +51,48 @@
                             }
                         ]
                     },
+                    "format": {
+                        "type": "object",
+                        "description": "Responsive format settings per breakpoint (xs, sm, md, lg, xl, xxl)",
+                        "properties": {
+                            "display": {
+                                "type": "object",
+                                "description": "Visibility per breakpoint",
+                                "additionalProperties": { "type": "boolean" }
+                            },
+                            "align-self": {
+                                "type": "object",
+                                "description": "Alignment on the cross axis per breakpoint",
+                                "additionalProperties": { "type": "string" }
+                            },
+                            "justify-self": {
+                                "type": "object",
+                                "description": "Alignment on the main axis per breakpoint",
+                                "additionalProperties": { "type": "string" }
+                            },
+                            "col-span": {
+                                "type": "object",
+                                "description": "Grid column span per breakpoint",
+                                "additionalProperties": { "type": "integer", "minimum": 1 }
+                            },
+                            "row-span": {
+                                "type": "object",
+                                "description": "Grid row span per breakpoint",
+                                "additionalProperties": { "type": "integer", "minimum": 1 }
+                            },
+                            "padding": {
+                                "type": "object",
+                                "description": "Inner spacing per breakpoint",
+                                "additionalProperties": { "type": "string" }
+                            },
+                            "margin": {
+                                "type": "object",
+                                "description": "Outer spacing per breakpoint",
+                                "additionalProperties": { "type": "string" }
+                            }
+                        },
+                        "additionalProperties": true
+                    },
                     "apiAlias": {
                         "type": "string",
                         "enum": ["content_element"]

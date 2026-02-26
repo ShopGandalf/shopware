@@ -42,6 +42,6 @@ Module root:
 - **Event/Listener/** - Pre/post hydration pipeline transformations
 - **Helper/** - Utility classes (RequestDataExtractor, ContentLayoutMetadataDeriver)
 - **Hydration/** - Data loading and context distribution
-- **Layout/** - Element tree, entities, field types, scaffolding
+- **Layout/** - Element tree, entities, field types, scaffolding, element format options
 - **Output/** - Response formatting and partial rendering
 - **SalesChannel/** - Store API endpoints

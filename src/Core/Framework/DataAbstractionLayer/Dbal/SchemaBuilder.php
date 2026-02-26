@@ -17,6 +17,7 @@ use Shopware\Core\Content\ContentSystem\Layout\Field\ContentElementListField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContextConsumersField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ContextProvidersField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\DataRequirementsField;
+use Shopware\Core\Content\ContentSystem\Layout\Field\ElementFormatField;
 use Shopware\Core\Content\ContentSystem\Layout\Field\ElementSlotsField;
 use Shopware\Core\Content\Flow\DataAbstractionLayer\Field\FlowTemplateConfigField;
 use Shopware\Core\Content\MeasurementSystem\Field\MeasurementUnitsField;
@@ -136,6 +137,7 @@ class SchemaBuilder
         ContentElementField::class => Types::JSON,
         ContentElementListField::class => Types::JSON,
         DataRequirementsField::class => Types::JSON,
+        ElementFormatField::class => Types::JSON,
         ElementSlotsField::class => Types::JSON,
         ContextProvidersField::class => Types::JSON,
         ContextConsumersField::class => Types::JSON,

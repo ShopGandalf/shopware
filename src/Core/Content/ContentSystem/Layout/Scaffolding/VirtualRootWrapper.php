@@ -63,8 +63,8 @@ final class VirtualRootWrapper
             self::VIRTUAL_ROOT_TYPE,
             $this->indexDataRequirements($specification->dataRequirements),
             $specification->placeholderValues->all(),
-            [self::VIRTUAL_ROOT_SLOT_NAME => new SlotContent($actualRoots)],
-            $this->createContextDefinitions($specification->dataRequirements)
+            slots: [self::VIRTUAL_ROOT_SLOT_NAME => new SlotContent($actualRoots)],
+            contextDefinitions: $this->createContextDefinitions($specification->dataRequirements),
         );
     }
 

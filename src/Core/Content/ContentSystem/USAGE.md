@@ -9,9 +9,10 @@ This document is a configuration guide for shop operators and layout designers. 
 3. [Entity-Based Rendering (Main Section)](#entity-based-rendering-main-section)
 4. [Header and Footer Sections](#header-and-footer-sections)
 5. [Content Elements](#content-elements)
-6. [Data Loading](#data-loading)
-7. [Context System](#context-system)
-8. [Example: Product Detail Page](#example-product-detail-page)
+6. [Element Format](#element-format)
+7. [Data Loading](#data-loading)
+8. [Context System](#context-system)
+9. [Example: Product Detail Page](#example-product-detail-page)
 
 ## Overview
 
@@ -58,12 +59,12 @@ The Content System serves three distinct sections, each with its own resolution 
 
 Each section supports four response formats via separate endpoints:
 
-| Format | Suffix | Description |
-|--------|--------|-------------|
-| **Full** | *(none)* | Returns complete element trees with hydrated data (simpler integration) |
-| **Decomposed** | `-decomposed` | Returns decomposed format with deduplicated data (optimized payloads) |
-| **Skeleton** | `-skeleton` | Returns layout structure without hydrated data (client-side hydration) |
-| **Data** | `-data` | Returns data and assignments without skeleton (data refresh) |
+| Format         | Suffix        | Description                                                             |
+|----------------|---------------|-------------------------------------------------------------------------|
+| **Full**       | *(none)*      | Returns complete element trees with hydrated data (simpler integration) |
+| **Decomposed** | `-decomposed` | Returns decomposed format with deduplicated data (optimized payloads)   |
+| **Skeleton**   | `-skeleton`   | Returns layout structure without hydrated data (client-side hydration)  |
+| **Data**       | `-data`       | Returns data and assignments without skeleton (data refresh)            |
 
 ### Partial Rendering
 
@@ -81,12 +82,12 @@ Products, Categories, and Landing Pages can render directly using ContentSystem 
 
 **Endpoints:**
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /store-api/content/{path}` | Full response |
+| Endpoint                                   | Description         |
+|--------------------------------------------|---------------------|
+| `GET /store-api/content/{path}`            | Full response       |
 | `GET /store-api/content-decomposed/{path}` | Decomposed response |
-| `GET /store-api/content-skeleton/{path}` | Skeleton only |
-| `GET /store-api/content-data/{path}` | Data only |
+| `GET /store-api/content-skeleton/{path}`   | Skeleton only       |
+| `GET /store-api/content-data/{path}`       | Data only           |
 
 **Supported path patterns:**
 - `product/{productId}` - Product detail pages
@@ -143,11 +144,11 @@ Entity-based rendering automatically loads the main entity before rendering your
 
 **Auto-loaded entities and associations:**
 
-| Endpoint | Entity | Context Key | Pre-loaded Associations |
-|----------|--------|-------------|------------------------|
-| `/store-api/content/product/{productId}` | ProductEntity | `product` | `manufacturer.media`, `options.group`, `properties.group`, `mainCategories.category`, `media.media` |
-| `/store-api/content/category/{categoryId}` | CategoryEntity | `category` | `media`, `translations` |
-| `/store-api/content/landing-page/{landingPageId}` | LandingPageEntity | `landing_page` | (none) |
+| Endpoint                                          | Entity            | Context Key    | Pre-loaded Associations                                                                             |
+|---------------------------------------------------|-------------------|----------------|-----------------------------------------------------------------------------------------------------|
+| `/store-api/content/product/{productId}`          | ProductEntity     | `product`      | `manufacturer.media`, `options.group`, `properties.group`, `mainCategories.category`, `media.media` |
+| `/store-api/content/category/{categoryId}`        | CategoryEntity    | `category`     | `media`, `translations`                                                                             |
+| `/store-api/content/landing-page/{landingPageId}` | LandingPageEntity | `landing_page` | (none)                                                                                              |
 
 **Usage example:**
 
@@ -225,21 +226,21 @@ Header and footer layouts use domain-aware resolution instead of entity-based re
 
 **Header endpoints:**
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /store-api/content-header` | Full response |
+| Endpoint                                   | Description         |
+|--------------------------------------------|---------------------|
+| `GET /store-api/content-header`            | Full response       |
 | `GET /store-api/content-header-decomposed` | Decomposed response |
-| `GET /store-api/content-header-skeleton` | Skeleton only |
-| `GET /store-api/content-header-data` | Data only |
+| `GET /store-api/content-header-skeleton`   | Skeleton only       |
+| `GET /store-api/content-header-data`       | Data only           |
 
 **Footer endpoints:**
 
-| Endpoint | Description |
-|----------|-------------|
-| `GET /store-api/content-footer` | Full response |
+| Endpoint                                   | Description         |
+|--------------------------------------------|---------------------|
+| `GET /store-api/content-footer`            | Full response       |
 | `GET /store-api/content-footer-decomposed` | Decomposed response |
-| `GET /store-api/content-footer-skeleton` | Skeleton only |
-| `GET /store-api/content-footer-data` | Data only |
+| `GET /store-api/content-footer-skeleton`   | Skeleton only       |
+| `GET /store-api/content-footer-data`       | Data only           |
 
 **Database tables:**
 - `header_content_layout` - Header layout assignments
@@ -305,7 +306,8 @@ Each content element follows this structure:
   },
   "data_requirements": {},
   "provides_context": {},
-  "accepts_context": {}
+  "accepts_context": {},
+  "format": {}
 }
 ```
 
@@ -336,6 +338,7 @@ Placeholders (like `{{productId}}`) must be assigned to properties before data l
 - `data_requirements` - Data loading declarations
 - `provides_context` - Data shared with descendant elements
 - `accepts_context` - Data received from ancestor elements
+- `format` - Responsive layout/styling hints per breakpoint (see [Element Format](#element-format))
 
 ### Slots
 
@@ -412,6 +415,60 @@ Containers can be nested for complex layouts:
   }
 }
 ```
+
+## Element Format
+
+Elements can declare responsive format options that control layout and styling per breakpoint. The `format` field is an object keyed by format option name, where each value contains per-breakpoint settings.
+
+### Breakpoints
+
+Format values are specified per breakpoint: `xs`, `sm`, `md`, `lg`, `xl`, `xxl`. Each breakpoint key is optional — omitted breakpoints inherit no override for that option.
+
+### Available Format Options
+
+| Option         | Value Type    | Description                                                 |
+|----------------|---------------|-------------------------------------------------------------|
+| `display`      | boolean       | Visibility per breakpoint                                   |
+| `align-self`   | string        | Cross-axis alignment (e.g., `"start"`, `"center"`, `"end"`) |
+| `justify-self` | string        | Main-axis alignment (e.g., `"start"`, `"center"`, `"end"`)  |
+| `col-span`     | integer (> 0) | Grid column span                                            |
+| `row-span`     | integer (> 0) | Grid row span                                               |
+| `padding`      | string        | Inner spacing (e.g., `"16px"`, `"1rem 2rem"`)               |
+| `margin`       | string        | Outer spacing (e.g., `"0 auto"`, `"16px 0"`)                |
+
+### Example
+
+```json
+{
+  "id": "hero-banner",
+  "component": "Sw:Content:Image",
+  "properties": {
+    "src": "hero.jpg"
+  },
+  "format": {
+    "display": {
+      "xs": false,
+      "md": true
+    },
+    "col-span": {
+      "xs": 1,
+      "md": 2,
+      "xl": 3
+    },
+    "padding": {
+      "xs": "8px",
+      "lg": "24px"
+    },
+    "align-self": {
+      "md": "center"
+    }
+  }
+}
+```
+
+In this example, the hero banner is hidden on `xs` screens, visible from `md` up, spans different column counts per breakpoint, and adjusts padding and alignment responsively.
+
+The `format` field is optional. Omitting it or providing an empty object means no format overrides are applied.
 
 ## Data Loading
 

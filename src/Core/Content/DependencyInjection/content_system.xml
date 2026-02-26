@@ -93,6 +93,41 @@
             <tag name="shopware.field_serializer"/>
         </service>
 
+        <!-- Format Option Registry -->
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Element\Format\FormatOptionRegistry">
+            <argument type="tagged_locator" tag="content_system.format_option" default-index-method="name"/>
+        </service>
+
+        <!-- Core Format Options -->
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Element\Format\Display">
+            <tag name="content_system.format_option"/>
+        </service>
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Element\Format\AlignSelf">
+            <tag name="content_system.format_option"/>
+        </service>
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Element\Format\JustifySelf">
+            <tag name="content_system.format_option"/>
+        </service>
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Element\Format\ColSpan">
+            <tag name="content_system.format_option"/>
+        </service>
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Element\Format\RowSpan">
+            <tag name="content_system.format_option"/>
+        </service>
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Element\Format\Padding">
+            <tag name="content_system.format_option"/>
+        </service>
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Element\Format\Margin">
+            <tag name="content_system.format_option"/>
+        </service>
+
+        <service id="Shopware\Core\Content\ContentSystem\Layout\Field\ElementFormatFieldSerializer">
+            <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
+            <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Element\Format\FormatOptionRegistry"/>
+            <tag name="shopware.field_serializer"/>
+        </service>
+
         <service id="Shopware\Core\Content\ContentSystem\Layout\Field\ElementSlotsFieldSerializer" lazy="true">
             <argument type="service" id="Symfony\Component\Validator\Validator\ValidatorInterface"/>
             <argument type="service" id="Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry"/>
@@ -107,6 +142,7 @@
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\ContextProvidersFieldSerializer"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\ContextConsumersFieldSerializer"/>
             <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\ElementSlotsFieldSerializer"/>
+            <argument type="service" id="Shopware\Core\Content\ContentSystem\Layout\Field\ElementFormatFieldSerializer"/>
             <tag name="shopware.field_serializer"/>
         </service>
 

@@ -4,7 +4,7 @@ ContentElement tree structure. Elements nest via named slots, traverse via visit
 
 ## Key Class
 
-- `ContentElement` - Tree aggregate root: `id`, `component`, `properties`, `slots` (`array<string, SlotContent>`), `dataRequirements`, `contextDefinitions`
+- `ContentElement` - Tree aggregate root: `id`, `component`, `properties`, `slots` (`array<string, SlotContent>`), `dataRequirements`, `contextDefinitions`, `format`
 
 ## Traversal
 
@@ -20,5 +20,6 @@ Data requirements declare external data via `DataRequirement` objects (`key`, `s
 
 - **Context/** - ContextProvider, ContextConsumer, ContextDefinitions
 - **DataRequirement/** - DataRequirement structure
+- **Format/** - Responsive per-breakpoint format options (ElementFormat, FormatOption, FormatOptionRegistry)
 - **Slot/** - SlotContent container
 - **Visitor/** - ElementVisitor interface and implementations

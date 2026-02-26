@@ -150,9 +150,7 @@ class VirtualRootWrapperTest extends TestCase
         $elementWithEmptySlot = new ContentElement(
             '__page_context_root__',
             'Sw:Internal:PageContext',
-            [],
-            [],
-            ['__page_roots__' => $emptySlot],
+            slots: ['__page_roots__' => $emptySlot],
         );
 
         yield 'empty slot' => [

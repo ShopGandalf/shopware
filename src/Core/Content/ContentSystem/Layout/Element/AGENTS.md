@@ -7,3 +7,5 @@
 - `replacePlaceholders()` is recursive and only replaces scalar values
 - Don't use `assign()` from `AssignArrayTrait` — corrupts the struct/non-struct property split
 - Slots: `array<string, SlotContent>`, multiple elements per slot
+- `getFormat()` always returns `ElementFormat` (never null) — default is empty
+- `jsonSerialize()` omits `format` key entirely when `ElementFormat` is empty — don't rely on its presence in serialized output

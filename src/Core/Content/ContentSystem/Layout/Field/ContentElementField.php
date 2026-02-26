@@ -27,6 +27,8 @@ class ContentElementField extends JsonField
 
     private ContextConsumersField $acceptsContextField;
 
+    private ElementFormatField $formatField;
+
     public function __construct(
         string $storageName,
         string $propertyName
@@ -39,6 +41,7 @@ class ContentElementField extends JsonField
 
         $this->propertiesField = new JsonField('properties', 'properties');
         $this->dataRequirementsField = new DataRequirementsField('data_requirements', 'dataRequirements');
+        $this->formatField = new ElementFormatField('format', 'format');
         $this->slotsField = new ElementSlotsField('slots', 'slots');
         $this->providesContextField = new ContextProvidersField('provides_context', 'providesContext');
         $this->acceptsContextField = new ContextConsumersField('accepts_context', 'acceptsContext');
@@ -48,6 +51,7 @@ class ContentElementField extends JsonField
             $this->componentField,
             $this->propertiesField,
             $this->dataRequirementsField,
+            $this->formatField,
             $this->slotsField,
             $this->providesContextField,
             $this->acceptsContextField,
@@ -60,6 +64,7 @@ class ContentElementField extends JsonField
      *     component: StringField,
      *     properties: JsonField,
      *     dataRequirements: DataRequirementsField,
+     *     format: ElementFormatField,
      *     slots: ElementSlotsField,
      *     providesContext: ContextProvidersField,
      *     acceptsContext: ContextConsumersField
@@ -72,6 +77,7 @@ class ContentElementField extends JsonField
             'component' => $this->componentField,
             'properties' => $this->propertiesField,
             'dataRequirements' => $this->dataRequirementsField,
+            'format' => $this->formatField,
             'slots' => $this->slotsField,
             'providesContext' => $this->providesContextField,
             'acceptsContext' => $this->acceptsContextField,

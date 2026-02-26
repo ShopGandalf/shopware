@@ -1,15 +1,16 @@
 # Extending the ContentSystem
 
-Plugins extend the ContentSystem through three mechanisms.
+Plugins extend the ContentSystem through four mechanisms.
 
 ## Table of Contents
 
 1. [Extension Model](#extension-model)
 2. [Custom Specification Sources](#custom-specification-sources)
 3. [Custom Data Loaders](#custom-data-loaders)
-4. [Event Listeners](#event-listeners)
-5. [Service Tags](#service-tag-reference)
-6. [Type Reference](#type-reference)
+4. [Custom Format Options](#custom-format-options)
+5. [Event Listeners](#event-listeners)
+6. [Service Tags](#service-tag-reference)
+7. [Type Reference](#type-reference)
 
 ## Extension Model
 
@@ -17,6 +18,7 @@ Plugins extend the ContentSystem through three mechanisms.
 |---------------------------|------------------------------------------------------------------------|
 | **Specification Sources** | New URL patterns, entity types                                         |
 | **Data Loaders**          | External APIs, calculations, aggregated data (with cache control)      |
+| **Format Options**        | Custom responsive element format options (layout, styling hints)       |
 | **Event Listeners**       | Modify layout structure, enrich data, transform properties, cache tags |
 
 ---
@@ -85,11 +87,11 @@ Data loaders fetch external data—APIs, computed values, aggregations. The buil
 
 A data loader consists of three classes:
 
-| Component | Base Class | Service Tag | Purpose |
-|-----------|------------|-------------|---------|
-| Config | `AbstractContentDataLoaderConfig` | (none) | Hold loader parameters |
-| Serializer | `AbstractContentDataLoaderConfigSerializer` | `content_system.config_serializer` | Encode/decode config |
-| Loader | `AbstractContentDataLoader` | `content_system.data_loader` | Fetch the data |
+| Component  | Base Class                                  | Service Tag                        | Purpose                |
+|------------|---------------------------------------------|------------------------------------|------------------------|
+| Config     | `AbstractContentDataLoaderConfig`           | (none)                             | Hold loader parameters |
+| Serializer | `AbstractContentDataLoaderConfigSerializer` | `content_system.config_serializer` | Encode/decode config   |
+| Loader     | `AbstractContentDataLoader`                 | `content_system.data_loader`       | Fetch the data         |
 
 Define array shapes with `@phpstan-type ConfigData array{field?: type}` in the Config class, then import with `@phpstan-import-type ConfigData from ConfigClass` in the Serializer. Annotate `encode()` with `@return ConfigData` for type-safe serialization.
 
@@ -195,14 +197,48 @@ Reference: `Hydration/DataLoader/EntityLoader/`
 
 ---
 
+## Custom Format Options
+
+Plugins can add responsive format options beyond the built-in set. Extend `FormatOption` and implement `name()` (key in the element's `format` JSON) and `valueConstraints()` (Symfony Validator constraints per breakpoint value):
+
+```php
+final readonly class Opacity extends FormatOption
+{
+    public static function name(): string
+    {
+        return 'opacity';
+    }
+
+    public static function valueConstraints(): array
+    {
+        return [
+            new Type('float'),
+            new Range(min: 0.0, max: 1.0),
+        ];
+    }
+}
+```
+
+Register with the `content_system.format_option` tag. The `FormatOptionRegistry` discovers options via `tagged_locator` using `name()` as the index.
+
+```xml
+<service id="MyPlugin\ContentSystem\Format\Opacity">
+    <tag name="content_system.format_option"/>
+</service>
+```
+
+Reference: `Layout/Element/Format/`
+
+---
+
 ## Event Listeners
 
 Listeners modify elements before or after hydration—computing derived values, transforming structure, resolving custom placeholders.
 
-| Event | When | Purpose |
-|-------|------|---------|
+| Event                      | When             | Purpose                                  |
+|----------------------------|------------------|------------------------------------------|
 | `PreContentHydrationEvent` | Before hydration | Modify layout tree, resolve placeholders |
-| `PostHydrationEvent` | After hydration | Enrich data, transform structure |
+| `PostHydrationEvent`       | After hydration  | Enrich data, transform structure         |
 
 Both events expose the same properties. Only `elements` is mutable:
 
@@ -283,6 +319,7 @@ Reference: `Event/Listener/PreHydration/PlaceholderResolutionSubscriber.php`
 | `content_system.context_factory`   | N/A                    | `priority` (optional, default 0) |
 | `content_system.data_loader`       | `getRequirementType()` | None                             |
 | `content_system.config_serializer` | `getSource()`          | None                             |
+| `content_system.format_option`     | `name()`               | None                             |
 
 Full DI configuration: `src/Core/Content/DependencyInjection/content_system.xml`
 
@@ -300,6 +337,7 @@ Key types extension developers encounter when working with the ContentSystem:
 | `AbstractContentDataLoader`                 | Custom data loader          |
 | `AbstractContentDataLoaderConfig`           | Loader configuration DTO    |
 | `AbstractContentDataLoaderConfigSerializer` | Config encode/decode        |
+| `FormatOption`                              | Custom format option        |
 
 ### Result / Value Objects
 
