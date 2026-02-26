@@ -1,4 +1,5 @@
 import template from './sw-admin-menu-item.html.twig';
+import './sw-admin-menu-item.scss';
 
 const { createId, types } = Shopware.Utils;
 
