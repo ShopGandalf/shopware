@@ -1,0 +1,185 @@
+@import '~scss/variables';
+@import '~scss/mixins';
+
+$sw-admin-menu-item-transition: 0.35s cubic-bezier(0.5, 0.32, 0.01, 1);
+$sw-admin-menu-item-divider: #344865;
+$sw-admin-menu-item-background: var(--color-elevation-surface-sunken);
+$sw-admin-menu-item-background-active: var(--color-elevation-surface-sunken);
+$sw-admin-menu-item-background-active-secondary: var(--color-elevation-surface-sunken);
+$sw-admin-menu-item-color-text: var(--color-text-primary-default);
+$sw-admin-menu-item-color-text-active: var(--color-text-primary-default);
+// border-radius: var(--border-radius-s, 6px);
+
+.sw-admin-menu__navigation-list-item {
+
+    border-radius: var(--border-radius-s, 6px);
+
+    .sw-admin-menu__navigation-list-item {
+        display: none;
+    }
+}
+
+.sw-admin-menu__navigation-link {
+    color: $sw-admin-menu-item-color-text;
+    display: flex;
+    align-items: baseline;
+    padding: 12px 30px;
+    text-decoration: none;
+    font-size: $font-size-xs;
+    line-height: $line-height-md;
+    cursor: pointer;
+    position: relative;
+    font-weight: $font-weight-medium;
+
+    .mt-icon {
+        flex-shrink: 0;
+    }
+
+    .sw-admin-menu__navigation-link-label {
+        @include truncate;
+
+        flex-grow: 1;
+    }
+}
+
+.sw-admin-menu__navigation-link-icon {
+    width: 20px;
+    margin: 0 20px 0 0;
+    vertical-align: middle;
+    position: relative;
+    top: -2px;
+}
+
+.sw-admin-menu__navigation-link-icon-arrow {
+    position: absolute;
+    right: 16px;
+    top: 21px;
+    margin: 0;
+    padding: 0 !important;
+}
+
+.sw-admin-menu__sub-navigation-list {
+    transition: all $sw-admin-menu-item-transition;
+    display: block;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+
+    .sw-admin-menu__navigation-link {
+        padding-left: 70px;
+        font-weight: normal;
+        transition: all $sw-admin-menu-item-transition;
+    }
+}
+
+// Level 2+ items: structure line inside the navigation link
+.navigation-list-item__level-2,
+.navigation-list-item__level-3 {
+    > .sw-admin-menu__navigation-link {
+        padding-left: 50px;
+        position: relative;
+
+        // Structure line (gray, thin)
+        &::before {
+            content: '';
+            position: absolute;
+            left: 30px;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            border-radius: var(--border-radius-s, 6px);
+            background: var(--color-interaction-secondary-hover, #f2f3f8);
+            border-radius: 1px;
+        }
+
+        // Active state: thicker blue line replaces gray
+        &.router-link-active::before {
+            width: 4px;
+            left: 29px;
+            top: 8px;
+            bottom: 8px;
+            background: $color-shopware-brand-500;
+            border-radius: 2px;
+        }
+    }
+}
+
+.sw-admin-menu__sub-navigation-headline {
+    color: $sw-admin-menu-item-color-text;
+    padding: 15px 30px;
+    font-size: $font-size-xs;
+    font-weight: bold;
+}
+
+// Active menu item
+.sw-admin-menu__navigation-link.router-link-active {
+    background: $sw-admin-menu-item-background-active;
+
+    .collapsible-text {
+        color: $sw-admin-menu-item-color-text-active;
+    }
+}
+
+// Separator between plugin & core entries
+.sw-admin-menu__separator {
+    display: none;
+    padding: 0 70px;
+}
+
+.sw-admin-menu__separator-line {
+    background: $sw-admin-menu-item-divider;
+    display: block;
+    width: 100%;
+    height: 0;
+    transition: all $sw-admin-menu-item-transition;
+}
+
+.is--entry-expanded .sw-admin-menu__separator {
+    display: block;
+
+    .sw-admin-menu__separator-line {
+        height: 1px;
+    }
+}
+
+.sw-admin-menu__sub-navigation-list .sw-admin-menu__separator:first-child {
+    display: none;
+}
+
+// Entry is expanded (but not necessarily active)
+.sw-admin-menu__navigation-list-item.is--entry-expanded {
+    background: $sw-admin-menu-item-background;
+
+    .collapsible-text {
+        color: $sw-admin-menu-item-color-text;
+    }
+
+    & > .sw-admin-menu__navigation-link .collapsible-text {
+        color: $sw-admin-menu-item-color-text;
+    }
+
+    .sw-admin-menu__navigation-list-item {
+        background: $sw-admin-menu-item-background;
+        display: block;
+    }
+
+    // Hide all sub menus except the first level
+    .sw-admin-menu__sub-navigation-list {
+        display: none;
+    }
+
+    // First level expanded
+    & > .sw-admin-menu__sub-navigation-list {
+        display: block;
+    }
+
+    // Show level 3 when level 2 parent is expanded
+    .navigation-list-item__level-2.is--entry-expanded > .sw-admin-menu__sub-navigation-list {
+        display: block;
+    }
+}
+
+.navigation-list-item__level-2 .sw-admin-menu__separator {
+    display: none;
+}
