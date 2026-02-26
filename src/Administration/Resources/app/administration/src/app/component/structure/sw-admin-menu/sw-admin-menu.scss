@@ -21,7 +21,7 @@ $sw-admin-menu-color-text-primary: #bcc9dc;
 $sw-admin-menu-active-text: var(--color-text-primary-default);
 
 .sw-admin-menu {
-    border-right: 2px solid var(--color-border-secondary-default);
+    border-right: 1px solid var(--color-border-secondary-default);
     background: $sw-admin-menu-background;
     width: $sw-admin-menu-width-collapsed;
     transition: width $sw-admin-menu-transition;

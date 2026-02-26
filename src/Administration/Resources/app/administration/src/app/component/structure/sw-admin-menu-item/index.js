@@ -41,7 +41,7 @@ export default {
         },
         iconSize: {
             type: String,
-            default: '20px',
+            default: '16px',
             required: false,
         },
         collapsibleText: {

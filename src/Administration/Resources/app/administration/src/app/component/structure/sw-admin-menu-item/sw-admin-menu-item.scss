@@ -44,7 +44,7 @@ $sw-admin-menu-item-color-text-active: var(--color-text-primary-default);
 
 .sw-admin-menu__navigation-link-icon {
     width: 20px;
-    margin: 0 20px 0 0;
+    margin: 0 var(--scale-size-10) 0 0;
     vertical-align: middle;
     position: relative;
     top: -2px;
