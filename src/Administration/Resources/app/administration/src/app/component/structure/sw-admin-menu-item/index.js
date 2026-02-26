@@ -56,6 +56,11 @@ export default {
             default: true,
             required: false,
         },
+        isExpanded: {
+            type: Boolean,
+            default: false,
+            required: false,
+        },
         borderColor: {
             type: String,
             default: '#333',
@@ -169,7 +174,15 @@ export default {
 
             if (meta.$current) {
                 const matchingPaths = findRootEntry(meta.$current.path);
-                return matchingPaths.includes(path);
+                const isInPath = matchingPaths.includes(path);
+
+                // If this item has children and is expanded, don't show as active
+                // (let the child show as active instead)
+                if (isInPath && this.children.length > 0 && this.isExpanded) {
+                    return false;
+                }
+
+                return isInPath;
             }
 
             if (meta.parentPath) {
@@ -185,7 +198,17 @@ export default {
             }
 
             if (this.entry.path) {
-                return compareTo ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0 : false;
+                const isActive = compareTo
+                    ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0
+                    : false;
+
+                // If this item has children and is expanded, don't show as active
+                // (let the child show as active instead)
+                if (isActive && this.children.length > 0 && this.isExpanded) {
+                    return false;
+                }
+
+                return isActive;
             }
 
             return this.entry.id === compareTo;

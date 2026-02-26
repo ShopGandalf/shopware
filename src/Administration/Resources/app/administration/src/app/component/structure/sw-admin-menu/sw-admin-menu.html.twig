@@ -54,6 +54,7 @@
                         :tabindex="0"
                         :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
                         :sidebar-expanded="isExpanded"
+                        :is-expanded="currentExpandedMenuEntries.includes(entry)"
                         :entry="entry"
                         @menu-item-click="onMenuItemClick"
                     />

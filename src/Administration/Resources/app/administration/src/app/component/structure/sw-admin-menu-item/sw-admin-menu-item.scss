@@ -11,7 +11,6 @@ $sw-admin-menu-item-color-text-active: var(--color-text-primary-default);
 // border-radius: var(--border-radius-s, 6px);
 
 .sw-admin-menu__navigation-list-item {
-
     border-radius: var(--border-radius-s, 6px);
 
     .sw-admin-menu__navigation-list-item {
@@ -87,9 +86,9 @@ $sw-admin-menu-item-color-text-active: var(--color-text-primary-default);
             left: 30px;
             top: 0;
             bottom: 0;
-            width: 2px;
+            width: 1px;
             border-radius: var(--border-radius-s, 6px);
-            background: var(--color-interaction-secondary-hover, #f2f3f8);
+            background: var(--color-border-primary-default);
             border-radius: 1px;
         }
 
@@ -99,7 +98,7 @@ $sw-admin-menu-item-color-text-active: var(--color-text-primary-default);
             left: 29px;
             top: 8px;
             bottom: 8px;
-            background: $color-shopware-brand-500;
+            background: var(--color-icon-brand-default);
             border-radius: 2px;
         }
     }
