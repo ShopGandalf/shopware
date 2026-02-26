@@ -129,6 +129,15 @@
             class="sw-admin-menu__navigation-link-icon-arrow"
         />
         {% endblock %}
+
+        {% block sw_admin_menu_item_expand_indicator %}
+        <mt-icon
+            v-if="children.length"
+            :name="expandIcon"
+            size="8"
+            class="sw-admin-menu__navigation-link-expand-icon collapsible-text"
+        />
+        {% endblock %}
     </span>
     {% endblock %}
 

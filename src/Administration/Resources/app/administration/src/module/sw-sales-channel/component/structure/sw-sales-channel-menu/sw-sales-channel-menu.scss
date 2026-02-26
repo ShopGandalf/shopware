@@ -29,7 +29,7 @@
         }
 
         .sw-admin-menu__headline_text a {
-            color: $color-white;
+            color: var(--color-text-secondary-default);
             text-decoration: none;
         }
     }

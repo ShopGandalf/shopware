@@ -11,7 +11,7 @@ $sw-admin-menu-sub-menu-transition: 0.35s cubic-bezier(0.5, 0.32, 0.01, 1);
 $sw-admin-menu-color-active: #172b4f;
 $sw-admin-menu-color-hover: #293f65;
 $sw-admin-menu-shop-status-ok: $color-emerald-500;
-$sw-admin-menu-background: var(--color-elevation-surface-sunken);
+$sw-admin-menu-background: var(--color-elevation-surface-default);
 $sw-admin-menu-background-hover: #293f65;
 $sw-admin-menu-divider: #344865;
 $sw-admin-menu-background-active-first-level: var(--color-background-brand-default);
@@ -28,6 +28,7 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
     height: 100%;
     display: flex;
     flex-direction: column;
+    padding: var(--scale-size-8) var(--scale-size-8);
 
     @media screen and (max-width: 500px) {
         width: $sw-admin-menu-width-expanded;
@@ -74,10 +75,6 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
         .collapsible-text {
             opacity: 1;
             transform: translateX(0);
-        }
-
-        .sw-admin-menu__headline {
-            width: $sw-admin-menu-width-expanded;
         }
     }
 
@@ -134,11 +131,11 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
         justify-content: flex-end;
         gap: 12px;
         color: $sw-admin-menu-active-text;
-        width: $sw-admin-menu-width-collapsed;
-        transition: width $sw-admin-menu-transition;
+        width: 100%;
         font-weight: $font-weight-semi-bold;
-        font-size: $font-size-xs;
-        padding: 12px 30px;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-xs);
+        padding: var(--scale-size-10) var(--scale-size-10);
         position: relative;
     }
 

@@ -120,6 +120,26 @@ export default {
                 return this.acl.can(child.privilege);
             });
         },
+
+        expandIcon() {
+            return this.isExpanded ? 'regular-chevron-up-xs' : 'regular-chevron-down-xs';
+        },
+
+        isFirstChild() {
+            if (!this.entry.parent) {
+                return false;
+            }
+            const siblings = this.$parent?.children || [];
+            return siblings.length > 0 && siblings[0]?.id === this.entry.id;
+        },
+
+        isLastChild() {
+            if (!this.entry.parent) {
+                return false;
+            }
+            const siblings = this.$parent?.children || [];
+            return siblings.length > 0 && siblings[siblings.length - 1]?.id === this.entry.id;
+        },
     },
 
     methods: {
