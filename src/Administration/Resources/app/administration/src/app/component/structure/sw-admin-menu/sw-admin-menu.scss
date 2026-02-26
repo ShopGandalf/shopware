@@ -17,8 +17,8 @@ $sw-admin-menu-divider: #344865;
 $sw-admin-menu-background-active-first-level: var(--color-background-brand-default);
 $sw-admin-menu-background-active-hover: var(--color-interaction-secondary-hover);
 $sw-admin-menu-background-active-second-level: var(--color-background-brand-default);
-$sw-admin-menu-color-text-primary: #bcc9dc;
-$sw-admin-menu-active-text: var(--color-text-primary-default);
+$sw-admin-menu-color-text-primary: var(--color-text-primary-default);
+$sw-admin-menu-active-text: var(--color-icon-brand-default);
 
 .sw-admin-menu {
     border-right: 1px solid var(--color-border-secondary-default);

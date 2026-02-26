@@ -7,7 +7,7 @@ $sw-admin-menu-item-background: var(--color-elevation-surface-sunken);
 $sw-admin-menu-item-background-active: var(--color-elevation-surface-sunken);
 $sw-admin-menu-item-background-active-secondary: var(--color-elevation-surface-sunken);
 $sw-admin-menu-item-color-text: var(--color-text-primary-default);
-$sw-admin-menu-item-color-text-active: var(--color-text-primary-default);
+$sw-admin-menu-item-color-text-active: var(--color-icon-brand-default);
 // border-radius: var(--border-radius-s, 6px);
 
 .sw-admin-menu__navigation-list-item {
@@ -114,8 +114,13 @@ $sw-admin-menu-item-color-text-active: var(--color-text-primary-default);
 // Active menu item
 .sw-admin-menu__navigation-link.router-link-active {
     background: $sw-admin-menu-item-background-active;
+    color: $sw-admin-menu-item-color-text-active;
 
     .collapsible-text {
+        color: $sw-admin-menu-item-color-text-active;
+    }
+
+    .sw-admin-menu__navigation-link-icon {
         color: $sw-admin-menu-item-color-text-active;
     }
 }
