@@ -244,6 +244,10 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
         order: 3;
     }
 
+    .sw-admin-menu__user-actions-menu {
+        display: block;
+    }
+
     .sw-admin-menu__user-actions-toggle {
         width: 100%;
         position: relative;
