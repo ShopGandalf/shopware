@@ -70,28 +70,29 @@
     </div>
     {% endblock %}
 
+    {% block sw_admin_menu_toggle_sidebar %}
+    <button
+        type="button"
+        class="sw-admin-menu__toggle"
+        @click.stop="onToggleSidebar"
+    >
+
+        {% block sw_admin_menu_toggle_sidebar_icon %}
+        <mt-icon
+            :name="sidebarCollapseIcon"
+            size="16px"
+        />
+        {% endblock %}
+
+        {% block sw_admin_menu_toggle_sidebar_text %}
+        <span class="collapsible-text">{{ $tc('global.sw-admin-menu.linkMinimizeMenu') }}</span>
+        {% endblock %}
+
+    </button>
+    {% endblock %}
+
     {% block sw_admin_menu_footer %}
     <div class="sw-admin-menu__footer">
-
-        {% block sw_admin_menu_toggle_sidebar %}
-        <button
-            class="sw-admin-menu__toggle"
-            @click="onToggleSidebar"
-        >
-
-            {% block sw_admin_menu_toggle_sidebar_icon %}
-            <mt-icon
-                :name="sidebarCollapseIcon"
-                size="16px"
-            />
-            {% endblock %}
-
-            {% block sw_admin_menu_toggle_sidebar_text %}
-            <span class="collapsible-text">{{ $tc('global.sw-admin-menu.linkMinimizeMenu') }}</span>
-            {% endblock %}
-
-        </button>
-        {% endblock %}
 
         {% block sw_admin_menu_user_actions_toggle %}
         <mt-dropdown-menu-root

@@ -345,7 +345,9 @@ The admin menu only supports up to three levels of nesting.`,
                     const mainMenuListItem = currentActiveElement.closest(
                         '.navigation-list-item__level-1.navigation-list-item__has-children',
                     );
-                    ignoreElementsList.push(mainMenuListItem.firstElementChild);
+                    if (mainMenuListItem?.firstElementChild) {
+                        ignoreElementsList.push(mainMenuListItem.firstElementChild);
+                    }
                 }
 
                 this.removeClassesFromElements(
