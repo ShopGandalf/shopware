@@ -16,8 +16,13 @@ class PropertyGroupSorter extends AbstractPropertyGroupSorter
         throw new DecorationPatternException(self::class);
     }
 
-    public function sort(EntityCollection $options): PropertyGroupCollection
+    /**
+     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $localeCode will be added
+     */
+    public function sort(EntityCollection $options /* ?string $localeCode = null */): PropertyGroupCollection
     {
+        $localeCode = \func_num_args() === 2 ? func_get_arg(1) : null;
+
         $sorted = [];
 
         foreach ($options as $option) {
@@ -51,7 +56,7 @@ class PropertyGroupSorter extends AbstractPropertyGroupSorter
 
         $collection = new PropertyGroupCollection($sorted);
         $collection->sortByPositions();
-        $collection->sortByConfig();
+        $collection->sortByConfig($localeCode);
 
         return $collection;
     }
