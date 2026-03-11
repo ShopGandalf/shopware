@@ -52,6 +52,10 @@ If you want to enforce values on write, set `strict: true` when creating the fla
 
 ## Core
 
+### Locale-aware sorting for product property group options
+
+Introduces significant improvements to the sorting of product property group options, with a focus on locale-aware sorting.
+
 ### Scheduled cleanup of expired customer recovery records
 
 A new scheduled task `customer.cleanup_customer_recovery` has been added that automatically removes expired customer recovery records from the database on a daily basis.

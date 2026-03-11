@@ -4,6 +4,12 @@
 
 <details>
 
+## Locale-aware sorting for for product property group options
+
+To ensure the product property group options is sorted more precisely based on locale code:
+- `/Shopware/Core/Content/Product/AbstractPropertyGroupSorter`: The `sort` method will be removed, use `sortUsingLocaleCode` instead.
+- `/Shopware/Core/Content/Property/PropertyGroupCollection`: The `sortByConfig` method now required new parameter `localCode`.
+
 ## Tax Calculation for percentage discounts / surcharges, e.g. promotions
 
 Taxes of percentage prices are not recalculated anymore, but use the existing tax calculation of the referenced line items.
