@@ -5,6 +5,7 @@ namespace Shopware\Core\Content\Product;
 use Shopware\Core\Content\Property\Aggregate\PropertyGroupOption\PropertyGroupOptionCollection;
 use Shopware\Core\Content\Property\PropertyGroupCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\Feature;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Plugin\Exception\DecorationPatternException;
 
@@ -17,12 +18,23 @@ class PropertyGroupSorter extends AbstractPropertyGroupSorter
     }
 
     /**
-     * @deprecated tag:v6.8.0 - reason:new-optional-parameter - parameter $localeCode will be added
+     * @deprecated tag:v6.8.0 Use sortUsingLocaleCode() instead.
+     * Starting with v6.8.0, the method will be required to have a locale code parameter. This method will be removed.
      */
-    public function sort(EntityCollection $options /* ?string $localeCode = null */): PropertyGroupCollection
+    public function sort(EntityCollection $options): PropertyGroupCollection
     {
-        $localeCode = \func_num_args() === 2 ? func_get_arg(1) : null;
+        $localeCode = \func_num_args() === 2 ? func_get_arg(1) : '';
 
+        Feature::triggerDeprecationOrThrow(
+            'v6.8.0.0',
+            Feature::deprecatedMethodMessage(self::class, __FUNCTION__, 'v6.8.0.0', 'sortUsingLocaleCode()')
+        );
+
+        return $this->sortUsingLocaleCode($options, $localeCode);
+    }
+
+    public function sortUsingLocaleCode(EntityCollection $options, string $localeCode): PropertyGroupCollection
+    {
         $sorted = [];
 
         foreach ($options as $option) {
@@ -36,8 +48,9 @@ class PropertyGroupSorter extends AbstractPropertyGroupSorter
 
             $groupId = $group->get('id');
             if (\array_key_exists($groupId, $sorted)) {
-                \assert($sorted[$groupId]->get('options') !== null);
-                $sorted[$groupId]->get('options')->add($option);
+                $optionCollection = $sorted[$groupId]->get('options');
+                \assert($optionCollection instanceof PropertyGroupOptionCollection);
+                $optionCollection->fillOptions([$option]);
 
                 continue;
             }
@@ -48,15 +61,16 @@ class PropertyGroupSorter extends AbstractPropertyGroupSorter
                 ]);
             }
 
-            \assert($group->get('options') !== null);
-            $group->get('options')->add($option);
+            $optionCollection = $group->get('options');
+            \assert($optionCollection instanceof PropertyGroupOptionCollection);
+            $optionCollection->fillOptions([$option]);
 
             $sorted[$groupId] = $group;
         }
 
         $collection = new PropertyGroupCollection($sorted);
         $collection->sortByPositions();
-        $collection->sortByConfig($localeCode);
+        $collection->sortByConfig();
 
         return $collection;
     }

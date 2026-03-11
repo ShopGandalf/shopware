@@ -303,13 +303,7 @@ parameters:
 		-
 			message: '#^Mixed variable in a `\$group\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
 			identifier: typePerfect.noMixedMethodCaller
-			count: 5
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
-			message: '#^Mixed variable in a `\$group\-\>get\(''options''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 1
+			count: 4
 			path: src/Core/Content/Product/PropertyGroupSorter.php
 
 		-
@@ -321,13 +315,13 @@ parameters:
 		-
 			message: '#^Mixed variable in a `\$sorted\[\$groupId\]\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
 			identifier: typePerfect.noMixedMethodCaller
-			count: 2
+			count: 1
 			path: src/Core/Content/Product/PropertyGroupSorter.php
 
 		-
-			message: '#^Mixed variable in a `\$sorted\[\$groupId\]\-\>get\(''options''\)\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 1
+			message: '#^Parameter \#1 \$options of method Shopware\\Core\\Content\\Property\\Aggregate\\PropertyGroupOption\\PropertyGroupOptionCollection::fillOptions\(\) expects array<Shopware\\Core\\Content\\Property\\Aggregate\\PropertyGroupOption\\PropertyGroupOptionEntity>, array<int, Shopware\\Core\\Content\\Property\\Aggregate\\PropertyGroupOption\\PropertyGroupOptionEntity\|Shopware\\Core\\Framework\\DataAbstractionLayer\\PartialEntity> given\.$#'
+			identifier: argument.type
+			count: 2
 			path: src/Core/Content/Product/PropertyGroupSorter.php
 
 		-
