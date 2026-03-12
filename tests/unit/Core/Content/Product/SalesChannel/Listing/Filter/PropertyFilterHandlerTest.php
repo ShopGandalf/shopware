@@ -204,7 +204,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         /** @var StaticEntityRepository<PropertyGroupCollection> $groupRepository */
         $groupRepository = new StaticEntityRepository([
-            function (Criteria $criteria) {
+            static function (Criteria $criteria) {
                 static::assertContains('color', $criteria->getIds());
                 static::assertContains('size', $criteria->getIds());
 
@@ -226,7 +226,7 @@ class PropertyFilterHandlerTest extends TestCase
 
         /** @var StaticEntityRepository<PropertyGroupOptionCollection> $repository */
         $repository = new StaticEntityRepository([
-            function (Criteria $criteria) {
+            static function (Criteria $criteria) {
                 static::assertContains('red', $criteria->getIds());
                 static::assertContains('green', $criteria->getIds());
                 static::assertContains('xl', $criteria->getIds());

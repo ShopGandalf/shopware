@@ -292,7 +292,7 @@ class ProductSubscriberTest extends TestCase
         $measurementBuilder->expects($this->exactly(1))
             ->method('build')
             ->with($product, 'ft', 'lb')
-            ->willReturnCallback(function (ProductEntity $product, $from, $to) {
+            ->willReturnCallback(static function (ProductEntity $product, $from, $to) {
                 // Simulate conversion logic
                 // For the sake of this example, we will just double the value
 
@@ -401,7 +401,7 @@ class ProductSubscriberTest extends TestCase
             $measurementBuilder->expects($this->exactly(1))
                 ->method('build')
                 ->with($product, $headers[PlatformRequest::HEADER_MEASUREMENT_LENGTH_UNIT] ?? 'mm', $headers[PlatformRequest::HEADER_MEASUREMENT_WEIGHT_UNIT] ?? 'kg')
-                ->willReturnCallback(function (ProductEntity $product, $from, $to) {
+                ->willReturnCallback(static function (ProductEntity $product, $from, $to) {
                     // Simulate conversion logic
                     // For the sake of this example, we will just double the value
 
@@ -588,7 +588,7 @@ class ProductSubscriberTest extends TestCase
         $measurementUnitConverter = $this->createMock(AbstractMeasurementUnitConverter::class);
         $measurementUnitConverter->expects($this->exactly(4))
             ->method('convert')
-            ->willReturnCallback(function ($value, $from, $to) {
+            ->willReturnCallback(static function ($value, $from, $to) {
                 return new ConvertedUnit($value * 2.0, $to);
             });
 
@@ -626,14 +626,14 @@ class ProductSubscriberTest extends TestCase
 
         $command->expects($this->exactly(4))
             ->method('hasField')
-            ->willReturnCallback(function ($field) {
+            ->willReturnCallback(static function ($field) {
                 return \in_array($field, ['width', 'height', 'length', 'weight'], true);
             });
 
         $addPayloadCallCount = 0;
         $command->expects($this->exactly(4))
             ->method('addPayload')
-            ->willReturnCallback(function ($field, $value) use (&$addPayloadCallCount): void {
+            ->willReturnCallback(static function ($field, $value) use (&$addPayloadCallCount): void {
                 $expectedValues = [
                     'width' => 20.0,
                     'height' => 40.0,
@@ -774,7 +774,7 @@ class ProductSubscriberTest extends TestCase
 
         $command->expects($this->any())
             ->method('hasField')
-            ->willReturnCallback(function ($field) use ($hasFieldReturns) {
+            ->willReturnCallback(static function ($field) use ($hasFieldReturns) {
                 return $hasFieldReturns[$field] ?? false;
             });
 
@@ -984,7 +984,7 @@ class ProductSubscriberTest extends TestCase
         $successCallback = null;
         $event->expects($this->once())
             ->method('addSuccess')
-            ->willReturnCallback(function ($callback) use (&$successCallback): void {
+            ->willReturnCallback(static function ($callback) use (&$successCallback): void {
                 $successCallback = $callback;
             });
 
@@ -1048,7 +1048,7 @@ class ProductSubscriberTest extends TestCase
         $successCallback = null;
         $event->expects($this->once())
             ->method('addSuccess')
-            ->willReturnCallback(function ($callback) use (&$successCallback): void {
+            ->willReturnCallback(static function ($callback) use (&$successCallback): void {
                 $successCallback = $callback;
             });
 
