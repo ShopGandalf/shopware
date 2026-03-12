@@ -301,30 +301,6 @@ parameters:
 			path: src/Core/Content/Product/ProductVariationBuilder.php
 
 		-
-			message: '#^Mixed variable in a `\$group\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 4
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
-			message: '#^Mixed variable in a `\$origin\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 1
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
-			message: '#^Mixed variable in a `\$sorted\[\$groupId\]\-\>\.\.\.\(\)` can skip important errors\. Make sure the type is known$#'
-			identifier: typePerfect.noMixedMethodCaller
-			count: 1
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
-			message: '#^Parameter \#1 \$options of method Shopware\\Core\\Content\\Property\\Aggregate\\PropertyGroupOption\\PropertyGroupOptionCollection::fillOptions\(\) expects array<Shopware\\Core\\Content\\Property\\Aggregate\\PropertyGroupOption\\PropertyGroupOptionEntity>, array<int, Shopware\\Core\\Content\\Property\\Aggregate\\PropertyGroupOption\\PropertyGroupOptionEntity\|Shopware\\Core\\Framework\\DataAbstractionLayer\\PartialEntity> given\.$#'
-			identifier: argument.type
-			count: 2
-			path: src/Core/Content/Product/PropertyGroupSorter.php
-
-		-
 			message: '#^Method Shopware\\Core\\Content\\Product\\SalesChannel\\FindVariant\\FoundCombination\:\:getOptions\(\) return type has no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1

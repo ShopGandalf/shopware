@@ -34,7 +34,7 @@ class PropertyGroupCollection extends EntityCollection
 
     public function sortByPositions(): void
     {
-        uasort($this->elements, function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
+        uasort($this->elements, static function (PropertyGroupEntity $a, PropertyGroupEntity $b) {
             $posA = $a->getTranslation('position') ?? $a->getPosition() ?? 0;
             $posB = $b->getTranslation('position') ?? $b->getPosition() ?? 0;
             if ($posA === $posB) {
@@ -55,13 +55,13 @@ class PropertyGroupCollection extends EntityCollection
         $collator = $this->createCollator($localeCode);
 
         foreach ($this->elements as $group) {
-            $options = $group->getOptions();
+            $options = $group->get('options');
             if (!$options instanceof PropertyGroupOptionCollection) {
                 continue;
             }
 
             $elements = $options->getElements();
-            $sortingByPosition = $group->getSortingType() !== PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC;
+            $sortingByPosition = $group->get('sortingType') !== PropertyGroupDefinition::SORTING_TYPE_ALPHANUMERIC;
             $posititionCol = [];
             $nameCol = [];
 
@@ -89,10 +89,9 @@ class PropertyGroupCollection extends EntityCollection
             array_multisort(...$sortArgs);
 
             $sortedOptions = new PropertyGroupOptionCollection();
-            // Bypass expected class validation for performance optimization
             $sortedOptions->fillOptions($elements);
 
-            $group->setOptions($sortedOptions);
+            $group->assign(['options' => $sortedOptions]);
         }
     }
 
