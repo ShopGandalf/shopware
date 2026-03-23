@@ -2,6 +2,30 @@
 
 ## Features
 
+### Declarative mail templates for plugins and apps
+
+Plugins and apps can now define mail templates declaratively using a directory-based convention under `Resources/mail-templates/`. This replaces the need for PHP boilerplate to persist mail template types and templates via the DAL.
+
+The approach uses an XML file for metadata (type name, subject, sender name, etc.) and separate `.html.twig` / `.txt.twig` files for template content, preserving full IDE support for Twig editing.
+
+**Directory structure:**
+```
+Resources/
+  mail-templates/
+    mail-templates.xml
+    order_confirmation/
+      en-GB/
+        html.twig
+        plain.twig
+      de-DE/
+        html.twig
+        plain.twig
+```
+
+On plugin install/update, mail template types and their templates are automatically synced to the database. On uninstall (without `--keep-user-data`), they are removed.
+
+The `bin/console plugin:create` scaffolding command now offers a `--create-mail-template` option that generates the directory structure and example files.
+
 ### Default CMS page ID now persisted for categories
 
 Previously, when a category had no CMS page assigned, the default CMS page ID was only set at runtime during entity loading. This caused missing `cmsPage` association data when loading categories with criteria that included the `cmsPage` association.
