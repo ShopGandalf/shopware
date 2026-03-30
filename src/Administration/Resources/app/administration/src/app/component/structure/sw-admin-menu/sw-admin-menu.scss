@@ -1,42 +1,22 @@
-@import '~scss/variables';
 @import '~scss/mixins';
-
-$sw-admin-menu-color-text-secondary: darken($color-gray-300, 20%);
-$sw-admin-menu-width-expanded: 280px;
-$sw-admin-menu-width-collapsed: 52px;
-$sw-admin-menu-z-index-off-canvas: $z-index-off-canvas;
-$sw-admin-menu-transition: 0.4s cubic-bezier(0.5, 0.32, 0.01, 1);
-$sw-admin-menu-off-canvas-transition: 0.4s cubic-bezier(0.3, 0, 0.15, 1);
-$sw-admin-menu-sub-menu-transition: 0.35s cubic-bezier(0.5, 0.32, 0.01, 1);
-$sw-admin-menu-color-active: #172b4f;
-$sw-admin-menu-color-hover: #285fbf;
-$sw-admin-menu-shop-status-ok: $color-emerald-500;
-$sw-admin-menu-background: var(--color-elevation-surface-default);
-$sw-admin-menu-background-hover: #293f65;
-$sw-admin-menu-divider: #344865;
-$sw-admin-menu-background-active-first-level: var(--color-background-brand-default);
-$sw-admin-menu-background-active-hover: var(--color-interaction-secondary-hover);
-$sw-admin-menu-background-active-second-level: var(--color-background-brand-default);
-$sw-admin-menu-color-text-primary: var(--color-text-primary-default);
-$sw-admin-menu-active-text: var(--color-icon-brand-default);
 
 .sw-admin-menu {
     border-right: 1px solid var(--color-border-secondary-default);
-    background: $sw-admin-menu-background;
-    width: $sw-admin-menu-width-collapsed;
+    background: var(--color-elevation-surface-default);
+    width: 52px;
     height: 100%;
     display: flex;
     flex-direction: column;
     padding: var(--scale-size-8) var(--scale-size-8);
 
     @media screen and (max-width: 500px) {
-        width: $sw-admin-menu-width-expanded;
+        width: 280px;
         position: absolute;
         top: 0;
-        left: -$sw-admin-menu-width-expanded;
+        left: -280px;
         bottom: 0;
         height: 100%;
-        z-index: $sw-admin-menu-z-index-off-canvas;
+        z-index: 750;
 
         &.is--off-canvas-shown {
             left: 0;
@@ -53,17 +33,17 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
     }
 
     &.is--expanded {
-        width: $sw-admin-menu-width-expanded;
+        width: 280px;
 
         .navigation-list-item__level-1 > .sw-admin-menu__navigation-link.router-link-active {
-            background: $sw-admin-menu-background-active-first-level;
+            background: var(--color-background-brand-default);
         }
 
         .sw-admin-menu__navigation-link.router-link-active {
-            background: $sw-admin-menu-background-active-second-level;
+            background: var(--color-background-brand-default);
 
             .collapsible-text {
-                color: $sw-admin-menu-active-text;
+                color: var(--color-icon-brand-default);
             }
         }
 
@@ -140,9 +120,9 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
         display: flex;
         justify-content: flex-end;
         gap: 12px;
-        color: $sw-admin-menu-active-text;
+        color: var(--color-icon-brand-default);
         width: 100%;
-        font-weight: $font-weight-semi-bold;
+        font-weight: var(--font-weight-semibold);
         font-size: var(--font-size-xs);
         line-height: var(--font-line-height-xs);
         padding: var(--scale-size-10) var(--scale-size-10);
@@ -151,7 +131,7 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
 
     .sw-admin-menu__headline-action,
     .sw-admin-menu__headline-context-menu {
-        color: $sw-admin-menu-color-text-primary;
+        color: var(--color-text-primary-default);
         cursor: pointer;
         border: 0;
         background: none;
@@ -173,12 +153,12 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
             line-height: 0;
             height: 100%;
             padding: 0;
-            color: $sw-admin-menu-color-text-primary;
+            color: var(--color-text-primary-default);
 
             &.is--active,
             &:hover,
             &:focus {
-                color: $color-white;
+                color: var(--color-text-primary-inverse);
                 border-color: transparent;
             }
         }
@@ -203,12 +183,12 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
 
     .sw-admin-menu__toggle {
         order: 3;
-        color: $sw-admin-menu-color-text-primary;
+        color: var(--color-text-primary-default);
         display: block;
         padding: var(--scale-size-8);
         text-decoration: none;
-        font-size: $font-size-xs;
-        line-height: $line-height-md;
+        font-size: var(--font-size-xs);
+        line-height: var(--font-line-height-s);
         width: 100%;
         cursor: pointer;
         white-space: nowrap;
@@ -229,10 +209,10 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
         }
 
         &:hover {
-            color: $sw-admin-menu-active-text;
+            color: var(--color-icon-brand-default);
 
             .mt-icon {
-                color: $sw-admin-menu-active-text;
+                color: var(--color-icon-brand-default);
             }
         }
     }
@@ -267,11 +247,11 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
         }
 
         .sw-loader {
-            background: $sw-admin-menu-background-active-first-level;
+            background: var(--color-background-brand-default);
         }
 
         .sw-admin-menu__navigation-list-item:hover {
-            background: $sw-admin-menu-background-active-second-level;
+            background: var(--color-background-brand-default);
         }
 
         .sw-admin-menu__user-actions-toggle-icon-wrapper {
@@ -305,7 +285,7 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
         right: 10px;
         top: 50%;
         margin-top: -8px;
-        color: $sw-admin-menu-color-text-primary;
+        color: var(--color-text-primary-default);
 
         &.mt-icon {
             width: 16px;
@@ -317,7 +297,7 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
         }
 
         &:hover {
-            color: $sw-admin-menu-active-text;
+            color: var(--color-icon-brand-default);
         }
     }
 
@@ -341,7 +321,7 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
         display: none;
 
         .sw-admin-menu__navigation-list-item {
-            background: $sw-admin-menu-background-active-first-level;
+            background: var(--color-background-brand-default);
         }
 
         .sw-admin-menu__navigation-link {
@@ -356,20 +336,20 @@ $sw-admin-menu-active-text: var(--color-icon-brand-default);
     .sw-admin-menu__user-actions-label {
         @include truncate;
 
-        font-weight: $font-weight-semi-bold;
-        font-size: $font-size-xs;
+        font-weight: var(--font-weight-semibold);
+        font-size: var(--font-size-xs);
         padding: 0 30px;
         height: 48px;
         line-height: 48px;
-        background: $sw-admin-menu-background-active-first-level;
-        color: $sw-admin-menu-active-text;
+        background: var(--color-background-brand-default);
+        color: var(--color-icon-brand-default);
     }
 
     &.is--collapsed {
         .sw-admin-menu__user-actions {
-            border-left: 2px solid $sw-admin-menu-color-text-secondary;
-            left: $sw-admin-menu-width-collapsed;
-            z-index: $z-index-flyout;
+            border-left: 2px solid var(--color-border-secondary-default);
+            left: 52px;
+            z-index: 700;
             width: 260px;
             position: absolute;
             bottom: 0;
