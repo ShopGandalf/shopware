@@ -61,7 +61,6 @@ class ProductSearchQueryBuilder extends AbstractProductSearchQueryBuilder
                 (bool) $item['and_logic'],
             );
         }, $searchConfig);
-
         if (!$configs[0]->isAndLogic()) {
             $tokens = [$originalTerm];
         }
