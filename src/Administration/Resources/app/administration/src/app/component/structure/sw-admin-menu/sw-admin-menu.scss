@@ -365,4 +365,31 @@
             pointer-events: none;
         }
     }
+
+    .flyout-enter-active,
+    .flyout-leave-active {
+        transition: all 0.2s cubic-bezier(0.5, 0.32, 0.01, 1);
+        transform: translateX(0);
+    }
+
+    .flyout-enter,
+    .flyout-leave-to {
+        opacity: 0;
+        transform: translateX(-8px);
+    }
+
+    .sw-admin-menu_flyout-holder {
+        position: absolute;
+        left: 280px;
+        width: 260px;
+        top: 0;
+        display: block;
+        z-index: 700;
+        background: var(--color-elevation-surface-default);
+        list-style: none;
+    }
+
+    &.is--collapsed .sw-admin-menu_flyout-holder {
+        left: 52px;
+    }
 }

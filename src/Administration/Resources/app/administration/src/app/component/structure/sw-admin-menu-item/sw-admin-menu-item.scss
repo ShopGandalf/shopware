@@ -131,6 +131,11 @@
     }
 }
 
+.sw-admin-menu__navigation-list-item.is--flyout-enabled > .sw-admin-menu__navigation-link {
+    color: var(--color-icon-brand-default);
+    background: var(--color-background-brand-default);
+}
+
 // Separator between plugin & core entries
 .sw-admin-menu__separator {
     display: none;

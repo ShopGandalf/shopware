@@ -59,6 +59,8 @@
                         :is-expanded="currentExpandedMenuEntries.includes(entry)"
                         :entry="entry"
                         @menu-item-click="onMenuItemClick"
+                        @menu-item-enter="onMenuItemEnter"
+                        @sub-menu-item-enter="onSubMenuItemEnter"
                     />
                     {% endblock %}
                 </ul>
@@ -163,6 +165,40 @@
         </mt-dropdown-menu-root>
         {% endblock %}
     </div>
+    {% endblock %}
+
+    {% block sw_admin_menu_flyout_transition %}
+    <transition name="flyout">
+        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+        <ul
+            v-if="!isExpanded && flyoutEntries.length"
+            class="sw-admin-menu_flyout-holder"
+            :style="flyoutStyle"
+            @mouseenter="onFlyoutEnter"
+            @mouseleave="onFlyoutLeave"
+        >
+            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
+            <template
+                v-for="entry in flyoutEntries"
+                :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
+            >
+                <li
+                    v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
+                    :style="{ 'border-color': flyoutColor }"
+                    class="sw-admin-menu__separator"
+                >
+                    <span class="sw-admin-menu__separator-line"></span>
+                </li>
+
+                <sw-admin-menu-item
+                    :entry="entry"
+                    :border-color="flyoutColor"
+                    :display-icon="false"
+                    :collapsible-text="false"
+                />
+            </template>
+        </ul>
+    </transition>
     {% endblock %}
 </aside>
 {% endblock %}
