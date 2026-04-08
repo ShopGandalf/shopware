@@ -366,30 +366,34 @@
         }
     }
 
-    .flyout-enter-active,
-    .flyout-leave-active {
-        transition: all 0.2s cubic-bezier(0.5, 0.32, 0.01, 1);
-        transform: translateX(0);
-    }
-
-    .flyout-enter,
-    .flyout-leave-to {
-        opacity: 0;
-        transform: translateX(-8px);
+    .sw-admin-menu__flyout-floating-ui {
+        position: absolute;
+        left: 280px;
+        top: 0;
+        z-index: 700;
     }
 
     .sw-admin-menu_flyout-holder {
-        position: absolute;
-        left: 280px;
         width: 260px;
-        top: 0;
         display: block;
-        z-index: 700;
-        background: var(--color-elevation-surface-default);
+        background: #fff;
+        box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+        border-radius: var(--border-radius-s);
         list-style: none;
     }
 
-    &.is--collapsed .sw-admin-menu_flyout-holder {
+    &.is--collapsed .sw-admin-menu__flyout-floating-ui {
         left: 52px;
     }
+}
+
+// mt-floating-ui content can be teleported outside `.sw-admin-menu`.
+// Keep flyout panel styles global so the background/shadow always apply.
+.sw-admin-menu_flyout-holder {
+    width: 260px;
+    display: block;
+    background: #fff;
+    box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+    border-radius: var(--border-radius-s);
+    list-style: none;
 }

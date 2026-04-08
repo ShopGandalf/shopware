@@ -535,9 +535,7 @@ The admin menu only supports up to three levels of nesting.`,
             }
 
             target.classList.add('is--flyout-enabled');
-            this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
-            };
+            this.flyoutStyle = this.getFlyoutStyleForTarget(target);
 
             this.flyoutEntries = this.getChildren(entry);
 
@@ -596,9 +594,7 @@ The admin menu only supports up to three levels of nesting.`,
                 this.flyoutEntries = this.getChildren(entry);
             }
 
-            this.flyoutStyle = {
-                top: `${target.getBoundingClientRect().top - document.getElementById('app').getBoundingClientRect().top}px`,
-            };
+            this.flyoutStyle = this.getFlyoutStyleForTarget(target);
 
             this.deactivatePreviousMenuItem();
             target.classList.add('is--flyout-enabled');
@@ -608,6 +604,17 @@ The admin menu only supports up to three levels of nesting.`,
             }
             this.flyoutColor = entry.color;
             this.activeEntry = { entry, target, parentEntries };
+        },
+
+        getFlyoutStyleForTarget(target) {
+            const targetRect = target.getBoundingClientRect();
+            const verticalOffset = -8;
+
+            return {
+                position: 'fixed',
+                top: `${targetRect.top + verticalOffset}px`,
+                left: `${targetRect.right}px`,
+            };
         },
 
         getPolygonFromMenuItem(element, entry) {

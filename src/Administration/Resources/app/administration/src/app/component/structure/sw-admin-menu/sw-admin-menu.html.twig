@@ -168,14 +168,19 @@
     {% endblock %}
 
     {% block sw_admin_menu_flyout_transition %}
-    <transition name="flyout">
-        <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+    <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
+    <mt-floating-ui
+        v-if="!isExpanded"
+        class="sw-admin-menu__flyout-floating-ui"
+        :is-opened="flyoutEntries.length > 0"
+        :style="flyoutStyle"
+        @mouseenter="onFlyoutEnter"
+        @mouseleave="onFlyoutLeave"
+    >
         <ul
-            v-if="!isExpanded && flyoutEntries.length"
+            v-if="flyoutEntries.length"
             class="sw-admin-menu_flyout-holder"
             :style="flyoutStyle"
-            @mouseenter="onFlyoutEnter"
-            @mouseleave="onFlyoutLeave"
         >
             <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
             <template
@@ -198,7 +203,7 @@
                 />
             </template>
         </ul>
-    </transition>
+    </mt-floating-ui>
     {% endblock %}
 </aside>
 {% endblock %}
