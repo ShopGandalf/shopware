@@ -18,8 +18,6 @@ export default {
 
     emits: [
         'menu-item-click',
-        'menu-item-enter',
-        'sub-menu-item-enter',
     ],
 
     props: {
@@ -248,10 +246,6 @@ export default {
                 `navigation-list-item__level-${this.entry.level}`,
                 { 'navigation-list-item__has-children': hasChildren },
             ];
-        },
-
-        onSubMenuItemEnter(entry, $event, parentEntries) {
-            this.$emit('sub-menu-item-enter', entry, $event, parentEntries);
         },
 
         isFirstPluginInMenuEntries(entry, menuEntries) {

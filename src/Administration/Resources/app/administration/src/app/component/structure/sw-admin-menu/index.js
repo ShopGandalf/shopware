@@ -25,36 +25,14 @@ export default {
         Mixin.getByName('notification'),
     ],
 
-    props: {
-        mouseLocationsTracked: {
-            type: Number,
-            required: false,
-            default() {
-                return 3;
-            },
-        },
-        subMenuDelay: {
-            type: Number,
-            required: false,
-            default() {
-                return 150;
-            },
-        },
-    },
-
     data() {
         return {
-            subMenuTimer: null,
-            mouseLocations: [],
-            lastDelayLocation: null,
             activeEntry: null,
             isOffCanvasShown: false,
             isUserActionsActive: false,
             flyoutEntries: [],
-            lastFlyoutEntries: [],
             flyoutStyle: {},
             flyoutColor: '',
-            flyoutLabel: '',
             subMenuOpen: false,
             scrollbarOffset: '',
             isUserLoading: true,
@@ -233,12 +211,11 @@ The admin menu only supports up to three levels of nesting.`,
 
     mounted() {
         this.mountedComponent();
-        document.addEventListener('mouseleave', this.onFlyoutLeave);
+        document.addEventListener('click', this.onDocumentClickDismissFlyout, false);
     },
 
     beforeUnmount() {
-        document.removeEventListener('mousemove', this.onMouseMoveDocument.bind(this));
-        document.removeEventListener('mouseleave', this.onFlyoutLeave);
+        document.removeEventListener('click', this.onDocumentClickDismissFlyout, false);
 
         this.beforeUnmountedComponent();
     },
@@ -292,8 +269,6 @@ The admin menu only supports up to three levels of nesting.`,
                 },
                 component: this,
             });
-
-            document.addEventListener('mousemove', this.onMouseMoveDocument.bind(this));
 
             this.addScrollbarOffset();
         },
@@ -414,32 +389,56 @@ The admin menu only supports up to three levels of nesting.`,
             this.scrollbarOffset = `-${offset}px`;
         },
 
-        onMouseMoveDocument(event) {
-            this.mouseLocations.push({
-                x: event.pageX,
-                y: event.pageY,
-            });
-
-            // Mouse locations array exceeds the configured threshold
-            if (this.mouseLocations.length > this.mouseLocationsTracked) {
-                this.mouseLocations.shift();
-            }
-        },
-
         onMenuItemClick(entry, eventTarget) {
+            // Same-tick as opening flyout: document listener must not close (see onDocumentClickDismissFlyout).
+            this._suppressDocumentFlyoutDismiss = true;
+
             const target = eventTarget.closest('.sw-admin-menu__navigation-list-item');
+            const isClickFromFlyout = Boolean(
+                eventTarget.closest('.sw-admin-menu_flyout-holder, .sw-admin-menu__flyout-floating-ui'),
+            );
             const level = entry.level;
 
-            if (!this.isExpanded) {
+            const hasChildrenClass = target.classList.contains('navigation-list-item__has-children');
+            const children = hasChildrenClass ? this.getChildren(entry) : [];
+
+            // Collapsed: open/close flyout on click (not hover)
+            if (!this.isExpanded && hasChildrenClass && children.length > 0) {
+                const entryKey = entry.id || entry.path;
+                const active = this.activeEntry?.entry;
+                const activeKey = active ? active.id || active.path : null;
+
+                if (activeKey === entryKey && this.flyoutEntries.length > 0) {
+                    this.onFlyoutLeave();
+                    return;
+                }
+
+                this.flyoutEntries = children;
+                this.flyoutStyle = this.getFlyoutStyleForTarget(target);
+                this.deactivatePreviousMenuItem();
+                target.classList.add('is--flyout-enabled');
+
+                if (entry.level && entry.level > 1) {
+                    const parentEntry = this.mainMenuEntries.find((item) => {
+                        return item.id === entry.parent || item.path === entry.parent;
+                    });
+                    this.flyoutColor = parentEntry?.color ?? entry.color ?? '';
+                } else {
+                    this.flyoutColor = entry.color ?? '';
+                }
+                this.activeEntry = { entry, target, parentEntries: [] };
+                return;
+            }
+
+            if (!this.isExpanded && !isClickFromFlyout) {
                 this.expandAdminMenu();
             }
 
-            // Clear previous delay of the menu
-            if (this.subMenuTimer) {
-                window.clearTimeout(this.subMenuTimer);
+            if (this.flyoutEntries.length) {
+                this.flyoutEntries = [];
             }
 
-            if (level > 1 || !target.classList.contains('navigation-list-item__has-children')) {
+            if (level > 1 || !hasChildrenClass) {
                 return;
             }
 
@@ -470,83 +469,19 @@ The admin menu only supports up to three levels of nesting.`,
             }
 
             target.classList.remove('is--flyout-expanded');
-
-            if (this.flyoutEntries.length) {
-                this.flyoutEntries = [];
-            }
         },
 
-        onMenuLeave() {
-            if (this.subMenuTimer) {
-                window.clearTimeout(this.subMenuTimer);
-            }
-
-            this.deactivatePreviousMenuItem();
-            this.flyoutEntries = [];
-        },
-
-        onMenuItemEnter(entry, event, parentEntries) {
-            if (this.isExpanded) {
-                this.onFlyoutLeave();
+        onDocumentClickDismissFlyout() {
+            if (this._suppressDocumentFlyoutDismiss) {
+                this._suppressDocumentFlyoutDismiss = false;
                 return;
             }
 
-            const target = event.target;
-
-            if (this.subMenuTimer) {
-                window.clearTimeout(this.subMenuTimer);
-            }
-
-            if (target.classList.contains('is--entry-expanded')) {
+            if (!this.flyoutEntries.length || this.isExpanded) {
                 return;
             }
 
-            if (!target.classList.contains('navigation-list-item__has-children')) {
-                this.deactivatePreviousMenuItem();
-                this.flyoutEntries = [];
-                return;
-            }
-
-            this.possiblyActivate(entry, target, parentEntries);
-        },
-
-        onSubMenuItemEnter(entry, event) {
-            if (this.isExpanded) {
-                this.onFlyoutLeave();
-                return;
-            }
-
-            const target = event.target;
-            const parent = target.closest('.is--entry-expanded');
-
-            if (!parent) {
-                return;
-            }
-
-            this.removeClassesFromElements(
-                Array.from(parent.querySelectorAll('.sw-admin-menu__navigation-list-item')),
-                ['is--flyout-enabled'],
-                [target],
-            );
-
-            if (!this.getChildren(entry).length) {
-                this.flyoutEntries = [];
-                return;
-            }
-
-            target.classList.add('is--flyout-enabled');
-            this.flyoutStyle = this.getFlyoutStyleForTarget(target);
-
-            this.flyoutEntries = this.getChildren(entry);
-
-            const parentEntry = this.mainMenuEntries.find((item) => {
-                return item.id === entry.parent || item.path === entry.parent;
-            });
-
-            if (!parentEntry) {
-                return;
-            }
-            this.flyoutColor = parentEntry.color;
+            this.onFlyoutLeave();
         },
 
         getChildren(entry) {
@@ -557,53 +492,6 @@ The admin menu only supports up to three levels of nesting.`,
 
                 return this.acl.can(child.privilege);
             });
-        },
-
-        isPositionInPolygon(x, y, polygon) {
-            let inside = false;
-
-            for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-                const xi = polygon[i][0];
-                const yi = polygon[i][1];
-                const xj = polygon[j][0];
-                const yj = polygon[j][1];
-
-                const intersect = yi > y !== yj > y && x < ((xj - xi) * (y - yi)) / (yj - yi) + xi;
-                if (intersect) inside = !inside;
-            }
-
-            return inside;
-        },
-
-        possiblyActivate(entry, currentTarget, parentEntries) {
-            const delay = this.getActivationDelay(currentTarget, entry);
-
-            if (delay) {
-                this.subMenuTimer = window.setTimeout(
-                    this.possiblyActivate.bind(this, entry, currentTarget, parentEntries, true),
-                    delay,
-                );
-                return;
-            }
-
-            this.activateMenuItem(entry, currentTarget, parentEntries);
-        },
-
-        activateMenuItem(entry, target, parentEntries) {
-            if (this.getChildren(entry)) {
-                this.flyoutEntries = this.getChildren(entry);
-            }
-
-            this.flyoutStyle = this.getFlyoutStyleForTarget(target);
-
-            this.deactivatePreviousMenuItem();
-            target.classList.add('is--flyout-enabled');
-
-            if (this.subMenuTimer) {
-                window.clearTimeout(this.subMenuTimer);
-            }
-            this.flyoutColor = entry.color;
-            this.activeEntry = { entry, target, parentEntries };
         },
 
         getFlyoutStyleForTarget(target) {
@@ -617,81 +505,8 @@ The admin menu only supports up to three levels of nesting.`,
             };
         },
 
-        getPolygonFromMenuItem(element, entry) {
-            const outerWidth = (el) => {
-                let width = el.offsetWidth;
-                const style = el.currentStyle || getComputedStyle(el);
-
-                width += parseInt(style.marginLeft, 10) || 0;
-                return width;
-            };
-
-            const outerHeight = (el) => {
-                let height = el.offsetHeight;
-                const style = el.currentStyle || getComputedStyle(el);
-
-                height += parseInt(style.marginTop, 10) || 0;
-                return height;
-            };
-
-            const targetRect = element.getBoundingClientRect();
-            const targetHeight = outerHeight(element);
-            const targetWidth = outerWidth(element);
-            const subMenuHeight = this.getChildren(entry).length * targetHeight;
-
-            const topLeft = { x: targetRect.left, y: targetRect.top };
-            const bottomLeft = { x: topLeft.x, y: topLeft.y + targetHeight };
-            const topRight = { x: topLeft.x + targetWidth * 2, y: topLeft.y };
-            const bottomRight = { x: topRight.x, y: topRight.y + subMenuHeight };
-
-            return [
-                [topLeft.x, topLeft.y],
-                [bottomLeft.x, bottomLeft.y],
-                [bottomRight.x, bottomRight.y],
-                [topRight.x, topRight.y],
-            ];
-        },
-
-        getActivationDelay() {
-            const currentMousePosition = this.mouseLocations[this.mouseLocations.length - 1];
-
-            if (!currentMousePosition) {
-                return 0;
-            }
-
-            if (!this.flyoutEntries.length) {
-                return 0;
-            }
-
-            if (
-                this.lastDelayLocation &&
-                currentMousePosition.x === this.lastDelayLocation.x &&
-                currentMousePosition.y === this.lastDelayLocation.y
-            ) {
-                return 0;
-            }
-
-            if (this.activeEntry !== null) {
-                const previousPolygon = this.getPolygonFromMenuItem(this.activeEntry.target, this.activeEntry.entry);
-
-                if (this.isPositionInPolygon(currentMousePosition.x, currentMousePosition.y, previousPolygon)) {
-                    this.lastDelayLocation = currentMousePosition;
-                    return this.subMenuDelay;
-                }
-            }
-
-            return 0;
-        },
-
-        onFlyoutEnter() {
-            if (this.subMenuTimer) {
-                window.clearTimeout(this.subMenuTimer);
-            }
-        },
-
         onFlyoutLeave() {
             this.deactivatePreviousMenuItem();
-            this.activeEntry = null;
             this.flyoutEntries = [];
         },
 
@@ -699,7 +514,7 @@ The admin menu only supports up to three levels of nesting.`,
             if (this.activeEntry && this.activeEntry.target) {
                 this.activeEntry.target.classList.remove('is--flyout-enabled');
             }
-            this.activeEntry = [];
+            this.activeEntry = null;
         },
 
         removeClassesFromElements(elements, classList, ignoreElementsList = []) {

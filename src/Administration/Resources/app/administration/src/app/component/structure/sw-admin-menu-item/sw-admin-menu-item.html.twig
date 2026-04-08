@@ -9,7 +9,6 @@
     @click.prevent="$emit('menu-item-click', entry, $event.target)"
     @keydown.enter="$emit('menu-item-click', entry, $event.target)"
     @keydown.space="$emit('menu-item-click', entry, $event.target)"
-    @mouseenter="$emit('menu-item-enter', entry, $event, parentEntries)"
 >
 
     {% block sw_admin_menu_item_router_link %}
@@ -165,7 +164,6 @@
                 :border-color="borderColor"
                 :display-icon="false"
                 :collapsible-text="collapsibleText"
-                @menu-item-enter="onSubMenuItemEnter"
             />
         </template>
     </ul>
