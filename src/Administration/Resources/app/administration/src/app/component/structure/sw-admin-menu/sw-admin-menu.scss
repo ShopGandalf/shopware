@@ -357,13 +357,10 @@
             padding: 0;
         }
 
-        // .sw-admin-menu__navigation-link {
-        //     width: var(--scale-size-36);
-        //     height: var(--scale-size-36);
-        //     padding: 0;
-        //     align-items: center;
-        //     justify-content: center;
-        // }
+        .sw-admin-menu__navigation-link {
+            width: var(--scale-size-36);
+            height: var(--scale-size-36);
+        }
 
         .sw-admin-menu__header {
             padding: 0;
