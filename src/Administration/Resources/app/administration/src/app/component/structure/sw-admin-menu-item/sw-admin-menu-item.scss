@@ -21,6 +21,11 @@
     font-weight: var(--font-weight-medium);
     border-radius: var(--border-radius-s);
 
+    &:not(.router-link-active):hover {
+        background: var(--color-interaction-secondary-hover);
+        color: var(--color-text-primary-default);
+    }
+
     .mt-icon {
         flex-shrink: 0;
     }
@@ -97,6 +102,19 @@
             border-radius: 1px;
             outline: 4px solid var(--color-background-brand-default);
         }
+
+        // Hover state: show inner indicator in neutral gray
+        &:not(.router-link-active):hover::after {
+            content: '';
+            position: absolute;
+            left: 12px;
+            top: var(--scale-size-14);
+            bottom: var(--scale-size-14);
+            width: 3px;
+            background: var(--color-border-primary-default);
+            border-radius: 1px;
+            outline: 4px solid var(--color-background-brand-default);
+        }
     }
 
     // First item active: gray line only bottom half
@@ -132,8 +150,8 @@
 }
 
 .sw-admin-menu__navigation-list-item.is--flyout-enabled > .sw-admin-menu__navigation-link {
-    color: var(--color-icon-brand-default);
-    background: var(--color-background-brand-default);
+    color: var(--color-text-primary-default);
+    background: var(--color-interaction-secondary-hover);
 }
 
 // Separator between plugin & core entries
