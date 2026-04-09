@@ -15,6 +15,18 @@
                 class="sw-admin-menu__header-logo"
                 role="img"
             ></div>
+
+            <button
+                v-if="!isExpanded"
+                type="button"
+                class="sw-admin-menu__header-logo-expand-button"
+                @click.stop="onToggleSidebar"
+            >
+                <mt-icon
+                    :name="sidebarCollapseIcon"
+                    size="16px"
+                />
+            </button>
         </div>
         {% endblock %}
 
@@ -87,23 +99,6 @@
         </div>
         {% endblock %}
     </div>
-    {% endblock %}
-
-    {% block sw_admin_menu_toggle_sidebar %}
-    <button
-        type="button"
-        class="sw-admin-menu__toggle"
-        @click.stop="onToggleSidebar"
-    >
-
-        {% block sw_admin_menu_toggle_sidebar_icon %}
-        <mt-icon
-            :name="sidebarCollapseIcon"
-            size="16px"
-        />
-        {% endblock %}
-
-    </button>
     {% endblock %}
 
     {% block sw_admin_menu_footer %}
