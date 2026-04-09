@@ -18,6 +18,7 @@ export default {
 
     emits: [
         'menu-item-click',
+        'menu-item-hover',
     ],
 
     props: {

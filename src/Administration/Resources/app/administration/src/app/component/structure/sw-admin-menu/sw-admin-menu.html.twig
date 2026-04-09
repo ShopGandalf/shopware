@@ -46,7 +46,14 @@
                 </h2>
 
                 {% block sw_admin_menu_navigation_main_list %}
-                <ul class="sw-admin-menu__navigation-list">
+                <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
+                <ul
+                    class="sw-admin-menu__navigation-list"
+                    @mouseenter="cancelFlyoutClose"
+                    @focusin="cancelFlyoutClose"
+                    @mouseleave="onNavigationListMouseLeave"
+                    @focusout="onNavigationListMouseLeave"
+                >
                     <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                     {% block sw_admin_menu_navigation_main_items %}
                     <sw-admin-menu-item
@@ -57,6 +64,7 @@
                         :sidebar-expanded="isExpanded"
                         :is-expanded="currentExpandedMenuEntries.includes(entry)"
                         :entry="entry"
+                        @menu-item-hover="onMenuItemHover"
                         @menu-item-click="onMenuItemClick"
                     />
                     {% endblock %}
@@ -168,9 +176,14 @@
         :floating-ui-options="{ placement: 'right-start' }"
         :offset="50"
     >
+        <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
         <div
             v-if="flyoutEntries.length"
             class="sw-admin-menu__flyout-content"
+            @mouseenter="cancelFlyoutClose"
+            @focusin="cancelFlyoutClose"
+            @mouseleave="onFlyoutMouseLeave"
+            @focusout="onFlyoutMouseLeave"
         >
             <span
                 v-if="flyoutTitle"

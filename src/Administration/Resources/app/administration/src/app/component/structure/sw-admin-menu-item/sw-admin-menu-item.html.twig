@@ -6,6 +6,7 @@
     :class="getElementClasses(entry.id || entryPath)"
     :style="{ 'border-color': borderColor }"
     :aria-current="subIsActive(entryPath, entry.id) ? 'page' : 'false'"
+    @mouseenter="$emit('menu-item-hover', entry, $event.target)"
     @click.prevent="$emit('menu-item-click', entry, $event.target)"
     @keydown.enter="$emit('menu-item-click', entry, $event.target)"
     @keydown.space="$emit('menu-item-click', entry, $event.target)"
