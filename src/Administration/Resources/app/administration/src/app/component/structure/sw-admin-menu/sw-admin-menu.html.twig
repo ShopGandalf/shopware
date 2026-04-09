@@ -19,7 +19,19 @@
         {% endblock %}
 
         {% block sw_admin_menu_header_version %}
-        <sw-version class="collapsible-text" />
+        <sw-version class="collapsible-text sw-admin-menu__version" />
+        {% endblock %}
+
+        {% block sw_admin_menu_header_toggle_sidebar %}
+        <button
+            type="button"
+            @click.stop="onToggleSidebar"
+        >
+            <mt-icon
+                :name="sidebarCollapseIcon"
+                size="16px"
+            />
+        </button>
         {% endblock %}
     </div>
     {% endblock %}
