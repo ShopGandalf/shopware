@@ -169,17 +169,13 @@
     {% endblock %}
 
     {% block sw_admin_menu_flyout_transition %}
-    <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
-    <mt-floating-ui
-        v-if="!isExpanded"
-        :is-opened="flyoutEntries.length > 0"
-        :floating-ui-options="{ placement: 'right-start' }"
-        :offset="50"
-    >
+    <Teleport to="body">
         <!-- eslint-disable-next-line vuejs-accessibility/no-static-element-interactions -->
         <div
-            v-if="flyoutEntries.length"
-            class="sw-admin-menu__flyout-content"
+            v-if="!isExpanded && flyoutEntries.length"
+            ref="flyoutContent"
+            class="sw-admin-menu__flyout-content sw-admin-menu__flyout-floating-ui"
+            :style="flyoutContentStyle"
             @mouseenter="cancelFlyoutClose"
             @focusin="cancelFlyoutClose"
             @mouseleave="onFlyoutMouseLeave"
@@ -214,7 +210,7 @@
                 </template>
             </ul>
         </div>
-    </mt-floating-ui>
+    </Teleport>
     {% endblock %}
 </aside>
 {% endblock %}
