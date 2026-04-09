@@ -31,7 +31,7 @@ export default {
             isOffCanvasShown: false,
             isUserActionsActive: false,
             flyoutEntries: [],
-            flyoutStyle: {},
+            flyoutTitle: '',
             flyoutColor: '',
             subMenuOpen: false,
             scrollbarOffset: '',
@@ -414,7 +414,7 @@ The admin menu only supports up to three levels of nesting.`,
                 }
 
                 this.flyoutEntries = children;
-                this.flyoutStyle = this.getFlyoutStyleForTarget(target);
+                this.flyoutTitle = this.getEntryLabel(entry);
                 this.deactivatePreviousMenuItem();
                 target.classList.add('is--flyout-enabled');
 
@@ -436,6 +436,7 @@ The admin menu only supports up to three levels of nesting.`,
 
             if (this.flyoutEntries.length) {
                 this.flyoutEntries = [];
+                this.flyoutTitle = '';
             }
 
             if (level > 1 || !hasChildrenClass) {
@@ -494,20 +495,10 @@ The admin menu only supports up to three levels of nesting.`,
             });
         },
 
-        getFlyoutStyleForTarget(target) {
-            const targetRect = target.getBoundingClientRect();
-            const verticalOffset = -8;
-
-            return {
-                position: 'fixed',
-                top: `${targetRect.top + verticalOffset}px`,
-                left: `${targetRect.right}px`,
-            };
-        },
-
         onFlyoutLeave() {
             this.deactivatePreviousMenuItem();
             this.flyoutEntries = [];
+            this.flyoutTitle = '';
         },
 
         deactivatePreviousMenuItem() {
@@ -535,6 +526,14 @@ The admin menu only supports up to three levels of nesting.`,
                 return false;
             }
             return types.isEqual(entry, firstPluginEntry);
+        },
+
+        getEntryLabel(entry) {
+            if (entry.label instanceof Object) {
+                return entry.label.translated ? entry.label.label : this.$tc(entry.label.label);
+            }
+
+            return this.$tc(entry.label);
         },
     },
 };

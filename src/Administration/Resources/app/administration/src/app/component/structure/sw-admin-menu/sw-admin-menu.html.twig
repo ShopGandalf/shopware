@@ -164,37 +164,43 @@
     <!-- eslint-disable-next-line vuejs-accessibility/mouse-events-have-key-events, vuejs-accessibility/no-static-element-interactions -->
     <mt-floating-ui
         v-if="!isExpanded"
-        class="sw-admin-menu__flyout-floating-ui"
         :is-opened="flyoutEntries.length > 0"
-        :style="flyoutStyle"
+        :floating-ui-options="{ placement: 'right-start' }"
+        :offset="50"
     >
-        <ul
+        <div
             v-if="flyoutEntries.length"
-            class="sw-admin-menu_flyout-holder"
-            :style="flyoutStyle"
+            class="sw-admin-menu__flyout-content"
         >
-            <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
-            <template
-                v-for="entry in flyoutEntries"
-                :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
+            <span
+                v-if="flyoutTitle"
+                class="sw-admin-menu__flyout-title"
             >
-                <li
-                    v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
-                    :style="{ 'border-color': flyoutColor }"
-                    class="sw-admin-menu__separator"
-                >
-                    <span class="sw-admin-menu__separator-line"></span>
-                </li>
+                {{ flyoutTitle }}
+            </span>
 
-                <sw-admin-menu-item
-                    :entry="entry"
-                    :border-color="flyoutColor"
-                    :display-icon="false"
-                    :collapsible-text="false"
-                    @menu-item-click="onMenuItemClick"
-                />
-            </template>
-        </ul>
+            <ul class="sw-admin-menu_flyout-holder">
+                <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
+                <template
+                    v-for="entry in flyoutEntries"
+                    :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
+                >
+                    <li
+                        v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
+                        :style="{ 'border-color': flyoutColor }"
+                        class="sw-admin-menu__separator"
+                    ></li>
+
+                    <sw-admin-menu-item
+                        :entry="entry"
+                        :border-color="flyoutColor"
+                        :display-icon="false"
+                        :collapsible-text="false"
+                        @menu-item-click="onMenuItemClick"
+                    />
+                </template>
+            </ul>
+        </div>
     </mt-floating-ui>
     {% endblock %}
 </aside>

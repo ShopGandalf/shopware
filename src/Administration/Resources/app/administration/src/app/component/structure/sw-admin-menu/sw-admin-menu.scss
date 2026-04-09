@@ -375,34 +375,28 @@
         }
     }
 
-    .sw-admin-menu__flyout-floating-ui {
-        position: absolute;
-        left: 280px;
-        top: 0;
-        z-index: 700;
-    }
-
-    .sw-admin-menu_flyout-holder {
-        width: 260px;
-        display: block;
-        background: #fff;
-        box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
-        border-radius: var(--border-radius-s);
-        list-style: none;
-    }
-
-    &.is--collapsed .sw-admin-menu__flyout-floating-ui {
-        left: 52px;
-    }
 }
 
-// mt-floating-ui content can be teleported outside `.sw-admin-menu`.
-// Keep flyout panel styles global so the background/shadow always apply.
-.sw-admin-menu_flyout-holder {
-    width: 260px;
-    display: block;
+.sw-admin-menu__flyout-content {
+    width: 264px;
+    padding: var(--scale-size-6);
+    display: flex;
+    flex-direction: column;
     background: #fff;
-    box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
-    border-radius: var(--border-radius-s);
-    list-style: none;
+    box-shadow: 0 6px 12px -8px rgba(16, 16, 19, 0.04);
+    border-radius: var(--border-radius-m);
+    border: 1px solid var(--color-border-secondary-default, #E2E3E9);
+}
+
+.sw-admin-menu__flyout-title {
+    display: block;
+    color: var(--color-text-secondary-default);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-regular);
+    line-height: var(--font-line-height-xs);
+    padding-left: var(--scale-size-10);
+    margin-bottom: var(--scale-size-4);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
