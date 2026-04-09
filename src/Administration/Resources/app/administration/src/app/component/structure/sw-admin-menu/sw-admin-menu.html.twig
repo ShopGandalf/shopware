@@ -143,7 +143,10 @@
                     {% endblock %}
 
                     {% block sw_admin_menu_user_actions_toggle_icon %}
-                    <div class="sw-admin-menu__user-actions-toggle-icon-wrapper">
+                    <div
+                        v-if="isExpanded"
+                        class="sw-admin-menu__user-actions-toggle-icon-wrapper"
+                    >
                         <mt-icon
                             name="regular-chevron-up-xxs"
                         />

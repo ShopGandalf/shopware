@@ -419,7 +419,6 @@
             pointer-events: none;
         }
     }
-
 }
 
 .sw-admin-menu__flyout-content {
@@ -430,7 +429,7 @@
     background: #fff;
     box-shadow: 0 6px 12px -8px rgba(16, 16, 19, 0.04);
     border-radius: var(--border-radius-m);
-    border: 1px solid var(--color-border-secondary-default, #E2E3E9);
+    border: 1px solid var(--color-border-secondary-default, #e2e3e9);
 }
 
 .sw-admin-menu__flyout-title {
