@@ -35,7 +35,7 @@ export default {
             flyoutTitle: '',
             flyoutColor: '',
             flyoutCloseTimeoutId: null,
-            subMenuOpen: false,
+
             scrollbarOffset: '',
             isUserLoading: true,
             flyoutContentStyle: {
@@ -139,10 +139,6 @@ The admin menu only supports up to three levels of nesting.`,
 
         sidebarCollapseIcon() {
             return this.isExpanded ? 'regular-chevron-circle-left' : 'regular-chevron-circle-right';
-        },
-
-        userActionsToggleIcon() {
-            return this.isUserActionsActive ? 'regular-chevron-down-xs' : 'regular-chevron-up-xs';
         },
 
         scrollbarOffsetStyle() {
@@ -318,10 +314,6 @@ The admin menu only supports up to three levels of nesting.`,
             }
         },
 
-        isActiveItem(menuItem) {
-            return this.isExpanded && menuItem.classList.contains('router-link-active');
-        },
-
         onToggleSidebar() {
             if (this.isExpanded) {
                 this.collapseAdminMenu();
@@ -370,30 +362,6 @@ The admin menu only supports up to three levels of nesting.`,
 
             this.isUserActionsActive = false;
             this.flyoutEntries = [];
-        },
-
-        onToggleUserActions() {
-            if (this.isUserLoading) {
-                return false;
-            }
-            this.isUserActionsActive = !this.isUserActionsActive;
-            return true;
-        },
-
-        openUserActions() {
-            if (this.isExpanded || this.isUserLoading) {
-                return;
-            }
-
-            this.isUserActionsActive = true;
-        },
-
-        closeUserActions() {
-            if (this.isExpanded) {
-                return;
-            }
-
-            this.isUserActionsActive = false;
         },
 
         onLogoutUser() {
@@ -538,24 +506,29 @@ The admin menu only supports up to three levels of nesting.`,
 
             this.stopFlyoutAutoUpdate();
 
-            this.flyoutAutoUpdateCleanup = autoUpdate(reference, floating, () => {
-                computePosition(reference, floating, {
-                    placement: 'right-start',
-                    strategy: 'fixed',
-                    middleware: [
-                        offset(12),
-                        flip(),
-                    ],
-                }).then(({ x, y }) => {
-                    this.flyoutContentStyle = {
-                        ...this.flyoutContentStyle,
-                        left: `${x}px`,
-                        top: `${y}px`,
-                    };
-                });
-            }, {
-                layoutShift: false,
-            });
+            this.flyoutAutoUpdateCleanup = autoUpdate(
+                reference,
+                floating,
+                () => {
+                    computePosition(reference, floating, {
+                        placement: 'right-start',
+                        strategy: 'fixed',
+                        middleware: [
+                            offset(12),
+                            flip(),
+                        ],
+                    }).then(({ x, y }) => {
+                        this.flyoutContentStyle = {
+                            ...this.flyoutContentStyle,
+                            left: `${x}px`,
+                            top: `${y}px`,
+                        };
+                    });
+                },
+                {
+                    layoutShift: false,
+                },
+            );
         },
 
         stopFlyoutAutoUpdate() {
