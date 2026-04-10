@@ -212,13 +212,11 @@
                 >
                     <li
                         v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
-                        :style="{ 'border-color': flyoutColor }"
                         class="sw-admin-menu__separator"
                     ></li>
 
                     <sw-admin-menu-item
                         :entry="entry"
-                        :border-color="flyoutColor"
                         :display-icon="false"
                         :collapsible-text="false"
                         @menu-item-click="onMenuItemClick"

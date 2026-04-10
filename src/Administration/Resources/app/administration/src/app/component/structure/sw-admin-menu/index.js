@@ -33,7 +33,6 @@ export default {
             isUserActionsActive: false,
             flyoutEntries: [],
             flyoutTitle: '',
-            flyoutColor: '',
             flyoutCloseTimeoutId: null,
 
             scrollbarOffset: '',
@@ -467,15 +466,6 @@ The admin menu only supports up to three levels of nesting.`,
             this.flyoutTitle = this.getEntryLabel(entry);
             this.deactivatePreviousMenuItem();
             target.classList.add('is--flyout-enabled');
-
-            if (entry.level && entry.level > 1) {
-                const parentEntry = this.mainMenuEntries.find((item) => {
-                    return item.id === entry.parent || item.path === entry.parent;
-                });
-                this.flyoutColor = parentEntry?.color ?? entry.color ?? '';
-            } else {
-                this.flyoutColor = entry.color ?? '';
-            }
 
             this.activeEntry = { entry, target, parentEntries: [] };
         },
