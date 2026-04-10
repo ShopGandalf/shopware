@@ -83,6 +83,7 @@
                     <sw-admin-menu-item
                         v-for="(entry, index) in mainMenuEntries"
                         :key="`${entry.id || entry.path}-${entry.children.length}`"
+                        v-tooltip.right="getSingleChildTooltipConfig(entry)"
                         :tabindex="0"
                         :class="{ 'is--entry-expanded': currentExpandedMenuEntries.includes(entry) }"
                         :sidebar-expanded="isExpanded"

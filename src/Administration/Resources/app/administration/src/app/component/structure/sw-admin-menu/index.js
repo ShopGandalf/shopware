@@ -487,6 +487,11 @@ The admin menu only supports up to three levels of nesting.`,
                 return;
             }
 
+            if (children.length === 1) {
+                this.onFlyoutLeave();
+                return;
+            }
+
             const entryKey = entry.id || entry.path;
             const active = this.activeEntry?.entry;
             const activeKey = active ? active.id || active.path : null;
@@ -616,6 +621,16 @@ The admin menu only supports up to three levels of nesting.`,
 
                 return this.acl.can(child.privilege);
             });
+        },
+
+        getSingleChildTooltipConfig(entry) {
+            const children = this.getChildren(entry);
+            const shouldShowSingleChildTooltip = !this.isExpanded && children.length === 1;
+
+            return {
+                message: shouldShowSingleChildTooltip ? this.getEntryLabel(entry) : '',
+                disabled: !shouldShowSingleChildTooltip,
+            };
         },
 
         onFlyoutLeave() {
