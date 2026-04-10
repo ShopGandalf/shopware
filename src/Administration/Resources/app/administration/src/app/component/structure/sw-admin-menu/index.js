@@ -382,7 +382,6 @@ The admin menu only supports up to three levels of nesting.`,
         },
 
         onMenuItemClick(entry, eventTarget) {
-            // Same-tick as opening flyout: document listener must not close (see onDocumentClickDismissFlyout).
             this._suppressDocumentFlyoutDismiss = true;
 
             const target = eventTarget.closest('.sw-admin-menu__navigation-list-item');
