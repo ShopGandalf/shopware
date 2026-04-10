@@ -31,11 +31,15 @@
         {% endblock %}
 
         {% block sw_admin_menu_header_version %}
-        <sw-version class="collapsible-text sw-admin-menu__version" />
+        <sw-version
+            v-if="isExpanded"
+            class="collapsible-text sw-admin-menu__version"
+        />
         {% endblock %}
 
         {% block sw_admin_menu_header_toggle_sidebar %}
         <button
+            v-if="isExpanded"
             type="button"
             @click.stop="onToggleSidebar"
         >
