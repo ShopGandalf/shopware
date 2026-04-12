@@ -114,15 +114,16 @@
         }
     }
 
-    &:first-child > .sw-admin-menu__navigation-link.router-link-active::before {
+    &:first-child > .sw-admin-menu__navigation-link.router-link-active::before,
+    &:first-child > .sw-admin-menu__navigation-link:hover::before {
         top: 50%;
     }
 
-    &:last-child > .sw-admin-menu__navigation-link.router-link-active::before {
+    &:last-child > .sw-admin-menu__navigation-link.router-link-active::before,
+    &:last-child > .sw-admin-menu__navigation-link:hover::before {
         bottom: 50%;
     }
 
-    // Parent has an active child: show thicker gray indicator instead of blue
     &.is--child-active > .sw-admin-menu__navigation-link::after {
         content: '';
         position: absolute;
@@ -132,7 +133,11 @@
         width: 3px;
         background: var(--color-border-primary-default);
         border-radius: 1px;
-        outline: 4px solid var(--color-background-brand-default);
+        outline: 4px solid var(--color-elevation-surface-default);
+    }
+
+    &.is--child-active > .sw-admin-menu__navigation-link:hover::after {
+        outline-color: var(--color-interaction-secondary-hover);
     }
 }
 
@@ -265,11 +270,13 @@
         }
     }
 
-    &:first-child > .sw-admin-menu__navigation-link.router-link-active::before {
+    &:first-child > .sw-admin-menu__navigation-link.router-link-active::before,
+    &:first-child > .sw-admin-menu__navigation-link:hover::before {
         top: 50%;
     }
 
-    &:last-child > .sw-admin-menu__navigation-link.router-link-active::before {
+    &:last-child > .sw-admin-menu__navigation-link.router-link-active::before,
+    &:last-child > .sw-admin-menu__navigation-link:hover::before {
         bottom: 50%;
     }
 }
