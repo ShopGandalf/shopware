@@ -208,13 +208,8 @@
                 <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks -->
                 <template
                     v-for="entry in flyoutEntries"
-                    :key="`${entry.id || entry.path}-separator-${entry.children.length}`"
+                    :key="`${entry.id || entry.path}-${entry.children.length}`"
                 >
-                    <li
-                        v-if="isFirstPluginInMenuEntries(entry, flyoutEntries)"
-                        class="sw-admin-menu__separator"
-                    ></li>
-
                     <sw-admin-menu-item
                         :entry="entry"
                         :display-icon="false"

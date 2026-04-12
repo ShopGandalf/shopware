@@ -21,6 +21,12 @@ export default {
         'menu-item-hover',
     ],
 
+    data() {
+        return {
+            localExpanded: false,
+        };
+    },
+
     props: {
         entry: {
             type: Object,
@@ -121,7 +127,34 @@ export default {
         },
 
         expandIcon() {
-            return this.isExpanded ? 'regular-chevron-up-xs' : 'regular-chevron-down-xs';
+            const expanded = this.isExpanded || this.localExpanded;
+            return expanded ? 'regular-chevron-up-xs' : 'regular-chevron-down-xs';
+        },
+
+        childRouteActive() {
+            if (this.children.length === 0 || (!this.isExpanded && !this.localExpanded)) {
+                return false;
+            }
+
+            const meta = this.$route.meta;
+            const path = this.entryPath || this.entry.id;
+            const adminMenuEntries = Shopware.Store.get('adminMenu').adminModuleNavigation;
+
+            function findAncestorPaths(currentPath, found = []) {
+                const entry = adminMenuEntries.find((e) => e.path === currentPath || e.id === currentPath);
+                if (!entry) return found;
+                found.push(entry.path || entry.id);
+                if (entry.parent?.length) {
+                    return findAncestorPaths(entry.parent, found);
+                }
+                return found;
+            }
+
+            if (meta.$current) {
+                return findAncestorPaths(meta.$current.path).includes(path);
+            }
+
+            return false;
         },
 
         isFirstChild() {
@@ -205,9 +238,7 @@ export default {
                 const matchingPaths = findRootEntry(meta.$current.path);
                 const isInPath = matchingPaths.includes(path);
 
-                // If this item has children and is expanded, don't show as active
-                // (let the child show as active instead)
-                if (isInPath && this.children.length > 0 && this.isExpanded) {
+                if (isInPath && this.children.length > 0 && (this.isExpanded || this.localExpanded)) {
                     return false;
                 }
 
@@ -231,9 +262,7 @@ export default {
                     ? compareTo.replace(/-/g, '.').indexOf(path.replace(/\.index/g, '')) === 0
                     : false;
 
-                // If this item has children and is expanded, don't show as active
-                // (let the child show as active instead)
-                if (isActive && this.children.length > 0 && this.isExpanded) {
+                if (isActive && this.children.length > 0 && (this.isExpanded || this.localExpanded)) {
                     return false;
                 }
 
@@ -272,6 +301,16 @@ export default {
 
         getCustomKey(path) {
             return `${path}-${createId()}`;
+        },
+
+        handleClick(event) {
+            if (this.entry.level > 1 && this.children.length > 0 && !this.entry.path) {
+                event.stopPropagation();
+                this.localExpanded = !this.localExpanded;
+                return;
+            }
+
+            this.$emit('menu-item-click', this.entry, event.target);
         },
     },
 };

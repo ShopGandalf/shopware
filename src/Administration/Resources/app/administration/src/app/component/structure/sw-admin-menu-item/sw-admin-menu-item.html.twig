@@ -3,13 +3,13 @@
 <li
     v-if="showMenuItem"
     class="sw-admin-menu__navigation-list-item"
-    :class="getElementClasses(entry.id || entryPath)"
+    :class="[getElementClasses(entry.id || entryPath), { 'is--entry-expanded': isExpanded || localExpanded, 'is--child-active': childRouteActive }]"
     :style="{ 'border-color': borderColor }"
     :aria-current="subIsActive(entryPath, entry.id) ? 'page' : 'false'"
     @mouseenter="$emit('menu-item-hover', entry, $event.target)"
-    @click.prevent="$emit('menu-item-click', entry, $event.target)"
-    @keydown.enter="$emit('menu-item-click', entry, $event.target)"
-    @keydown.space="$emit('menu-item-click', entry, $event.target)"
+    @click.prevent="handleClick($event)"
+    @keydown.enter="handleClick($event)"
+    @keydown.space="handleClick($event)"
 >
 
     {% block sw_admin_menu_item_router_link %}
@@ -123,7 +123,7 @@
 
         {% block sw_admin_menu_item_arrow_indicator %}
         <mt-icon
-            v-if="entry.level > 1 && children.length"
+            v-if="!sidebarExpanded && entry.level > 1 && children.length"
             name="regular-chevron-right"
             size="8"
             class="sw-admin-menu__navigation-link-icon-arrow"
@@ -149,17 +149,8 @@
         <!-- eslint-disable sw-deprecation-rules/no-twigjs-blocks,vue/no-duplicate-attributes,vue/no-parsing-error -->
         <template
             v-for="entry in children"
-            :key="getCustomKey(entry.id || entryPath + '-separator')"
+            :key="getCustomKey(entry.id || entryPath)"
         >
-            <li
-                v-if="isFirstPluginInMenuEntries(entry, children)"
-                :style="{ 'border-color': borderColor }"
-                class="sw-admin-menu__separator"
-                tabindex="0"
-            >
-                <span class="sw-admin-menu__separator-line"></span>
-            </li>
-
             <sw-admin-menu-item
                 :entry="entry"
                 :border-color="borderColor"
