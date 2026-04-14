@@ -157,20 +157,20 @@ export default {
             return false;
         },
 
-        isFirstChild() {
-            if (!this.entry.parent) {
-                return false;
-            }
-            const siblings = this.$parent?.children || [];
-            return siblings.length > 0 && siblings[0]?.id === this.entry.id;
+        structureLineDepth() {
+            return Math.max(this.entry.level - 1, 0);
         },
 
-        isLastChild() {
-            if (!this.entry.parent) {
-                return false;
-            }
-            const siblings = this.$parent?.children || [];
-            return siblings.length > 0 && siblings[siblings.length - 1]?.id === this.entry.id;
+        structureLines() {
+            return Array.from({ length: this.structureLineDepth }, (_, index) => {
+                const depth = index + 1;
+                const isCurrentDepth = depth === this.structureLineDepth;
+
+                return {
+                    depth,
+                    isCurrentDepth,
+                };
+            });
         },
     },
 
@@ -284,7 +284,10 @@ export default {
                 `navigation-list-item__${name}`,
                 `sw-admin-menu__item--${this.entry.id}`,
                 `navigation-list-item__level-${this.entry.level}`,
-                { 'navigation-list-item__has-children': hasChildren },
+                {
+                    'navigation-list-item__has-children': hasChildren,
+                    'navigation-list-item--nested': this.entry.level > 1,
+                },
             ];
         },
 

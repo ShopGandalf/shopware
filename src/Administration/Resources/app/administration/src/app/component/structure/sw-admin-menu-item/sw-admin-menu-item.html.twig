@@ -19,6 +19,21 @@
         :class="{'router-link-active': subIsActive(entryPath, entry.id)}"
         :to="getLinkToProp"
     >
+        <span
+            v-if="structureLineDepth > 0"
+            class="sw-admin-menu__navigation-lines"
+            aria-hidden="true"
+        >
+            <span
+                v-for="line in structureLines"
+                :key="`line-${line.depth}`"
+                class="sw-admin-menu__navigation-line"
+                aria-hidden="true"
+                :class="{
+                    'is-current-depth': line.isCurrentDepth,
+                }"
+            ></span>
+        </span>
 
         {% block sw_admin_menu_item_icon %}
         <mt-icon
@@ -60,6 +75,21 @@
         :title="$tc(entry.label)"
         class="sw-admin-menu__navigation-link"
     >
+        <span
+            v-if="structureLineDepth > 0"
+            class="sw-admin-menu__navigation-lines"
+            aria-hidden="true"
+        >
+            <span
+                v-for="line in structureLines"
+                :key="`line-${line.depth}`"
+                class="sw-admin-menu__navigation-line"
+                aria-hidden="true"
+                :class="{
+                    'is-current-depth': line.isCurrentDepth,
+                }"
+            ></span>
+        </span>
 
         {% block sw_admin_menu_item_external_icon %}
         <mt-icon
@@ -99,6 +129,21 @@
         class="sw-admin-menu__navigation-link"
         :class="{ 'router-link-active': subIsActive(entry.id) }"
     >
+        <span
+            v-if="structureLineDepth > 0"
+            class="sw-admin-menu__navigation-lines"
+            aria-hidden="true"
+        >
+            <span
+                v-for="line in structureLines"
+                :key="`line-${line.depth}`"
+                class="sw-admin-menu__navigation-line"
+                aria-hidden="true"
+                :class="{
+                    'is-current-depth': line.isCurrentDepth,
+                }"
+            ></span>
+        </span>
 
         {% block sw_admin_menu_item_navigation_icon %}
         <mt-icon
