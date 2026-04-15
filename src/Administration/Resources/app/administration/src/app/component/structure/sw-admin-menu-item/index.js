@@ -161,15 +161,18 @@ export default {
             return Math.max(this.entry.level - 1, 0);
         },
 
-        structureLines() {
-            return Array.from({ length: this.structureLineDepth }, (_, index) => {
-                const depth = index + 1;
-                const isCurrentDepth = depth === this.structureLineDepth;
+        ancestorStructureLineDepth() {
+            return Math.max(this.structureLineDepth - 1, 0);
+        },
 
-                return {
-                    depth,
-                    isCurrentDepth,
-                };
+        showCurrentStructureLine() {
+            return this.structureLineDepth > 0;
+        },
+
+        ancestorStructureLines() {
+            return Array.from({ length: this.ancestorStructureLineDepth }, (_, index) => {
+                const depth = index + 1;
+                return { depth };
             });
         },
     },

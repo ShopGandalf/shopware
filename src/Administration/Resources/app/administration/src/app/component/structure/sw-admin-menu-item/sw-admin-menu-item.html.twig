@@ -12,179 +12,164 @@
     @keydown.space="handleClick($event)"
 >
 
-    {% block sw_admin_menu_item_router_link %}
-    <router-link
-        v-if="entryPath"
-        class="sw-admin-menu__navigation-link"
-        :class="{'router-link-active': subIsActive(entryPath, entry.id)}"
-        :to="getLinkToProp"
-    >
+    <div class="sw-admin-menu__navigation-item-row">
         <span
-            v-if="structureLineDepth > 0"
-            class="sw-admin-menu__navigation-line-group"
+            v-if="ancestorStructureLineDepth > 0"
+            class="sw-admin-menu__navigation-line-group sw-admin-menu__navigation-line-group--ancestor"
             aria-hidden="true"
         >
             <span
-                v-for="line in structureLines"
-                :key="`line-${line.depth}`"
+                v-for="line in ancestorStructureLines"
+                :key="`line-ancestor-${line.depth}`"
                 class="sw-admin-menu__navigation-line"
                 aria-hidden="true"
-                :class="{
-                    'is-current-depth': line.isCurrentDepth,
-                }"
             ></span>
         </span>
 
-        {% block sw_admin_menu_item_icon %}
-        <mt-icon
-            v-if="displayIcon"
-            :size="iconSize"
-            class="sw-admin-menu__navigation-link-icon"
-            :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
-        />
-        {% endblock %}
-
-        {% block sw_admin_menu_item_text %}
-        <span
-            class="sw-admin-menu__navigation-link-label"
-            :class="collapsibleText ? 'collapsible-text' : ''"
-            :title="getEntryLabel"
-        >
-            {{ getEntryLabel }}
-        </span>
-        {% endblock %}
-
-        {% block sw_admin_menu_item_arrow_indicato %}
-        <mt-icon
-            v-if="entry.level > 1 && children.length"
-            name="regular-chevron-right"
-            size="8"
-            class="sw-admin-menu__navigation-link-icon-arrow"
-        />
-        {% endblock %}
-
-        <slot name="additional-text"></slot>
-    </router-link>
-    {% endblock %}
-
-    {% block sw_admin_menu_item_external_link %}
-    <a
-        v-else-if="entry.link"
-        :href="entry.link"
-        :target="entry.target"
-        :title="$tc(entry.label)"
-        class="sw-admin-menu__navigation-link"
-    >
-        <span
-            v-if="structureLineDepth > 0"
-            class="sw-admin-menu__navigation-line-group"
-            aria-hidden="true"
+        {% block sw_admin_menu_item_router_link %}
+        <router-link
+            v-if="entryPath"
+            class="sw-admin-menu__navigation-link"
+            :class="{'router-link-active': subIsActive(entryPath, entry.id)}"
+            :to="getLinkToProp"
         >
             <span
-                v-for="line in structureLines"
-                :key="`line-${line.depth}`"
-                class="sw-admin-menu__navigation-line"
+                v-if="showCurrentStructureLine"
+                class="sw-admin-menu__navigation-line sw-admin-menu__navigation-line--current is-current-depth"
                 aria-hidden="true"
-                :class="{
-                    'is-current-depth': line.isCurrentDepth,
-                }"
             ></span>
-        </span>
 
-        {% block sw_admin_menu_item_external_icon %}
-        <mt-icon
-            v-if="displayIcon"
-            :size="iconSize"
-            class="sw-admin-menu__navigation-link-icon"
-            :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
-        />
+            {% block sw_admin_menu_item_icon %}
+            <mt-icon
+                v-if="displayIcon"
+                :size="iconSize"
+                class="sw-admin-menu__navigation-link-icon"
+                :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
+            />
+            {% endblock %}
+
+            {% block sw_admin_menu_item_text %}
+            <span
+                class="sw-admin-menu__navigation-link-label"
+                :class="collapsibleText ? 'collapsible-text' : ''"
+                :title="getEntryLabel"
+            >
+                {{ getEntryLabel }}
+            </span>
+            {% endblock %}
+
+            {% block sw_admin_menu_item_arrow_indicato %}
+            <mt-icon
+                v-if="entry.level > 1 && children.length"
+                name="regular-chevron-right"
+                size="8"
+                class="sw-admin-menu__navigation-link-icon-arrow"
+            />
+            {% endblock %}
+
+            <slot name="additional-text"></slot>
+        </router-link>
         {% endblock %}
 
-        {% block sw_admin_menu_item_external_text %}
-        <span
-            class="sw-admin-menu__navigation-link-label"
-            :class="collapsibleText ? 'collapsible-text' : ''"
-            :title="getEntryLabel"
-        >
-            {{ getEntryLabel }}
-        </span>
-        {% endblock %}
-
-        {% block sw_admin_menu_item_external_arrow_indicato %}
-        <mt-icon
-            v-if="entry.level > 1 && children.length"
-            name="regular-chevron-right"
-            size="8"
-            class="sw-admin-menu__navigation-link-icon-arrow"
-        />
-        {% endblock %}
-
-        <slot name="additional-text"></slot>
-    </a>
-    {% endblock %}
-
-    {% block sw_admin_menu_item_navigation_link %}
-    <span
-        v-else
-        class="sw-admin-menu__navigation-link"
-        :class="{ 'router-link-active': subIsActive(entry.id) }"
-    >
-        <span
-            v-if="structureLineDepth > 0"
-            class="sw-admin-menu__navigation-line-group"
-            aria-hidden="true"
+        {% block sw_admin_menu_item_external_link %}
+        <a
+            v-else-if="entry.link"
+            :href="entry.link"
+            :target="entry.target"
+            :title="$tc(entry.label)"
+            class="sw-admin-menu__navigation-link"
         >
             <span
-                v-for="line in structureLines"
-                :key="`line-${line.depth}`"
-                class="sw-admin-menu__navigation-line"
+                v-if="showCurrentStructureLine"
+                class="sw-admin-menu__navigation-line sw-admin-menu__navigation-line--current is-current-depth"
                 aria-hidden="true"
-                :class="{
-                    'is-current-depth': line.isCurrentDepth,
-                }"
             ></span>
-        </span>
 
-        {% block sw_admin_menu_item_navigation_icon %}
-        <mt-icon
-            v-if="displayIcon"
-            :size="iconSize"
-            class="sw-admin-menu__navigation-link-icon"
-            :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
-        />
+            {% block sw_admin_menu_item_external_icon %}
+            <mt-icon
+                v-if="displayIcon"
+                :size="iconSize"
+                class="sw-admin-menu__navigation-link-icon"
+                :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
+            />
+            {% endblock %}
+
+            {% block sw_admin_menu_item_external_text %}
+            <span
+                class="sw-admin-menu__navigation-link-label"
+                :class="collapsibleText ? 'collapsible-text' : ''"
+                :title="getEntryLabel"
+            >
+                {{ getEntryLabel }}
+            </span>
+            {% endblock %}
+
+            {% block sw_admin_menu_item_external_arrow_indicato %}
+            <mt-icon
+                v-if="entry.level > 1 && children.length"
+                name="regular-chevron-right"
+                size="8"
+                class="sw-admin-menu__navigation-link-icon-arrow"
+            />
+            {% endblock %}
+
+            <slot name="additional-text"></slot>
+        </a>
         {% endblock %}
 
-        {% block sw_admin_menu_item_navigation_text %}
+        {% block sw_admin_menu_item_navigation_link %}
         <span
-            class="sw-admin-menu__navigation-link-label"
-            :class="collapsibleText ? 'collapsible-text' : ''"
-            :title="getEntryLabel"
+            v-else
+            class="sw-admin-menu__navigation-link"
+            :class="{ 'router-link-active': subIsActive(entry.id) }"
         >
-            {{ getEntryLabel }}
+            <span
+                v-if="showCurrentStructureLine"
+                class="sw-admin-menu__navigation-line sw-admin-menu__navigation-line--current is-current-depth"
+                aria-hidden="true"
+            ></span>
+
+            {% block sw_admin_menu_item_navigation_icon %}
+            <mt-icon
+                v-if="displayIcon"
+                :size="iconSize"
+                class="sw-admin-menu__navigation-link-icon"
+                :name="getIconName(entry.icon, subIsActive(entry.path || entry.id, entry.id))"
+            />
+            {% endblock %}
+
+            {% block sw_admin_menu_item_navigation_text %}
+            <span
+                class="sw-admin-menu__navigation-link-label"
+                :class="collapsibleText ? 'collapsible-text' : ''"
+                :title="getEntryLabel"
+            >
+                {{ getEntryLabel }}
+            </span>
+            {% endblock %}
+
+            <slot name="additional-text"></slot>
+
+            {% block sw_admin_menu_item_arrow_indicator %}
+            <mt-icon
+                v-if="!sidebarExpanded && entry.level > 1 && children.length"
+                name="regular-chevron-right"
+                size="8"
+                class="sw-admin-menu__navigation-link-icon-arrow"
+            />
+            {% endblock %}
+
+            {% block sw_admin_menu_item_expand_indicator %}
+            <mt-icon
+                v-if="children.length"
+                :name="expandIcon"
+                size="8"
+                class="sw-admin-menu__navigation-link-expand-icon collapsible-text"
+            />
+            {% endblock %}
         </span>
         {% endblock %}
-
-        <slot name="additional-text"></slot>
-
-        {% block sw_admin_menu_item_arrow_indicator %}
-        <mt-icon
-            v-if="!sidebarExpanded && entry.level > 1 && children.length"
-            name="regular-chevron-right"
-            size="8"
-            class="sw-admin-menu__navigation-link-icon-arrow"
-        />
-        {% endblock %}
-
-        {% block sw_admin_menu_item_expand_indicator %}
-        <mt-icon
-            v-if="children.length"
-            :name="expandIcon"
-            size="8"
-            class="sw-admin-menu__navigation-link-expand-icon collapsible-text"
-        />
-        {% endblock %}
-    </span>
-    {% endblock %}
+    </div>
 
     {% block sw_sidebar_sub_items_list %}
     <ul
