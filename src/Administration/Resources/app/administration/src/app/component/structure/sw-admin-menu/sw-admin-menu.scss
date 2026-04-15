@@ -369,6 +369,10 @@
     &.is--collapsed {
         .sw-admin-menu__user-actions-toggle {
             padding: 0;
+
+            &:hover:not(.is--active) {
+                background: transparent;
+            }
         }
 
         .sw-admin-menu__navigation-link {
@@ -391,7 +395,9 @@
             height: var(--scale-size-20);
         }
 
-        .sw-admin-menu__header-logo-wrapper:hover {
+        // Show expand control when hovering anywhere in the collapsed rail; the button stays
+        // only over the logo (absolute inset on the wrapper), so other areas are not clickable.
+        &:hover {
             .sw-admin-menu__header-logo {
                 opacity: 0;
             }

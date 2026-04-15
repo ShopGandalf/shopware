@@ -11,7 +11,7 @@
 .sw-admin-menu__navigation-link {
     color: var(--color-text-primary-default);
     display: flex;
-    align-items: baseline;
+    align-items: center;
     padding: var(--scale-size-10) var(--scale-size-10);
     text-decoration: none;
     font-size: var(--font-size-xs);
@@ -42,7 +42,7 @@
     margin: 0 var(--scale-size-10) 0 0;
     vertical-align: middle;
     position: relative;
-    top: -2px;
+    // top: -2px;
 }
 
 .sw-admin-menu__navigation-link-icon-arrow {
@@ -102,33 +102,48 @@
     }
 }
 
-.navigation-list-item--nested > .sw-admin-menu__navigation-link:is(.router-link-active, :hover) .sw-admin-menu__navigation-line.is-current-depth::after,
-.navigation-list-item--nested.is--child-active > .sw-admin-menu__navigation-link .sw-admin-menu__navigation-line.is-current-depth::after {
+.navigation-list-item--nested
+    > .sw-admin-menu__navigation-link:is(.router-link-active, :hover)
+    .sw-admin-menu__navigation-line.is-current-depth::after,
+.navigation-list-item--nested.is--child-active
+    > .sw-admin-menu__navigation-link
+    .sw-admin-menu__navigation-line.is-current-depth::after {
     content: '';
     position: absolute;
-    left: 0;
+    // Center on the 1px vertical line (line column is 1px wide).
+    left: 50%;
     top: 50%;
     transform: translate(-50%, -50%);
     width: 3px;
     height: 16px;
-    border-radius: 1px;
+    border-radius: 5px;
     outline: 4px solid var(--color-background-brand-default);
 }
 
-.navigation-list-item--nested > .sw-admin-menu__navigation-link.router-link-active .sw-admin-menu__navigation-line.is-current-depth::after {
+.navigation-list-item--nested
+    > .sw-admin-menu__navigation-link.router-link-active
+    .sw-admin-menu__navigation-line.is-current-depth::after {
     background: var(--color-icon-brand-default);
 }
 
-.navigation-list-item--nested > .sw-admin-menu__navigation-link:not(.router-link-active):hover .sw-admin-menu__navigation-line.is-current-depth::after,
-.navigation-list-item--nested.is--child-active > .sw-admin-menu__navigation-link .sw-admin-menu__navigation-line.is-current-depth::after {
+.navigation-list-item--nested
+    > .sw-admin-menu__navigation-link:not(.router-link-active):hover
+    .sw-admin-menu__navigation-line.is-current-depth::after,
+.navigation-list-item--nested.is--child-active
+    > .sw-admin-menu__navigation-link
+    .sw-admin-menu__navigation-line.is-current-depth::after {
     background: var(--color-border-primary-default);
 }
 
-.navigation-list-item--nested.is--child-active > .sw-admin-menu__navigation-link .sw-admin-menu__navigation-line.is-current-depth::after {
+.navigation-list-item--nested.is--child-active
+    > .sw-admin-menu__navigation-link
+    .sw-admin-menu__navigation-line.is-current-depth::after {
     outline-color: var(--color-elevation-surface-default);
 }
 
-.navigation-list-item--nested.is--child-active > .sw-admin-menu__navigation-link:hover .sw-admin-menu__navigation-line.is-current-depth::after {
+.navigation-list-item--nested.is--child-active
+    > .sw-admin-menu__navigation-link:hover
+    .sw-admin-menu__navigation-line.is-current-depth::after {
     outline-color: var(--color-interaction-secondary-hover);
 }
 
@@ -167,7 +182,6 @@
     background: var(--color-interaction-secondary-hover);
 }
 
-
 // Entry is expanded (but not necessarily active)
 .sw-admin-menu__navigation-list-item.is--entry-expanded {
     background: none;
@@ -200,5 +214,3 @@
         display: block;
     }
 }
-
-
