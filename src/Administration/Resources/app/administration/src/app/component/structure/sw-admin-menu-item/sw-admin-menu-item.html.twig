@@ -4,7 +4,6 @@
     v-if="showMenuItem"
     class="sw-admin-menu__navigation-list-item"
     :class="[getElementClasses(entry.id || entryPath), { 'is--entry-expanded': isExpanded || localExpanded, 'is--child-active': childRouteActive }]"
-    :style="{ 'border-color': borderColor }"
     :aria-current="subIsActive(entryPath, entry.id) ? 'page' : 'false'"
     @mouseenter="$emit('menu-item-hover', entry, $event.target)"
     @click.prevent="handleClick($event)"
@@ -13,19 +12,6 @@
 >
 
     <div class="sw-admin-menu__navigation-item-row">
-        <span
-            v-if="ancestorStructureLineDepth > 0"
-            class="sw-admin-menu__navigation-line-group sw-admin-menu__navigation-line-group--ancestor"
-            aria-hidden="true"
-        >
-            <span
-                v-for="line in ancestorStructureLines"
-                :key="`line-ancestor-${line.depth}`"
-                class="sw-admin-menu__navigation-line"
-                aria-hidden="true"
-            ></span>
-        </span>
-
         {% block sw_admin_menu_item_router_link %}
         <router-link
             v-if="entryPath"
@@ -33,12 +19,6 @@
             :class="{'router-link-active': subIsActive(entryPath, entry.id)}"
             :to="getLinkToProp"
         >
-            <span
-                v-if="showCurrentStructureLine"
-                class="sw-admin-menu__navigation-line sw-admin-menu__navigation-line--current is-current-depth"
-                aria-hidden="true"
-            ></span>
-
             {% block sw_admin_menu_item_icon %}
             <mt-icon
                 v-if="displayIcon"
@@ -79,12 +59,6 @@
             :title="$tc(entry.label)"
             class="sw-admin-menu__navigation-link"
         >
-            <span
-                v-if="showCurrentStructureLine"
-                class="sw-admin-menu__navigation-line sw-admin-menu__navigation-line--current is-current-depth"
-                aria-hidden="true"
-            ></span>
-
             {% block sw_admin_menu_item_external_icon %}
             <mt-icon
                 v-if="displayIcon"
@@ -123,12 +97,6 @@
             class="sw-admin-menu__navigation-link"
             :class="{ 'router-link-active': subIsActive(entry.id) }"
         >
-            <span
-                v-if="showCurrentStructureLine"
-                class="sw-admin-menu__navigation-line sw-admin-menu__navigation-line--current is-current-depth"
-                aria-hidden="true"
-            ></span>
-
             {% block sw_admin_menu_item_navigation_icon %}
             <mt-icon
                 v-if="displayIcon"
@@ -183,7 +151,6 @@
         >
             <sw-admin-menu-item
                 :entry="entry"
-                :border-color="borderColor"
                 :display-icon="false"
                 :collapsible-text="collapsibleText"
             />

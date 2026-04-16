@@ -156,25 +156,6 @@ export default {
 
             return false;
         },
-
-        structureLineDepth() {
-            return Math.max(this.entry.level - 1, 0);
-        },
-
-        ancestorStructureLineDepth() {
-            return Math.max(this.structureLineDepth - 1, 0);
-        },
-
-        showCurrentStructureLine() {
-            return this.structureLineDepth > 0;
-        },
-
-        ancestorStructureLines() {
-            return Array.from({ length: this.ancestorStructureLineDepth }, (_, index) => {
-                const depth = index + 1;
-                return { depth };
-            });
-        },
     },
 
     methods: {
