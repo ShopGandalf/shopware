@@ -134,15 +134,16 @@ $line-indent: 32px;
         outline-color: var(--color-background-brand-default);
     }
 
-    .is--child-active > .sw-admin-menu__navigation-item-row > &::after {
-        opacity: 1;
-        background: var(--color-border-primary-default);
-        outline-color: var(--color-elevation-surface-default);
-    }
+}
 
-    .is--child-active > .sw-admin-menu__navigation-item-row > &:hover::after {
-        outline-color: var(--color-interaction-secondary-hover);
-    }
+.navigation-list-item--nested.is--child-active > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::after {
+    opacity: 1;
+    background: var(--color-border-primary-default);
+    outline-color: var(--color-elevation-surface-default);
+}
+
+.navigation-list-item--nested.is--child-active > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link:hover::after {
+    outline-color: var(--color-interaction-secondary-hover);
 }
 
 .navigation-list-item--nested:first-child
@@ -219,8 +220,9 @@ $line-indent: 32px;
         display: block;
     }
 
-    // Show level 3 when level 2 parent is expanded
-    .navigation-list-item__level-2.is--entry-expanded > .sw-admin-menu__sub-navigation-list {
+    // Show nested children whenever a nested parent is expanded.
+    // This is depth-agnostic and stays harmless while deeper levels are still blocked elsewhere.
+    .navigation-list-item--nested.is--entry-expanded > .sw-admin-menu__sub-navigation-list {
         display: block;
     }
 }

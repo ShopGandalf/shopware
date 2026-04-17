@@ -151,7 +151,10 @@ export default {
             }
 
             if (meta.$current) {
-                return findAncestorPaths(meta.$current.path).includes(path);
+                const [currentPath, ...ancestorPaths] = findAncestorPaths(meta.$current.path);
+
+                // Show "child active" only when a descendant is active, not the item itself.
+                return currentPath !== path && ancestorPaths.includes(path);
             }
 
             return false;
