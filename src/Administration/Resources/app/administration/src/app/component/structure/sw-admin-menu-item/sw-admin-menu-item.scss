@@ -89,8 +89,26 @@ $line-indent: 32px;
 // Ancestor lines: only on sub-lists inside nested items (level 3+ children)
 .navigation-list-item--nested > .sw-admin-menu__sub-navigation-list {
     margin-left: $line-offset;
-    border-left: 1px solid var(--color-border-primary-default);
+    position: relative;
     padding-left: $line-indent - $line-offset - 1px;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 1px;
+        background: var(--color-border-primary-default);
+        border-radius: 1px;
+    }
+}
+
+// Clip the outer connector by ~30% of one row only when the sub-list's last item is collapsed.
+.navigation-list-item--nested > .sw-admin-menu__sub-navigation-list:has(
+    > .sw-admin-menu__navigation-list-item:last-child:not(.is--entry-expanded)
+)::before {
+    bottom: var(--scale-size-12);
 }
 
 // Current line + indicator on every nested link
@@ -149,11 +167,11 @@ $line-indent: 32px;
 .navigation-list-item--nested:first-child
     > .sw-admin-menu__navigation-item-row
     > .sw-admin-menu__navigation-link::before {
-    top: 30%;
+    top: var(--scale-size-12);
 }
 
 .navigation-list-item--nested:last-child:not(.is--entry-expanded) > .sw-admin-menu__navigation-item-row > .sw-admin-menu__navigation-link::before {
-    bottom: 30%;
+    bottom: var(--scale-size-12);
 }
 
 .sw-admin-menu__sub-navigation-headline {
