@@ -314,6 +314,63 @@ class ProductStreamUpdaterTest extends TestCase
         );
     }
 
+    /**
+     * Regression test for https://github.com/shopware/shopware/issues/10770.
+     *
+     * A product stream with more than 61 filter conditions used to produce the
+     * MariaDB error 1116 ("Too many tables; MariaDB can only use 61 tables in
+     * a join"), because `ProductStreamUpdater` combined all conditions into a
+     * single `Criteria` that generated one big joined query during product
+     * indexing. The updater now splits the conditions into multiple smaller
+     * searches and intersects the ids, so the 61-table limit is no longer hit.
+     */
+    public function testIndexingHandlesStreamsWithMoreThanSixtyOneConditions(): void
+    {
+        $streamId = Uuid::randomHex();
+
+        // 80 top-level AND conditions, all matching an active product.
+        $conditions = [];
+        for ($i = 0; $i < 80; ++$i) {
+            $conditions[] = [
+                'type' => 'equals',
+                'field' => 'active',
+                'value' => '1',
+            ];
+        }
+
+        $writtenEvent = $this->productStreamRepository->create([
+            [
+                'id' => $streamId,
+                'name' => 'large-stream',
+                'filters' => $conditions,
+            ],
+        ], Context::createDefaultContext());
+
+        $productStreamIndexer = static::getContainer()->get(ProductStreamIndexer::class);
+        $update = $productStreamIndexer->update($writtenEvent);
+        static::assertInstanceOf(ProductStreamIndexingMessage::class, $update);
+        $productStreamIndexer->handle($update);
+
+        $productId = Uuid::randomHex();
+        $this->createProduct($productId);
+
+        // If the chunking fix is missing, both of these calls throw
+        // Doctrine\DBAL\Exception with SQLSTATE[HY000]: General error: 1116.
+        $message = new ProductStreamMappingIndexingMessage($streamId, null, Context::createDefaultContext());
+        $this->productStreamUpdater->handle($message);
+
+        $this->productStreamUpdater->updateProducts([$productId], Context::createDefaultContext());
+
+        $criteria = new Criteria([$productId]);
+        $criteria->addAssociation('streams');
+        $product = $this->productRepository->search($criteria, Context::createDefaultContext())->getEntities()->first();
+        static::assertInstanceOf(ProductEntity::class, $product);
+
+        $streams = $product->getStreams();
+        static::assertNotNull($streams);
+        static::assertNotNull($streams->filterByProperty('id', $streamId)->first());
+    }
+
     private function createProduct(string $productId): void
     {
         $this->productRepository->create(
