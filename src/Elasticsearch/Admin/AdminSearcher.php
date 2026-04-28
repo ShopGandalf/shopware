@@ -11,6 +11,7 @@ use Shopware\Core\Framework\Api\Acl\Role\AclRoleDefinition;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
 use Shopware\Core\Framework\Feature;
@@ -178,8 +179,28 @@ class AdminSearcher
         $splitTerms = explode(' ', $term);
         $lastPart = end($splitTerms);
 
-        $ngramQuery = new MatchQuery('text.ngram', $term);
-        $search->addQuery($ngramQuery, BoolQuery::SHOULD);
+        // Whole-word autocomplete on the `completion` main field. The field's
+        // index analyzer splits on word boundaries (incl. letter/digit, with
+        // `preserve_original`), so `"T-Shirt"` indexes as `[t-shirt, t, shirt]`
+        // and a query `"shirt"` matches the `shirt` token. High-confidence
+        // signal: a query token equalling an indexed token is a strong match.
+        $search->addQuery(
+            new MatchQuery('completion', $term, ['boost' => SearchRanking::HIGH_SEARCH_RANKING]),
+            BoolQuery::SHOULD
+        );
+
+        // Substring autocomplete on `completion.ngram`. The subfield's
+        // `search_analyzer` is `sw_whitespace_analyzer` (no ngram filter), so
+        // the query is sent as a single token and matches indexed ngrams only
+        // when the query length is within the ngram filter's range. Long
+        // identifier-shaped queries (e.g. a 13-digit GTIN) therefore cannot
+        // accumulate trigram-overlap scores from unrelated names. Lower boost
+        // than the whole-word clause: substring matches are inherently softer
+        // signals.
+        $search->addQuery(
+            new MatchQuery('completion.ngram', $term, ['boost' => SearchRanking::MIDDLE_SEARCH_RANKING]),
+            BoolQuery::SHOULD
+        );
 
         // If the end of the search term is not a symbol, apply the prefix search query
         if (preg_match('/^[\p{L}0-9]+$/u', $lastPart)) {

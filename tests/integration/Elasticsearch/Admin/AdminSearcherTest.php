@@ -3,16 +3,24 @@
 namespace Shopware\Tests\Integration\Elasticsearch\Admin;
 
 use Doctrine\DBAL\Connection;
+use OpenSearch\Client;
+use OpenSearchDSL\Query\Compound\BoolQuery;
+use OpenSearchDSL\Query\FullText\MatchQuery;
+use OpenSearchDSL\Query\FullText\SimpleQueryStringQuery;
+use OpenSearchDSL\Search;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Content\Product\ProductCollection;
 use Shopware\Core\Content\Test\Product\ProductBuilder;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\Flag\SearchRanking;
 use Shopware\Core\Framework\Test\TestCaseBase\AdminApiTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\KernelTestBehaviour;
 use Shopware\Core\Framework\Test\TestCaseBase\QueueTestBehaviour;
 use Shopware\Core\Test\Stub\Framework\IdsCollection;
+use Shopware\Elasticsearch\Admin\AdminElasticsearchHelper;
 use Shopware\Elasticsearch\Admin\AdminSearcher;
+use Shopware\Elasticsearch\Admin\AdminSearchRegistry;
 use Shopware\Elasticsearch\Test\AdminElasticsearchTestBehaviour;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
@@ -158,8 +166,164 @@ class AdminSearcherTest extends TestCase
         static::assertNotContains($product3801Id, $foundProductIds, 'Product 3801 should NOT be found (different number)');
     }
 
+    /**
+     * Regression guard for #15828: searching for a full GTIN-13 EAN must rank
+     * the owning product first even when an unrelated product's name contains
+     * a digit substring overlapping the EAN.
+     *
+     * The fixture deliberately includes a "Cable 4572324423420" decoy whose
+     * name shares many trigrams with the searched EAN `4572324423421`. With
+     * the previous ngram setup this decoy would outrank the owner. The fix
+     * — `completion.ngram` uses `sw_whitespace_analyzer` as its
+     * `search_analyzer`, so a 13-character query is sent as a single token
+     * and matches no indexed ngram (max 4-gram) — eliminates the noise: only
+     * the prefix clause on `text` (where the EAN actually lives) matches the
+     * owner, so the owner wins by construction.
+     *
+     * Inspecting hit order requires going through the OpenSearch client
+     * directly: `AdminSearcher::search` hydrates results back through the DAL
+     * via `Criteria(ids)`, which does not preserve ES score order. We
+     * therefore replay the same query shape `AdminSearcher::buildSearchPayload`
+     * produces and read `hits.hits` in score order.
+     */
+    public function testExactEanSearchRanksOwnerAboveTrigramOverlap(): void
+    {
+        $ids = new IdsCollection();
+        $ean = '4572324423421';
+        $ownerId = $ids->get('OWNER');
+
+        $owner = (new ProductBuilder($ids, 'OWNER', 10))
+            ->name('Genuine Item')
+            ->price(100)
+            ->build();
+        $owner['ean'] = $ean;
+
+        $products = [
+            $owner,
+            // Adversarial: name contains a digit string sharing nearly every
+            // trigram with the searched EAN. The fix must isolate the owner
+            // from this overlap.
+            (new ProductBuilder($ids, 'DECOY-CABLE', 10))
+                ->name('Cable 4572324423420')
+                ->price(100)
+                ->build(),
+            (new ProductBuilder($ids, 'DECOY-1', 10))
+                ->name('Wireless Headphones')
+                ->price(100)
+                ->build(),
+            (new ProductBuilder($ids, 'DECOY-2', 10))
+                ->name('Garden Hose 25ft')
+                ->price(100)
+                ->build(),
+            (new ProductBuilder($ids, 'DECOY-3', 10))
+                ->name('Office Chair Ergonomic')
+                ->price(100)
+                ->build(),
+        ];
+
+        $this->productRepository->create($products, Context::createDefaultContext());
+
+        $this->indexElasticSearch(['--only' => ['product']]);
+        $this->refreshIndex();
+
+        $hits = $this->runRawAdminSearch($ean);
+
+        static::assertNotEmpty($hits, 'Search must return hits for the exact EAN.');
+        static::assertSame(
+            $ownerId,
+            $hits[0]['_source']['id'] ?? null,
+            \sprintf(
+                'Expected the EAN-owning product to rank first, got "%s". Hit order: %s',
+                $hits[0]['_source']['id'] ?? 'null',
+                json_encode(array_column(array_column($hits, '_source'), 'id'), \JSON_THROW_ON_ERROR)
+            )
+        );
+    }
+
+    /**
+     * Complementary regression guard for the EAN fix: a whole-word autocomplete
+     * query like "shirt" must still find a product named "T-Shirt", because
+     * the `completion` main field's index analyzer splits on word boundaries
+     * (`word_delimiter_graph` with `preserve_original`) — `"T-Shirt"` indexes
+     * as `[t-shirt, t, shirt]`, so a query token `shirt` matches via the
+     * whole-word clause even though it is longer than the ngram subfield's
+     * `max_gram` and therefore can't ride the substring path.
+     */
+    public function testWholeWordAutocompleteFindsHyphenatedNames(): void
+    {
+        $ids = new IdsCollection();
+        $shirtId = $ids->get('SHIRT');
+
+        $products = [
+            (new ProductBuilder($ids, 'SHIRT', 10))
+                ->name('T-Shirt')
+                ->price(100)
+                ->build(),
+            (new ProductBuilder($ids, 'PANTS', 10))
+                ->name('Pants')
+                ->price(100)
+                ->build(),
+        ];
+
+        $this->productRepository->create($products, Context::createDefaultContext());
+
+        $this->indexElasticSearch(['--only' => ['product']]);
+        $this->refreshIndex();
+
+        $hits = $this->runRawAdminSearch('shirt');
+
+        static::assertNotEmpty($hits, '"shirt" should find products whose names contain the word — including hyphenated forms like "T-Shirt".');
+        $foundIds = array_column(array_column($hits, '_source'), 'id');
+        static::assertContains(
+            $shirtId,
+            $foundIds,
+            \sprintf('"T-Shirt" must be found by the whole-word "shirt" query. Hit order: %s', json_encode($foundIds, \JSON_THROW_ON_ERROR))
+        );
+    }
+
     protected function getDiContainer(): ContainerInterface
     {
         return static::getContainer();
+    }
+
+    /**
+     * Replay the query shape that `AdminSearcher::buildSearchPayload` builds
+     * for the global admin search bar, but read the raw OpenSearch response
+     * so we can assert on hit order rather than the order-losing DAL hydration.
+     *
+     * @return list<array<string, mixed>>
+     */
+    private function runRawAdminSearch(string $term): array
+    {
+        $registry = static::getContainer()->get(AdminSearchRegistry::class);
+        $indexer = $registry->getIndexer('product');
+
+        $search = new Search();
+        $splitTerms = explode(' ', $term);
+        $lastPart = end($splitTerms);
+
+        $search->addQuery(
+            new MatchQuery('completion', $term, ['boost' => SearchRanking::HIGH_SEARCH_RANKING]),
+            BoolQuery::SHOULD
+        );
+        $search->addQuery(
+            new MatchQuery('completion.ngram', $term, ['boost' => SearchRanking::MIDDLE_SEARCH_RANKING]),
+            BoolQuery::SHOULD
+        );
+
+        $prefixTerm = preg_match('/^[\p{L}0-9]+$/u', $lastPart) ? $term . '*' : $term;
+        $search->addQuery(
+            new SimpleQueryStringQuery($prefixTerm, ['fields' => ['text'], 'lenient' => true]),
+            BoolQuery::SHOULD
+        );
+
+        $query = $indexer->globalCriteria($term, $search);
+
+        $response = static::getContainer()->get(Client::class)->search([
+            'index' => static::getContainer()->get(AdminElasticsearchHelper::class)->getIndex($indexer->getName()),
+            'body' => $query->toArray(),
+        ]);
+
+        return $response['hits']['hits'] ?? [];
     }
 }

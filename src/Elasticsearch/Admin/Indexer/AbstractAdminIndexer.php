@@ -16,10 +16,47 @@ use Shopware\Elasticsearch\Framework\AbstractElasticsearchDefinition;
 #[Package('inventory')]
 abstract class AbstractAdminIndexer
 {
-    final public const SEARCH_FIELD = [
+    /**
+     * Default text-field shape used by `AdminSearchRegistry::buildMapping` for
+     * the indexer's `text` and `textBoosted` fields. Plain text — no ngram
+     * subfield. Substring autocomplete is routed through the dedicated
+     * `completion` field (see `COMPLETION_FIELD`) so identifier-bearing values
+     * indexed into `text`/`textBoosted` cannot pollute ngram scoring with
+     * trigram coincidences.
+     */
+    final public const SEARCH_FIELD = ['type' => 'text'];
+
+    /**
+     * Text field with an `ngram` subfield used for typo-tolerant autocomplete.
+     * Indexers populate this field with name-shaped values that a user would
+     * type into the global admin search bar to find an entity. Identifier-only
+     * or numeric-only fields belong on `text`/`textBoosted` (prefix search),
+     * not here.
+     *
+     * Analyzer chain (`sw_admin_completion_*_analyzer`):
+     * - tokenizes on whitespace and word boundaries (incl. letter/digit splits
+     *   so `iPhone15` → `iphone, 15`), preserves the original glued form so
+     *   exact-paste queries still match
+     * - lowercases and drops single-character tokens (length filter min 2)
+     * - dedupes tokens at search time
+     *
+     * The `ngram` subfield uses `sw_whitespace_analyzer` as its
+     * `search_analyzer` so the query side is *not* ngram-decomposed: only
+     * queries shorter than `max_gram` can hit the ngram path. Long
+     * identifier-shaped queries (e.g. a 13-digit GTIN) therefore do not
+     * accumulate trigram noise from unrelated names that happen to contain
+     * digit substrings.
+     */
+    final public const COMPLETION_FIELD = [
         'type' => 'text',
+        'analyzer' => 'sw_admin_completion_index_analyzer',
+        'search_analyzer' => 'sw_admin_completion_search_analyzer',
         'fields' => [
-            'ngram' => ['type' => 'text', 'analyzer' => 'sw_ngram_analyzer'],
+            'ngram' => [
+                'type' => 'text',
+                'analyzer' => 'sw_ngram_analyzer',
+                'search_analyzer' => 'sw_whitespace_analyzer',
+            ],
         ],
     ];
 
@@ -104,6 +141,29 @@ abstract class AbstractAdminIndexer
         }
 
         return $prefixedFields;
+    }
+
+    /**
+     * Build the `completion` field payload — a flat list of name-shaped values
+     * for ngram-based autocomplete. Empty / null entries are dropped and each
+     * value is lowercased so the indexed tokens match the lowercased query
+     * term issued by `AdminSearcher::buildSearch`.
+     *
+     * @param list<string|null> $values
+     *
+     * @return list<string>
+     */
+    protected function buildCompletion(array $values): array
+    {
+        $result = [];
+        foreach ($values as $value) {
+            if (!\is_string($value) || $value === '') {
+                continue;
+            }
+            $result[] = mb_strtolower($value);
+        }
+
+        return array_values(array_unique($result));
     }
 
     /**

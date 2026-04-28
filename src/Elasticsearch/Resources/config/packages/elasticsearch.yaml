@@ -43,11 +43,36 @@ elasticsearch:
                     type: custom
                     tokenizer: whitespace
                     filter: [ 'lowercase', 'sw_ngram_filter' ]
+                sw_admin_completion_index_analyzer:
+                    type: custom
+                    tokenizer: whitespace
+                    filter: [ 'lowercase', 'sw_admin_word_delimiter_filter', 'sw_admin_length_min2' ]
+                sw_admin_completion_search_analyzer:
+                    type: custom
+                    tokenizer: whitespace
+                    filter: [ 'lowercase', 'sw_admin_word_delimiter_filter', 'sw_admin_length_min2', 'sw_admin_unique_filter' ]
             filter:
                 sw_ngram_filter:
                     type: ngram
                     min_gram: "%env(int:SHOPWARE_ES_NGRAM_MIN_GRAM)%"
                     max_gram: "%env(int:SHOPWARE_ES_NGRAM_MAX_GRAM)%"
+                sw_admin_word_delimiter_filter:
+                    type: word_delimiter_graph
+                    split_on_numerics: true
+                    split_on_case_change: false
+                    preserve_original: true
+                    generate_word_parts: true
+                    generate_number_parts: true
+                    catenate_words: false
+                    catenate_numbers: false
+                    catenate_all: false
+                    stem_english_possessive: false
+                sw_admin_length_min2:
+                    type: length
+                    min: 2
+                sw_admin_unique_filter:
+                    type: unique
+                    only_on_same_position: false
         dynamic_templates:
             - keywords:
                 match_mapping_type: string
