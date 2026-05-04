@@ -16,6 +16,7 @@ use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\Framework\Script\Execution\ScriptExecutor;
+use Shopware\Core\System\Integration\IntegrationCollection;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 /**
@@ -26,6 +27,7 @@ class AppStateService
 {
     /**
      * @param EntityRepository<AppCollection> $appRepo
+     * @param EntityRepository<IntegrationCollection> $integrationRepository
      */
     public function __construct(
         private readonly EntityRepository $appRepo,
@@ -36,7 +38,8 @@ class AppStateService
         private readonly PaymentMethodStateService $paymentMethodStateService,
         private readonly ScriptExecutor $scriptExecutor,
         private readonly RuleConditionPersister $ruleConditionPersister,
-        private readonly FlowEventPersister $flowEventPersister
+        private readonly FlowEventPersister $flowEventPersister,
+        private readonly EntityRepository $integrationRepository,
     ) {
     }
 
@@ -52,6 +55,11 @@ class AppStateService
         }
 
         $this->appRepo->update([['id' => $appId, 'active' => true]], $context);
+
+        if ($app->getIntegrationId()) {
+            $this->integrationRepository->update([['id' => $app->getIntegrationId(), 'deletedAt' => null]], $context);
+        }
+
         $this->templateStateService->activateAppTemplates($appId, $context);
         $this->scriptPersister->activateAppScripts($appId, $context);
         $this->paymentMethodStateService->activatePaymentMethods($appId, $context);
@@ -85,6 +93,11 @@ class AppStateService
         $this->scriptExecutor->execute(new AppDeactivatedHook($event));
 
         $this->appRepo->update([['id' => $appId, 'active' => false]], $context);
+
+        if ($app->getIntegrationId()) {
+            $this->integrationRepository->update([['id' => $app->getIntegrationId(), 'deletedAt' => new \DateTimeImmutable()]], $context);
+        }
+
         $this->templateStateService->deactivateAppTemplates($appId, $context);
         $this->scriptPersister->deactivateAppScripts($appId, $context);
         $this->paymentMethodStateService->deactivatePaymentMethods($appId, $context);

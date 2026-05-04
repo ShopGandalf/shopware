@@ -2,6 +2,7 @@
 
 namespace Shopware\Tests\Integration\Core\Framework\App;
 
+use Doctrine\DBAL\Connection;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Framework\App\AppCollection;
 use Shopware\Core\Framework\App\AppEntity;
@@ -18,10 +19,12 @@ use Shopware\Core\Framework\App\Manifest\Manifest;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
+use Shopware\Core\Framework\DataAbstractionLayer\Search\Filter\EqualsFilter;
 use Shopware\Core\Framework\Script\Debugging\ScriptTraces;
 use Shopware\Core\Framework\Test\TestCaseBase\IntegrationTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Framework\Validation\Constraint\ArrayOfUuid;
+use Shopware\Core\System\Integration\IntegrationCollection;
 use Shopware\Core\Test\AppSystemTestBehaviour;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\Validator\Constraints\Choice;
@@ -119,6 +122,59 @@ class AppStateServiceTest extends TestCase
         $this->eventDispatcher->removeListener(AppDeactivatedEvent::class, $onAppInstalled);
 
         $this->assertAppState($appId, false);
+    }
+
+    public function testDeactivateSoftDeletesIntegration(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/Manifest/_fixtures/test/manifest.xml');
+        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $appId = $this->appRepository->searchIds(new Criteria(), $this->context)->firstId();
+        static::assertNotNull($appId);
+
+        $app = $this->appRepository->search(new Criteria([$appId]), $this->context)->getEntities()->first();
+        static::assertNotNull($app);
+        $integrationId = $app->getIntegrationId();
+
+        $this->appStateService->deactivateApp($appId, $this->context);
+
+        /** @var EntityRepository<IntegrationCollection> $integrationRepository */
+        $integrationRepository = static::getContainer()->get('integration.repository');
+        $criteria = new Criteria([$integrationId]);
+        $criteria->addFilter(new EqualsFilter('id', $integrationId));
+        $context = Context::createDefaultContext();
+        $context->setConsiderInheritance(false);
+
+        // Use raw DBAL to check soft-delete since DAL filters deletedAt by default
+        $connection = static::getContainer()->get(Connection::class);
+        $deletedAt = $connection->fetchOne(
+            'SELECT deleted_at FROM integration WHERE id = :id',
+            ['id' => \hex2bin($integrationId)],
+        );
+
+        static::assertNotNull($deletedAt, 'Integration should be soft-deleted when app is deactivated');
+    }
+
+    public function testActivateRestoresIntegration(): void
+    {
+        $manifest = Manifest::createFromXmlFile(__DIR__ . '/Manifest/_fixtures/test/manifest.xml');
+        $this->appLifecycle->install($manifest, new AppInstallParameters(), $this->context);
+        $appId = $this->appRepository->searchIds(new Criteria(), $this->context)->firstId();
+        static::assertNotNull($appId);
+
+        $app = $this->appRepository->search(new Criteria([$appId]), $this->context)->getEntities()->first();
+        static::assertNotNull($app);
+        $integrationId = $app->getIntegrationId();
+
+        $this->appStateService->deactivateApp($appId, $this->context);
+        $this->appStateService->activateApp($appId, $this->context);
+
+        $connection = static::getContainer()->get(Connection::class);
+        $deletedAt = $connection->fetchOne(
+            'SELECT deleted_at FROM integration WHERE id = :id',
+            ['id' => \hex2bin($integrationId)],
+        );
+
+        static::assertNull($deletedAt, 'Integration deletedAt should be null after app is reactivated');
     }
 
     public function testDeactivateThrowsIfDeactivationIsNotAllowed(): void

@@ -30,6 +30,7 @@ yalc.lock
 .codex/
 .cursor/
 .cursorrules
+.cursorignore
 .tabnine/
 .ai/
 .llm/
@@ -37,6 +38,9 @@ yalc.lock
 .aiderignore
 .kite/
 .codewhispererignore
+
+# MCP client configuration (contains credentials)
+.mcp.json
 
 # Composer
 /composer.phar
