@@ -90,7 +90,7 @@ class TokenQueryBuilder
             }
 
             if ($root !== null) {
-                $fieldQuery = new NestedQuery($root, $fieldQuery, ['ignore_unmapped' => true]);
+                $fieldQuery = new NestedQuery($root, $fieldQuery);
             }
 
             if ($explainMode) {
