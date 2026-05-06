@@ -40,7 +40,7 @@ class ProductStreamIndexerTest extends TestCase
 
     private IteratorFactory&MockObject $iteratorFactory;
 
-    private ProductDefinition&MockObject $productDefinition;
+    private ProductDefinition $productDefinition;
 
     private ProductStreamIndexer $indexer;
 
@@ -55,7 +55,7 @@ class ProductStreamIndexerTest extends TestCase
     {
         $this->connection = $this->createMock(Connection::class);
         $this->iteratorFactory = $this->createMock(IteratorFactory::class);
-        $this->productDefinition = $this->createMock(ProductDefinition::class);
+        $this->productDefinition = new ProductDefinition();
         $this->repository = new StaticEntityRepository([], new ProductStreamDefinition());
         $this->dispatcher = $this->createMock(EventDispatcherInterface::class);
 
@@ -171,11 +171,77 @@ class ProductStreamIndexerTest extends TestCase
         ]);
         $serialized = \json_encode([QueryStringParser::toArray($query)]);
 
-        $this->productDefinition->expects($this->exactly(5))->method('getEntityName')->willReturn('product');
-
         $statement = $this->createMock(Statement::class);
         $params = [
             ['serialized', $serialized],
+            ['invalid', 0],
+            ['id', Uuid::fromHexToBytes($productStreamId)],
+        ];
+        $matcher = $this->exactly(\count($params));
+        $statement->expects($matcher)
+            ->method('bindValue')
+            ->willReturnCallback(static function (string $key, $value) use ($matcher, $params): void {
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][0], $key);
+                self::assertSame($params[$matcher->numberOfInvocations() - 1][1], $value);
+            });
+
+        $statement->expects($this->once())->method('executeStatement')->willReturn(1);
+
+        $this->connection->expects($this->once())->method('fetchAllAssociative')->willReturn($filters);
+        $this->connection->expects($this->once())->method('prepare')->willReturn($statement);
+
+        $this->indexer->handle(new EntityIndexingMessage([$productStreamId]));
+    }
+
+    public function testHandleSkipsEmptyIdFilters(): void
+    {
+        $productStreamId = Uuid::randomHex();
+        $filterId1 = Uuid::randomHex();
+        $filterId2 = Uuid::randomHex();
+        $filterId3 = Uuid::randomHex();
+
+        $filters = [
+            [
+                'array_key' => $productStreamId,
+                'id' => $filterId1,
+                'product_stream_id' => $productStreamId,
+                'parent_id' => null,
+                'type' => 'multi',
+                'field' => null,
+                'operator' => 'OR',
+                'value' => null,
+                'parameters' => null,
+                'position' => '0',
+            ],
+            [
+                'array_key' => $productStreamId,
+                'id' => $filterId2,
+                'entity_stream_id' => $productStreamId,
+                'parent_id' => $filterId1,
+                'type' => 'multi',
+                'field' => null,
+                'operator' => 'AND',
+                'value' => null,
+                'parameters' => null,
+                'position' => '0',
+            ],
+            [
+                'array_key' => $productStreamId,
+                'id' => $filterId3,
+                'entity_stream_id' => $productStreamId,
+                'parent_id' => $filterId2,
+                'type' => 'equals',
+                'field' => 'id',
+                'operator' => null,
+                'value' => null,
+                'parameters' => null,
+                'position' => '0',
+            ],
+        ];
+
+        $statement = $this->createMock(Statement::class);
+        $params = [
+            ['serialized', '[]'],
             ['invalid', 0],
             ['id', Uuid::fromHexToBytes($productStreamId)],
         ];

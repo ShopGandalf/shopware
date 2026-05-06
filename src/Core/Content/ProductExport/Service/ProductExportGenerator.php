@@ -15,6 +15,7 @@ use Shopware\Core\Content\ProductExport\ProductExportEntity;
 use Shopware\Core\Content\ProductExport\ProductExportException;
 use Shopware\Core\Content\ProductExport\Struct\ExportBehavior;
 use Shopware\Core\Content\ProductExport\Struct\ProductExportResult;
+use Shopware\Core\Content\ProductStream\Exception\NoFilterException;
 use Shopware\Core\Content\ProductStream\Service\ProductStreamBuilderInterface;
 use Shopware\Core\Content\Seo\SeoUrlPlaceholderHandlerInterface;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -100,10 +101,18 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
             $context->getContext()
         );
 
-        $filters = $this->productStreamBuilder->buildFilters(
-            $productExport->getProductStreamId(),
-            $context->getContext()
-        );
+        try {
+            $filters = $this->productStreamBuilder->buildFilters(
+                $productExport->getProductStreamId(),
+                $context->getContext()
+            );
+        } catch (NoFilterException $exception) {
+            if (!$this->isEmptyProductStream($productExport->getProductStreamId())) {
+                throw $exception;
+            }
+
+            $filters = [];
+        }
 
         $associations = $this->getAssociations($productExport, $context);
 
@@ -321,5 +330,19 @@ class ProductExportGenerator implements ProductExportGeneratorInterface
         }
 
         return array_filter(array_unique($associations));
+    }
+
+    private function isEmptyProductStream(string $productStreamId): bool
+    {
+        $stream = $this->connection->fetchAssociative(
+            'SELECT `api_filter`, `invalid` FROM `product_stream` WHERE `id` = :id',
+            ['id' => Uuid::fromHexToBytes($productStreamId)]
+        );
+
+        if (!\is_array($stream)) {
+            return false;
+        }
+
+        return $stream['api_filter'] === '[]' && (int) $stream['invalid'] === 0;
     }
 }
