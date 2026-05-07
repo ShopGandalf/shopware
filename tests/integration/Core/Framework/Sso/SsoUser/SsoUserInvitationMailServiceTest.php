@@ -15,6 +15,7 @@ use Shopware\Core\Framework\Sso\SsoUser\SsoUserInvitationMailService;
 use Shopware\Core\Framework\Test\TestCaseBase\SalesChannelFunctionalTestBehaviour;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\System\Locale\LocaleEntity;
+use Shopware\Core\System\SystemConfig\SystemConfigService;
 use Shopware\Core\Test\TestDefaults;
 
 /**
@@ -65,6 +66,9 @@ class SsoUserInvitationMailServiceTest extends TestCase
 
     public function testSendInvitationMailToUser(): void
     {
+        $this->getContainer()->get(SystemConfigService::class)->set('core.basicInformation.shopName', 'STORE NAME');
+        $this->getContainer()->get(SystemConfigService::class)->set('core.basicInformation.email', 'no-reply@store.com');
+
         $source = new AdminApiSource(null, null);
         $context = new Context(
             $source,
@@ -89,6 +93,8 @@ class SsoUserInvitationMailServiceTest extends TestCase
         );
 
         static::assertInstanceOf(MailBeforeSentEvent::class, $caughtEvent);
-        static::assertSame('Administrator invited you to join Demostore', $caughtEvent->getData()['subject']);
+        static::assertSame('Administrator invited you to join STORE NAME', $caughtEvent->getData()['subject']);
+        static::assertSame('no-reply@store.com', $caughtEvent->getData()['senderEmail']);
+        static::assertSame('STORE NAME', $caughtEvent->getData()['senderName']);
     }
 }

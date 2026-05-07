@@ -35,7 +35,14 @@ class SsoUserInvitationMailServiceTest extends TestCase
     public function testSendInvitationMailToUser(): void
     {
         $abstractMailService = $this->createMock(AbstractMailService::class);
-        $abstractMailService->expects($this->once())->method('send');
+        $abstractMailService->expects($this->once())
+            ->method('send')
+            ->with(static::callback(function (array $data) {
+                self::assertSame('sender@name.foo', $data['senderEmail']);
+                self::assertSame('ShopName', $data['senderName']);
+
+                return true;
+            }));
 
         $systemConfigService = $this->createMock(SystemConfigService::class);
         $systemConfigService->expects($this->exactly(2))->method('get')
@@ -59,7 +66,6 @@ class SsoUserInvitationMailServiceTest extends TestCase
 
         $userEntity = new UserEntity();
         $userEntity->setUniqueIdentifier(Uuid::randomHex());
-        $userEntity->setEmail('test@example.foo');
         $userEntity->setFirstName('FirstName');
         $userEntity->setLastName('LastName');
         $userEntity->setUsername('UserName');

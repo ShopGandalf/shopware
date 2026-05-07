@@ -66,7 +66,7 @@ class SsoUserInvitationMailService
         $mailData->set('templateId', $mailTemplate?->getId());
         $mailData->set('recipients', [$recipientEmail => $recipientEmail]);
         $mailData->set('senderName', $shopName);
-        $mailData->set('senderEmail', $user?->getEmail() ?? $senderMail);
+        $mailData->set('senderEmail', $senderMail);
         $mailData->set('subject', $mailTemplate?->getTranslation('subject'));
         $mailData->set('contentPlain', $mailTemplate?->getTranslation('contentPlain'));
         $mailData->set('contentHtml', $mailTemplate?->getTranslation('contentHtml'));
