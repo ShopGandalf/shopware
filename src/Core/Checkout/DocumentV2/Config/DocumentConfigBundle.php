@@ -20,6 +20,7 @@ final readonly class DocumentConfigBundle
     public function __construct(
         public DocumentConfig $config,
         public CompanyInfo $company,
+        public DocumentDisplayOptions $display,
         public array $legacyConfig,
     ) {
     }

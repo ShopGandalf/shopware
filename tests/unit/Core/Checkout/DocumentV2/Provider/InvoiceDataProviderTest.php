@@ -5,6 +5,9 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
+use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
+use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigCollection;
 use Shopware\Core\Checkout\Document\Aggregate\DocumentBaseConfig\DocumentBaseConfigDefinition;
@@ -18,6 +21,7 @@ use Shopware\Core\Checkout\Order\Aggregate\OrderAddress\OrderAddressEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderCustomer\OrderCustomerEntity;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryCollection;
 use Shopware\Core\Checkout\Order\Aggregate\OrderDelivery\OrderDeliveryEntity;
+use Shopware\Core\Checkout\Order\Aggregate\OrderLineItem\OrderLineItemCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -45,7 +49,7 @@ class InvoiceDataProviderTest extends TestCase
     {
         $provider = $this->createProvider();
 
-        static::assertSame(InvoiceDataProvider::KEY, $provider->getKey());
+        static::assertSame('invoice', $provider->getKey());
         static::assertSame([DocumentType::INVOICE->value], $provider->getDocumentTypes());
     }
 
@@ -62,10 +66,10 @@ class InvoiceDataProviderTest extends TestCase
                 'language',
                 'addresses',
                 'orderCustomer',
+                'lineItems',
                 'deliveries',
                 'primaryOrderTransaction',
                 'primaryOrderDelivery',
-                'lineItems',
                 'transactions',
             ],
             \array_keys($criteria->getAssociations()),
@@ -345,21 +349,28 @@ class InvoiceDataProviderTest extends TestCase
         $order->setId(Uuid::randomHex());
         $order->setVersionId(Uuid::randomHex());
         $order->setSalesChannelId(Uuid::randomHex());
+        $order->setBillingAddressId(Uuid::randomHex());
+        $order->setLineItems(new OrderLineItemCollection());
+        $order->setPrice(new CartPrice(0.0, 0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
+
+        $orderCustomer = new OrderCustomerEntity();
+        $orderCustomer->setUniqueIdentifier(Uuid::randomHex());
+        $orderCustomer->setFirstName('');
+        $orderCustomer->setLastName('');
+        $orderCustomer->setEmail('');
+        $orderCustomer->setCustomerNumber('');
 
         if ($accountType !== null) {
             $customer = new CustomerEntity();
             $customer->setAccountType($accountType);
-
-            $orderCustomer = new OrderCustomerEntity();
-            $orderCustomer->setUniqueIdentifier(Uuid::randomHex());
             $orderCustomer->setCustomer($customer);
-
-            if ($vatIds !== null) {
-                $orderCustomer->setVatIds($vatIds);
-            }
-
-            $order->setOrderCustomer($orderCustomer);
         }
+
+        if ($vatIds !== null) {
+            $orderCustomer->setVatIds($vatIds);
+        }
+
+        $order->setOrderCustomer($orderCustomer);
 
         if ($country !== null || $deliveryWithoutCountry) {
             $address = new OrderAddressEntity();
@@ -372,6 +383,7 @@ class InvoiceDataProviderTest extends TestCase
             $delivery = new OrderDeliveryEntity();
             $delivery->setUniqueIdentifier(Uuid::randomHex());
             $delivery->setShippingOrderAddress($address);
+            $delivery->setShippingDateLatest(new \DateTimeImmutable('2026-05-15'));
 
             $order->setDeliveries(new OrderDeliveryCollection([$delivery]));
             $order->setPrimaryOrderDelivery($delivery);

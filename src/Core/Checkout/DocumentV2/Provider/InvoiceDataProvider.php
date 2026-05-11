@@ -5,10 +5,14 @@ namespace Shopware\Core\Checkout\DocumentV2\Provider;
 use Shopware\Core\Checkout\Customer\CustomerEntity;
 use Shopware\Core\Checkout\Customer\Validation\Constraint\CustomerVatIdentification;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfigLoader;
+use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
 use Shopware\Core\Checkout\DocumentV2\DocumentType;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
@@ -25,6 +29,11 @@ use Symfony\Component\Validator\Validator\ValidatorInterface;
 final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
 {
     final public const KEY = 'invoice';
+
+    final public const TEMPLATE_PATHS = [
+        DocumentFormat::HTML->value => '@Framework/documents/invoice.html.twig',
+        DocumentFormat::ZUGFERD_XML->value => '@Framework/documents/zugferd/invoice.xml.twig',
+    ];
 
     public function __construct(
         private DocumentConfigLoader $documentConfigLoader,
@@ -53,6 +62,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             'addresses.salutation',
             'addresses.countryState',
             'orderCustomer.customer',
+            'lineItems.product.manufacturer',
             'deliveries.shippingMethod',
             'deliveries.shippingOrderAddress.country',
             'primaryOrderTransaction.paymentMethod',
@@ -94,20 +104,41 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
         }
 
         return new InvoiceRenderData(
-            $bundle->config,
-            $bundle->company,
-            $generationRequest->documentDate,
-            $documentNumber,
-            $generationRequest->documentComment,
-            $isIntraCommunityDelivery,
-            (bool) ($bundle->legacyConfig['displayDivergentDeliveryAddress'] ?? false),
-            (bool) ($bundle->legacyConfig['displayLineItems'] ?? false),
-            (bool) ($bundle->legacyConfig['displayLineItemPosition'] ?? false),
-            (bool) ($bundle->legacyConfig['displayPrices'] ?? false),
-            $bundle->legacyConfig['deliveryCountries'] ?? [],
-            $bundle->legacyConfig,
-            ['invoiceNumber' => $documentNumber],
+            config: $bundle->config,
+            company: $bundle->company,
+            display: $bundle->display,
+            documentDate: $generationRequest->documentDate,
+            documentNumber: $documentNumber,
+            documentComment: $generationRequest->documentComment,
+            templatePaths: self::TEMPLATE_PATHS,
+            typeCode: TypeCode::INVOICE,
+            buyerReference: $order->getOrderNumber() ?? '',
+            buyer: TradePartyView::buyerFromOrder($order),
+            deliveryDate: $this->resolveDeliveryDate($order),
+            lineItems: LineItemView::listFromOrder($order),
+            intraCommunityDelivery: $isIntraCommunityDelivery,
+            custom: ['invoiceNumber' => $documentNumber],
+            legacyConfig: $bundle->legacyConfig,
         );
+    }
+
+    private function resolveDeliveryDate(OrderEntity $order): ?\DateTimeImmutable
+    {
+        $delivery = Feature::isActive('v6.8.0.0')
+            ? $order->getPrimaryOrderDelivery()
+            : $order->getDeliveries()?->first();
+
+        $shippingDate = $delivery?->getShippingDateLatest();
+
+        if ($shippingDate instanceof \DateTimeImmutable) {
+            return $shippingDate;
+        }
+
+        if ($shippingDate instanceof \DateTimeInterface) {
+            return \DateTimeImmutable::createFromInterface($shippingDate);
+        }
+
+        return null;
     }
 
     private function isIntraCommunityDelivery(bool $displayAdditionalNoteDelivery, OrderEntity $order): bool

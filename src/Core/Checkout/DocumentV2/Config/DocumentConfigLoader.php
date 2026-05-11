@@ -84,12 +84,15 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             ->first();
 
         $legacyConfig = $this->mergeJsonConfig($globalRow, $salesChannelRow);
+
         $documentConfig = $this->buildDocumentConfig($globalRow, $salesChannelRow, $documentType);
         $companyInfo = $this->buildCompanyInfo($legacyConfig, $context, $documentType);
+        $displayOptions = $this->buildDisplayOptions($legacyConfig);
 
         $bundle = new DocumentConfigBundle(
             config: $documentConfig,
             company: $companyInfo,
+            display: $displayOptions,
             legacyConfig: $legacyConfig,
         );
 
@@ -176,6 +179,20 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             bankBic: $legacyConfig['bankBic'] ?? null,
             placeOfJurisdiction: $legacyConfig['placeOfJurisdiction'] ?? null,
             placeOfFulfillment: $legacyConfig['placeOfFulfillment'] ?? null,
+        );
+    }
+
+    /**
+     * @param array<string, mixed> $legacyConfig
+     */
+    private function buildDisplayOptions(array $legacyConfig): DocumentDisplayOptions
+    {
+        return new DocumentDisplayOptions(
+            displayLineItems: (bool) ($legacyConfig['displayLineItems'] ?? false),
+            displayLineItemPosition: (bool) ($legacyConfig['displayLineItemPosition'] ?? false),
+            displayPrices: (bool) ($legacyConfig['displayPrices'] ?? false),
+            displayDivergentDeliveryAddress: (bool) ($legacyConfig['displayDivergentDeliveryAddress'] ?? false),
+            deliveryCountries: $legacyConfig['deliveryCountries'] ?? [],
         );
     }
 

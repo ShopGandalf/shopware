@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rsm:CrossIndustryInvoice
+    xmlns:rsm="urn:un:unece:uncefact:data:standard:CrossIndustryInvoice:100"
+    xmlns:qdt="urn:un:unece:uncefact:data:standard:QualifiedDataType:100"
+    xmlns:ram="urn:un:unece:uncefact:data:standard:ReusableAggregateBusinessInformationEntity:100"
+    xmlns:xs="http://www.w3.org/2001/XMLSchema"
+    xmlns:udt="urn:un:unece:uncefact:data:standard:UnqualifiedDataType:100"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+>
+    {% block zugferd_document_context %}
+        {% include '@Framework/documents/zugferd/includes/document_context.xml.twig' %}
+    {% endblock %}
+
+    {% block zugferd_exchanged_document %}
+        {% include '@Framework/documents/zugferd/includes/exchanged_document.xml.twig' with {
+            documentNumber: renderData.documentNumber,
+            typeCode: renderData.typeCode,
+            documentDate: renderData.documentDate,
+        } only %}
+    {% endblock %}
+
+    <rsm:SupplyChainTradeTransaction>
+        {% block zugferd_line_items %}
+            {% for item in renderData.lineItems %}
+                {% include '@Framework/documents/zugferd/includes/line_item.xml.twig' with { item: item } only %}
+            {% endfor %}
+        {% endblock %}
+
+        {% block zugferd_header_agreement %}
+            <ram:ApplicableHeaderTradeAgreement>
+                <ram:BuyerReference>{{ renderData.buyerReference }}</ram:BuyerReference>
+
+                {% block zugferd_seller_party %}
+                    {% include '@Framework/documents/zugferd/includes/seller_trade_party.xml.twig' with { seller: renderData.company } only %}
+                {% endblock %}
+
+                {% block zugferd_buyer_party %}
+                    {% include '@Framework/documents/zugferd/includes/buyer_trade_party.xml.twig' with { buyer: renderData.buyer } only %}
+                {% endblock %}
+            </ram:ApplicableHeaderTradeAgreement>
+        {% endblock %}
+
+        {% block zugferd_header_delivery %}
+            <ram:ApplicableHeaderTradeDelivery>
+                {% if renderData.deliveryDate is not null %}
+                    <ram:ActualDeliverySupplyChainEvent>
+                        <ram:OccurrenceDateTime>
+                            <udt:DateTimeString format="102">{{ renderData.deliveryDate|zugferd_date_102 }}</udt:DateTimeString>
+                        </ram:OccurrenceDateTime>
+                    </ram:ActualDeliverySupplyChainEvent>
+                {% endif %}
+            </ram:ApplicableHeaderTradeDelivery>
+        {% endblock %}
+
+        {% block zugferd_header_settlement %}
+            <ram:ApplicableHeaderTradeSettlement/>
+        {% endblock %}
+    </rsm:SupplyChainTradeTransaction>
+</rsm:CrossIndustryInvoice>

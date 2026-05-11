@@ -52,6 +52,10 @@ class DocumentV2Exception extends HttpException
 
     public const MISSING_DOCUMENT_NUMBER = 'DOCUMENT_V2__MISSING_DOCUMENT_NUMBER';
 
+    public const MALFORMED_XML = 'DOCUMENT_V2__MALFORMED_XML';
+
+    public const TEMPLATE_PATH_NOT_FOUND = 'DOCUMENT_V2__TEMPLATE_PATH_NOT_FOUND';
+
     public static function unknownRenderData(string $key, string $expectedClass): self
     {
         return new self(
@@ -242,6 +246,32 @@ class DocumentV2Exception extends HttpException
             self::MISSING_DOCUMENT_NUMBER,
             'Document number is missing for document type "{{ documentType }}".',
             ['documentType' => $documentType],
+        );
+    }
+
+    /**
+     * @param array<string, list<string>> $errors
+     */
+    public static function malformedXml(int $count, array $errors): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::MALFORMED_XML,
+            'Generated XML is malformed with {{ count }} violation(s): {{ errors }}.',
+            [
+                'count' => $count,
+                'errors' => json_encode($errors),
+            ],
+        );
+    }
+
+    public static function templatePathNotFound(string $format): self
+    {
+        return new self(
+            Response::HTTP_INTERNAL_SERVER_ERROR,
+            self::TEMPLATE_PATH_NOT_FOUND,
+            'No template path registered for format "{{ format }}".',
+            ['format' => $format],
         );
     }
 }

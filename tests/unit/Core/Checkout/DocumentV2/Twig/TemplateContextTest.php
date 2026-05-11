@@ -6,9 +6,12 @@ use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
 use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
 
@@ -144,18 +147,38 @@ class TemplateContextTest extends TestCase
         array $legacyConfig = [],
     ): TemplateContext {
         $renderData = new InvoiceRenderData(
-            new DocumentConfig('a4', 'landscape', 10),
-            new CompanyInfo('company', 'example street 10', '12345', 'example city', new CountryEntity()),
-            'date',
-            'number',
-            'comment',
-            false,
-            false,
-            false,
-            false,
-            false,
-            [],
-            $legacyConfig,
+            new DocumentConfig(
+                'a4',
+                'landscape',
+                10
+            ),
+            new CompanyInfo(
+                'company',
+                'example street 10',
+                '12345',
+                'example city',
+                new CountryEntity()
+            ),
+            display: new DocumentDisplayOptions(),
+            documentDate: 'date',
+            documentNumber: 'number',
+            documentComment: 'comment',
+            templatePaths: [],
+            typeCode: TypeCode::INVOICE,
+            buyerReference: '',
+            buyer: new TradePartyView(
+                null,
+                '',
+                null,
+                null,
+                null,
+                null,
+                null
+            ),
+            deliveryDate: null,
+            lineItems: [],
+            intraCommunityDelivery: false,
+            legacyConfig: $legacyConfig,
         );
 
         return new TemplateContext(

@@ -150,6 +150,12 @@ final readonly class TemplateContext implements \ArrayAccess
             'documentDate' => $data->documentDate,
             'documentNumber' => $data->documentNumber,
             'documentComment' => $data->documentComment,
+            'displayLineItems' => $data->display->displayLineItems,
+            'displayLineItemPosition' => $data->display->displayLineItemPosition,
+            'displayPrices' => $data->display->displayPrices,
+            'displayDivergentDeliveryAddress' => $data->display->displayDivergentDeliveryAddress,
+            'deliveryCountries' => $data->display->deliveryCountries,
+            'custom' => $data->custom,
         ];
 
         if (!$data instanceof InvoiceRenderData) {
@@ -159,12 +165,6 @@ final readonly class TemplateContext implements \ArrayAccess
         return [
             ...$properties,
             'intraCommunityDelivery' => $data->intraCommunityDelivery,
-            'displayDivergentDeliveryAddress' => $data->displayDivergentDeliveryAddress,
-            'displayLineItems' => $data->displayLineItems,
-            'displayLineItemPosition' => $data->displayLineItemPosition,
-            'displayPrices' => $data->displayPrices,
-            'deliveryCountries' => $data->deliveryCountries,
-            'custom' => $data->custom,
         ];
     }
 }
