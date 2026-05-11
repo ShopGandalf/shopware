@@ -198,6 +198,36 @@ class RequestTransformerTest extends TestCase
             'expectedStorefrontUrl' => 'http://shopware.com/de',
             'expectedResolvedUri' => '/navigation/abc',
         ];
+
+        yield 'virtual path before index.php in subdirectory' => [
+            // see https://github.com/shopware/shopware/issues/6666
+            'requestUrl' => 'http://shopware.com/public/de/index.php/navigation/abc',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/public/index.php',
+                'PHP_SELF' => '/public/de/index.php/navigation/abc',
+            ],
+            'domainUrl' => 'http://shopware.com/public/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com/public',
+            'expectedStorefrontUrl' => 'http://shopware.com/public/de',
+            'expectedResolvedUri' => '/navigation/abc',
+        ];
+
+        yield 'virtual path equals base url with index.php' => [
+            // /de/index.php with no further path should resolve to the sales-channel home
+            'requestUrl' => 'http://shopware.com/de/index.php',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/index.php',
+                'PHP_SELF' => '/de/index.php',
+            ],
+            'domainUrl' => 'http://shopware.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com',
+            'expectedStorefrontUrl' => 'http://shopware.com/de',
+            'expectedResolvedUri' => '/',
+        ];
     }
 
     /**
