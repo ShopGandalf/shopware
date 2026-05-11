@@ -275,6 +275,23 @@ class RequestTransformerTest extends TestCase
             'expectedStorefrontUrl' => 'http://shopware.com/de',
             'expectedResolvedUri' => '/index.php-shop',
         ];
+
+        yield 'slug with index.php prefix is preserved when followed by sub-path' => [
+            // an "index.php-shop" parent slug with a deeper path must also pass through unchanged.
+            // The `$scriptName . '/'` boundary requires an exact script-name segment, so
+            // "index.php-shop/foo" cannot be partial-stripped to "-shop/foo".
+            'requestUrl' => 'http://shopware.com/de/index.php-shop/foo',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/index.php',
+                'PHP_SELF' => '/de/index.php-shop/foo',
+            ],
+            'domainUrl' => 'http://shopware.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com',
+            'expectedStorefrontUrl' => 'http://shopware.com/de',
+            'expectedResolvedUri' => '/index.php-shop/foo',
+        ];
     }
 
     /**
