@@ -75,6 +75,8 @@ class ThemeCompiler implements ThemeCompilerInterface
             );
         }
 
+        $useCache = $context->hasState(ThemeService::STATE_USE_THEME_CACHE);
+
         try {
             $concatenatedStyles = $this->concatenateStyles($styleFiles, $salesChannelId);
         } catch (\Throwable $e) {
@@ -91,7 +93,8 @@ class ThemeCompiler implements ThemeCompilerInterface
             $styleFiles->getResolveMappings(),
             $salesChannelId,
             $themeId,
-            $context
+            $context,
+            $useCache,
         );
 
         $newThemeHash = Uuid::randomHex();
@@ -285,7 +288,8 @@ class ThemeCompiler implements ThemeCompilerInterface
         array $resolveMappings,
         string $salesChannelId,
         string $themeId,
-        Context $context
+        Context $context,
+        bool $useCache = false
     ): string {
         try {
             $variables = $this->dumpVariables($configuration->getThemeConfig() ?? [], $themeId, $salesChannelId, $context);
@@ -305,6 +309,7 @@ class ThemeCompiler implements ThemeCompilerInterface
                 [
                     'importPaths' => $importPaths,
                     'outputStyle' => $this->debug ? OutputStyle::EXPANDED : OutputStyle::COMPRESSED,
+                    'useCache' => $useCache,
                 ]
             );
 

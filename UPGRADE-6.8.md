@@ -1345,6 +1345,66 @@ Instead of overwriting any of those blocks inside `@Storefront/storefront/compon
 
 ## Removed address book action template
 The unused template `@/Storefront/Resources/views/storefront/page/account/addressbook/address-actions.html.twig` was removed.
+
+## scssphp 2.x replaces scssphp 1.x
+
+`scssphp/scssphp` was bumped from `v1.12.0` to `^2.1`. v2.x is a full rewrite as a port of dart-sass and is spec-compliant. Plugin authors using `scssphp/scssphp` directly need to migrate to the v2.x API. Highlights:
+
+* `ScssPhp\ScssPhp\Compiler` is now `final` and its constructor takes no arguments. The integrated cache option of v1.x has been removed.
+* `ScssPhp\ScssPhp\OutputStyle` is a string-backed enum (`OutputStyle::COMPRESSED`, `OutputStyle::EXPANDED`). Identity comparisons against the cases continue to work; if you store the value as a string, use `OutputStyle::fromString()` / `OutputStyle::toString()`.
+* `ScssPhp\ScssPhp\Compiler::compileString()` returns a `CompilationResult`. Call `getCss()` to obtain the compiled CSS. Passing a path string as the second argument is deprecated; pass a URL or use `compileFile()` instead.
+* `ScssPhp\ScssPhp\Colors::colorNameToRGBa()` is now `private`. Use the public `Colors::colorNameToColor()` which returns `?SassColor`.
+* Color arithmetic in SCSS (e.g. `#fff + #000`) is no longer accepted. Use Sass color functions (e.g. `color.adjust()`, `color.scale()`) or numeric channels.
+* Modern CSS Color Module Level 4 syntax such as `rgb(R G B / A)` with numeric channels is now parsed correctly as alpha syntax.
+* `LoggerInterface` signatures changed; custom loggers must format from the new arg shape.
+* The integrated cache and CLI of scssphp v1.x have been removed.
+
+`Shopware\Storefront\Theme\Validator\SCSSValidator` was adapted to use `Colors::colorNameToColor()` accordingly.
+
+## Optional SCSS compile cache
+
+The v2.x library no longer ships its own cache. The new `Shopware\Storefront\Theme\CachedScssCompiler` decorator is wired by default in core DI, decorates `Shopware\Storefront\Theme\ScssPhpCompiler`, and is backed by `cache.app.taggable` with a `lifetime` of `3600` seconds and the tag `scss_compiler`. Projects that need a different cache pool, lifetime, or tag set can override the service definition.
+
+Caching is opt-in per call: `CachedScssCompiler::compileString()` only consults the cache when the `CompilerConfiguration` carries `useCache: true`. **Caching is off by default everywhere**, including in `ThemeCompiler`, to preserve the pre-6.8 uncached behaviour. To opt in for a single theme compile run, pass `--use-cache` to `bin/console theme:compile` or add `Shopware\Storefront\Theme\ThemeService::STATE_USE_THEME_CACHE` to the `Context` before calling `ThemeService::compileTheme()`. Other callers (e.g. `SCSSValidator` and any ad-hoc usage) leave the key absent and therefore always bypass the cache.
+
+The companion helper `Shopware\Storefront\Theme\ScssCacheKeyGenerator` resolves SCSS `@import` graphs and builds stable cache keys from the SCSS source, output style, import paths and recursive file mtimes.
+
+## Migrating from `ScssPhpCompiler`'s `cacheOptions` argument
+
+In 6.7, plugins could enable scssphp's built-in disk cache by passing an array argument to `Shopware\Storefront\Theme\ScssPhpCompiler` via DI:
+
+```xml
+<!-- 6.7 -->
+<service id="Shopware\Storefront\Theme\ScssPhpCompiler">
+    <argument type="collection">
+        <argument key="cacheDir">%kernel.cache_dir%/scss</argument>
+    </argument>
+</service>
+```
+
+The `?array $cacheOptions` constructor argument is **deprecated and ignored in 6.8.0** (the v2.x library has no integrated cache to forward those options to). Existing service overrides keep working but emit a deprecation warning at instantiation. The replacement — `Shopware\Storefront\Theme\CachedScssCompiler` — is wired by default in core DI (see *Optional SCSS compile cache* above), so the recommended migration is to drop the override entirely and rely on the core defaults.
+
+Differences to be aware of when migrating:
+* The new cache uses a Symfony `TagAwareCacheInterface` pool (`cache.app.taggable` by default), not a directory on disk. Any `cacheDir` configuration on the legacy `<argument type="collection">` can be removed; if you need a different pool, override `Shopware\Storefront\Theme\CachedScssCompiler` and point it at your preferred `TagAwareCacheInterface`.
+* Cache invalidation is tag-based. Calling `cache.app.taggable->invalidateTags(['scss_compiler'])` clears compiled SCSS without touching unrelated entries.
+* Caching is opt-in per call. Even though the decorator is wired by default, theme compiles will not cache until you pass `--use-cache` or set `STATE_USE_THEME_CACHE` on the `Context` (see above).
+
+## Storage considerations for the SCSS cache
+
+Each `CachedScssCompiler` cache entry holds the full compiled CSS string for one theme compile. Plan storage with that in mind:
+
+* **Per entry** — the full compiled CSS for a single theme. Typical Shopware storefront themes compile to ~200KB–1MB depending on `outputStyle` (compressed vs expanded) and how much vendor SCSS the theme pulls in.
+* **Number of entries** — one per unique `(theme_id × sales_channel × theme_config_state × output_style)` tuple. A typical production project (handful of sales channels, a couple of themes, stable config) keeps ~5–30 live entries.
+* **Production footprint** — usually under 30MB total.
+* **Development footprint** — can climb to 50–200MB during active config-tweaking sessions because the cache key changes whenever theme variables or imported file mtimes change, and the previous entries stick around until TTL expiry. Lowering `lifetime` reduces accumulation; the default `3600` (1 hour) is a reasonable starting point.
+
+The `tags` option lets you flush the entire SCSS cache with a single call, which is the recommended way to invalidate on deploy rather than relying on TTL alone:
+
+```php
+$tagAwareCache->invalidateTags(['scss_compiler']);
+```
+
+If your shared cache pool is size-constrained (small Redis instance, etc.), consider pointing the decorator at a dedicated cache pool rather than `cache.app.taggable`, so SCSS entries can't crowd out other cached data.
 </details>
 
 # App System

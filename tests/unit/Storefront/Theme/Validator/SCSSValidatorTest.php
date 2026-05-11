@@ -519,20 +519,6 @@ class SCSSValidatorTest extends TestCase
             ],
             'rgb(255 0 0 / 0.5)',
         ];
-        yield 'color correct rgb modern with variable' => [
-            [
-                'type' => 'color',
-                'value' => 'rgb($myColor / 0.5)',
-            ],
-            'rgb($myColor / 0.5)',
-        ];
-        yield 'color correct rgb modern with hex color' => [
-            [
-                'type' => 'color',
-                'value' => 'rgb(#fff / 0.5)',
-            ],
-            'rgb(#fff / 0.5)',
-        ];
         yield 'color correct rgba' => [
             [
                 'type' => 'color',

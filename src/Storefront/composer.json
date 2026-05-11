@@ -28,8 +28,10 @@
         "php": "~8.2.0 || ~8.3.0 || ~8.4.0 || ~8.5.0",
         "cocur/slugify": "^4.7.0",
         "doctrine/dbal": "~4.4.0",
+        "league/flysystem": "^3.13.0",
+        "league/flysystem-local": "^3.29.0",
         "meyfa/php-svg": "^0.16.1",
-        "scssphp/scssphp": "v1.12.0",
+        "scssphp/scssphp": "^2.1",
         "shopware/core": "*",
         "symfony/asset": "~7.4.0",
         "symfony/cache": "~7.4.0",
@@ -53,6 +55,7 @@
         "twig/twig": "^3.21.1"
     },
     "require-dev": {
+        "league/flysystem-memory": "^3.10.3",
         "symfony/css-selector": "~7.4.0",
         "phpunit/phpunit": "^11.5.19"
     }
