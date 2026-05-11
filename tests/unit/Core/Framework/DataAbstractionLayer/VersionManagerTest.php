@@ -5,6 +5,8 @@ namespace Shopware\Tests\Unit\Core\Framework\DataAbstractionLayer;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Defaults;
+use Shopware\Core\Framework\Api\Sync\SyncOperation;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\DataAbstractionLayerException;
 use Shopware\Core\Framework\DataAbstractionLayer\DefinitionInstanceRegistry;
@@ -12,20 +14,26 @@ use Shopware\Core\Framework\DataAbstractionLayer\Entity;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityWriteResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Field\ReferenceVersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\Field\VersionField;
 use Shopware\Core\Framework\DataAbstractionLayer\FieldCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Read\EntityReaderInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\Criteria;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\EntitySearcherInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Search\IdSearchResult;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommit\VersionCommitEntity;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataCollection;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataDefinition;
+use Shopware\Core\Framework\DataAbstractionLayer\Version\Aggregate\VersionCommitData\VersionCommitDataEntity;
 use Shopware\Core\Framework\DataAbstractionLayer\Version\VersionDefinition;
 use Shopware\Core\Framework\DataAbstractionLayer\VersionManager;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\CloneBehavior;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriteGatewayInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\EntityWriterInterface;
 use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteContext;
+use Shopware\Core\Framework\DataAbstractionLayer\Write\WriteResult;
 use Shopware\Core\Framework\Uuid\Uuid;
 use Shopware\Core\Test\Stub\DataAbstractionLayer\StaticDefinitionInstanceRegistry;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -94,6 +102,7 @@ class VersionManagerTest extends TestCase
         $registry = new StaticDefinitionInstanceRegistry(
             [
                 VersionManagerTestDefinition::class,
+                VersionManagerTestManufacturerDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -139,6 +148,7 @@ class VersionManagerTest extends TestCase
         $registry = new StaticDefinitionInstanceRegistry(
             [
                 VersionManagerTestDefinition::class,
+                VersionManagerTestManufacturerDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -226,6 +236,131 @@ class VersionManagerTest extends TestCase
 
         $versionManager->merge($versionId, $this->createMock(WriteContext::class));
     }
+
+    public function testMergeUsesWriteContextVersionAsTargetVersion(): void
+    {
+        $sourceVersionId = Uuid::randomHex();
+        $targetVersionId = Uuid::randomHex();
+        $productId = Uuid::randomHex();
+        $commitId = Uuid::randomHex();
+
+        $commitData = new VersionCommitDataEntity();
+        $commitData->setId(Uuid::randomHex());
+        $commitData->setVersionCommitId($commitId);
+        $commitData->setEntityName('product');
+        $commitData->setEntityId(['id' => $productId, 'versionId' => $sourceVersionId]);
+        $commitData->setAction(EntityWriteResult::OPERATION_UPDATE);
+        $commitData->setPayload(['id' => $productId, 'ean' => 'source-version', 'productManufacturerVersionId' => Defaults::LIVE_VERSION]);
+
+        $commit = new VersionCommitEntity();
+        $commit->setId($commitId);
+        $commit->setData(new VersionCommitDataCollection([$commitData]));
+
+        $entitySearcher = $this->createMock(EntitySearcherInterface::class);
+        $entitySearcher->expects($this->exactly(2))->method('search')->willReturnOnConsecutiveCalls(
+            IdSearchResult::fromIds([$sourceVersionId], new Criteria(), Context::createDefaultContext()),
+            IdSearchResult::fromIds([$commitId], new Criteria(), Context::createDefaultContext())
+        );
+
+        $entityReader = $this->createMock(EntityReaderInterface::class);
+        $entityReader->expects($this->once())->method('read')->willReturn(new VersionCommitCollection([$commit]));
+
+        $lock = $this->createMock(SharedLockInterface::class);
+        $lock->expects($this->once())->method('acquire')->willReturn(true);
+        $lock->expects($this->once())->method('release');
+
+        $lockFactory = $this->createMock(LockFactory::class);
+        $lockFactory->expects($this->once())->method('createLock')->with('sw-merge-version-' . $sourceVersionId)->willReturn($lock);
+
+        $versionCommitDefinition = $this->createMock(VersionCommitDefinition::class);
+        $versionDefinition = $this->createMock(VersionDefinition::class);
+
+        $entityWriter = $this->createMock(EntityWriterInterface::class);
+        $entityWriter->expects($this->once())->method('sync')
+            ->with(
+                static::callback(static function (array $operations) use ($productId, $targetVersionId): bool {
+                    /** @var list<SyncOperation> $productOperations */
+                    $productOperations = [];
+                    foreach ($operations as $operation) {
+                        static::assertInstanceOf(SyncOperation::class, $operation);
+
+                        if ($operation->getEntity() === 'product') {
+                            $productOperations[] = $operation;
+                        }
+                    }
+
+                    static::assertCount(1, $productOperations);
+                    static::assertSame('upsert', $productOperations[0]->getAction());
+                    $expectedPayload = [[
+                        'id' => $productId,
+                        'ean' => 'source-version',
+                        'productManufacturerVersionId' => Defaults::LIVE_VERSION,
+                        'versionId' => $targetVersionId,
+                    ]];
+
+                    static::assertSame($expectedPayload, $productOperations[0]->getPayload());
+
+                    return true;
+                }),
+                static::callback(static function (WriteContext $writeContext) use ($targetVersionId): bool {
+                    static::assertSame($targetVersionId, $writeContext->getContext()->getVersionId());
+                    static::assertTrue($writeContext->hasState(VersionManager::MERGE_SCOPE));
+
+                    return true;
+                })
+            )
+            ->willReturn(new WriteResult([], [], []));
+
+        $entityWriter->expects($this->once())->method('insert')
+            ->with(
+                $versionCommitDefinition,
+                static::callback(static function (array $payload) use ($targetVersionId): bool {
+                    static::assertSame($targetVersionId, $payload[0]['versionId']);
+                    static::assertSame($targetVersionId, $payload[0]['data'][0]['entityId']['versionId']);
+
+                    $mergePayload = json_decode((string) $payload[0]['data'][0]['payload'], true, 512, \JSON_THROW_ON_ERROR);
+                    static::assertIsArray($mergePayload);
+                    static::assertSame($targetVersionId, $mergePayload['versionId']);
+                    static::assertSame(Defaults::LIVE_VERSION, $mergePayload['productManufacturerVersionId']);
+
+                    return true;
+                }),
+                static::isInstanceOf(WriteContext::class)
+            )
+            ->willReturn([]);
+        $entityWriter->method('delete')->willReturn(new WriteResult([], [], []));
+
+        $registry = new StaticDefinitionInstanceRegistry(
+            [
+                VersionManagerTestDefinition::class,
+                VersionManagerTestManufacturerDefinition::class,
+            ],
+            $this->createMock(ValidatorInterface::class),
+            $this->createMock(EntityWriteGatewayInterface::class)
+        );
+
+        $eventDispatcher = $this->createMock(EventDispatcherInterface::class);
+        $eventDispatcher->method('dispatch')->willReturnArgument(0);
+
+        $versionManager = new VersionManager(
+            $entityWriter,
+            $entityReader,
+            $entitySearcher,
+            $this->createMock(EntityWriteGatewayInterface::class),
+            $eventDispatcher,
+            $this->createMock(SerializerInterface::class),
+            $registry,
+            $versionCommitDefinition,
+            $this->createMock(VersionCommitDataDefinition::class),
+            $versionDefinition,
+            $lockFactory
+        );
+
+        $versionManager->merge(
+            $sourceVersionId,
+            WriteContext::createFromContext(Context::createDefaultContext()->createWithVersionId($targetVersionId))
+        );
+    }
 }
 
 /**
@@ -236,6 +371,25 @@ class VersionManagerTestDefinition extends EntityDefinition
     public function getEntityName(): string
     {
         return 'product';
+    }
+
+    protected function defineFields(): FieldCollection
+    {
+        return new FieldCollection([
+            new VersionField(),
+            new ReferenceVersionField(VersionManagerTestManufacturerDefinition::class, 'product_manufacturer_version_id'),
+        ]);
+    }
+}
+
+/**
+ * @internal
+ */
+class VersionManagerTestManufacturerDefinition extends EntityDefinition
+{
+    public function getEntityName(): string
+    {
+        return 'product_manufacturer';
     }
 
     protected function defineFields(): FieldCollection
