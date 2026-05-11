@@ -228,6 +228,53 @@ class RequestTransformerTest extends TestCase
             'expectedStorefrontUrl' => 'http://shopware.com/de',
             'expectedResolvedUri' => '/',
         ];
+
+        yield 'virtual path with trailing slash after index.php' => [
+            // /de/index.php/ (trailing slash, no further path) should also resolve to home
+            'requestUrl' => 'http://shopware.com/de/index.php/',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/index.php',
+                'PHP_SELF' => '/de/index.php/',
+            ],
+            'domainUrl' => 'http://shopware.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com',
+            'expectedStorefrontUrl' => 'http://shopware.com/de',
+            'expectedResolvedUri' => '/',
+        ];
+
+        yield 'virtual path before custom front controller (app.php)' => [
+            // ensure the strip uses basename($scriptName) and works for non-index.php front controllers
+            'requestUrl' => 'http://shopware.com/de/app.php/navigation/abc',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/app.php',
+                'SCRIPT_NAME' => '/app.php',
+                'PHP_SELF' => '/de/app.php/navigation/abc',
+            ],
+            'domainUrl' => 'http://shopware.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com',
+            'expectedStorefrontUrl' => 'http://shopware.com/de',
+            'expectedResolvedUri' => '/navigation/abc',
+        ];
+
+        yield 'slug with index.php prefix is preserved (boundary guard)' => [
+            // a hypothetical SEO slug like "index.php-shop" must not be mangled by the strip;
+            // the `$scriptName . '/'` suffix on str_starts_with ensures only the bare script
+            // basename followed by a path separator is stripped.
+            'requestUrl' => 'http://shopware.com/de/index.php-shop',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/index.php',
+                'PHP_SELF' => '/de/index.php-shop',
+            ],
+            'domainUrl' => 'http://shopware.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com',
+            'expectedStorefrontUrl' => 'http://shopware.com/de',
+            'expectedResolvedUri' => '/index.php-shop',
+        ];
     }
 
     /**

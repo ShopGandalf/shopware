@@ -331,6 +331,12 @@ class RequestTransformer implements RequestTransformerInterface
         // and so leaks the script name *basename* (never the full script path) into getPathInfo().
         // Without this strip, the SEO resolver receives `index.php/navigation/{id}` and never finds
         // the canonical SEO URL, so the redirect to the SEO-friendly path is skipped.
+        //
+        // We use basename() because getScriptName() can include a subdirectory prefix
+        // (e.g. `/sw6/public/index.php`) while Symfony only leaks the bare filename Symfony failed
+        // to align. The comparison is case-sensitive — matches Symfony/PHP behavior on POSIX hosts.
+        // The trailing `/` on the str_starts_with check guards against false-positives like
+        // `/index.php-shop` slugs.
         $scriptName = basename($request->getScriptName());
         if ($scriptName !== '' && (str_starts_with($seoPathInfo, $scriptName . '/') || $seoPathInfo === $scriptName)) {
             $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($scriptName));
