@@ -103,6 +103,7 @@ class VersionManagerTest extends TestCase
             [
                 VersionManagerTestDefinition::class,
                 VersionManagerTestManufacturerDefinition::class,
+                VersionDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -149,6 +150,7 @@ class VersionManagerTest extends TestCase
             [
                 VersionManagerTestDefinition::class,
                 VersionManagerTestManufacturerDefinition::class,
+                VersionDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
@@ -334,6 +336,7 @@ class VersionManagerTest extends TestCase
             [
                 VersionManagerTestDefinition::class,
                 VersionManagerTestManufacturerDefinition::class,
+                VersionDefinition::class,
             ],
             $this->createMock(ValidatorInterface::class),
             $this->createMock(EntityWriteGatewayInterface::class)
