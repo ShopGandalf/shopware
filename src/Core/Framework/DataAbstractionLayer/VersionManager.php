@@ -157,6 +157,11 @@ class VersionManager
 
     public function merge(string $versionId, WriteContext $writeContext): void
     {
+        $targetVersionId = $writeContext->getContext()->getVersionId();
+        if ($targetVersionId === $versionId) {
+            throw DataAbstractionLayerException::versionMergeSameVersion($versionId);
+        }
+
         // acquire a lock to prevent multiple merges of the same version
         $lock = $this->lockFactory->createLock('sw-merge-version-' . $versionId);
 
@@ -170,8 +175,6 @@ class VersionManager
 
         // load all commits of the provided version
         $commits = $this->getCommits($versionId, $writeContext);
-
-        $targetVersionId = $writeContext->getContext()->getVersionId();
 
         // create context for source and target versions
         $versionContext = $writeContext->createWithVersionId($versionId);
