@@ -324,6 +324,18 @@ class RequestTransformer implements RequestTransformerInterface
             $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($baseUrl));
         }
 
+        // Strip the front-controller script name (e.g. `index.php`) when Symfony left it embedded
+        // in the path info. This happens when the script name follows a virtual base URL such as
+        // `/de/index.php/navigation/{id}` — Symfony's base-URL auto-detection requires the script
+        // name to sit at the start of the request URI, fails to match it after the language prefix
+        // and so leaks it into getPathInfo(). Without this strip, the SEO resolver receives
+        // `index.php/navigation/{id}` and never finds the canonical SEO URL, so the redirect to
+        // the SEO-friendly path is skipped.
+        $scriptName = ltrim($request->getScriptName(), '/');
+        if ($scriptName !== '' && str_starts_with($seoPathInfo, $scriptName)) {
+            $seoPathInfo = mb_substr($seoPathInfo, mb_strlen($scriptName));
+        }
+
         $resolved = $this->resolver->resolve($languageId, $salesChannelId, $seoPathInfo);
 
         $resolved['pathInfo'] = '/' . ltrim($resolved['pathInfo'], '/');

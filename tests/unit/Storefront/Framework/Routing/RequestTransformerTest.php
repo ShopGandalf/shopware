@@ -183,6 +183,21 @@ class RequestTransformerTest extends TestCase
             'expectedStorefrontUrl' => 'http://shopware.com/de',
             'expectedResolvedUri' => '/outdoor',
         ];
+
+        yield 'virtual path before index.php' => [
+            // see https://github.com/shopware/shopware/issues/6666
+            'requestUrl' => 'http://shopware.com/de/index.php/navigation/abc',
+            'serverVars' => [
+                'SCRIPT_FILENAME' => '/var/www/html/public/index.php',
+                'SCRIPT_NAME' => '/index.php',
+                'PHP_SELF' => '/de/index.php/navigation/abc',
+            ],
+            'domainUrl' => 'http://shopware.com/de',
+            'expectedBaseUrl' => '/de',
+            'expectedAbsoluteBaseUrl' => 'http://shopware.com',
+            'expectedStorefrontUrl' => 'http://shopware.com/de',
+            'expectedResolvedUri' => '/navigation/abc',
+        ];
     }
 
     /**
