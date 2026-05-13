@@ -54,6 +54,12 @@
 
         {% block zugferd_header_settlement %}
             <ram:ApplicableHeaderTradeSettlement>
+                {% block zugferd_header_settlement_taxes %}
+                    {% for tax in renderData.taxBreakdown %}
+                        {% include '@Framework/documents/zugferd/includes/applicable_trade_tax.xml.twig' with { tax: tax } only %}
+                    {% endfor %}
+                {% endblock %}
+
                 {% block zugferd_header_settlement_payment_means %}
                     {% if renderData.paymentMeans %}
                         {% include '@Framework/documents/zugferd/includes/payment_means.xml.twig' with { means: renderData.paymentMeans } only %}

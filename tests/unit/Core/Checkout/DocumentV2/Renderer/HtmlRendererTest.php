@@ -197,6 +197,7 @@ class HtmlRendererTest extends TestCase
             deliveryDate: null,
             lineItems: [],
             allowanceCharges: [],
+            taxBreakdown: [],
             paymentMeans: null,
             paymentDueDate: null,
             intraCommunityDelivery: false,

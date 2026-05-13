@@ -10,6 +10,7 @@ use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\PaymentMeansView;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TaxBreakdownView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Framework\Log\Package;
 
@@ -27,6 +28,7 @@ final readonly class InvoiceRenderData extends AbstractRenderData
      * @param array<string, mixed> $legacyConfig
      * @param list<LineItemView> $lineItems
      * @param list<AllowanceChargeView> $allowanceCharges
+     * @param list<TaxBreakdownView> $taxBreakdown
      */
     public function __construct(
         DocumentConfig $config,
@@ -42,6 +44,7 @@ final readonly class InvoiceRenderData extends AbstractRenderData
         public ?\DateTimeImmutable $deliveryDate,
         public array $lineItems,
         public array $allowanceCharges,
+        public array $taxBreakdown,
         public ?PaymentMeansView $paymentMeans,
         public ?\DateTimeImmutable $paymentDueDate,
         public bool $intraCommunityDelivery,

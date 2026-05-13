@@ -28,6 +28,7 @@ use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\PaymentMeansView;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TaxBreakdownView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -305,6 +306,7 @@ class DocumentRendererSnapshotTest extends TestCase
             deliveryDate: new \DateTimeImmutable('2026-05-15T00:00:00+00:00'),
             lineItems: LineItemView::listFromOrder($order),
             allowanceCharges: AllowanceChargeView::listFromOrder($order),
+            taxBreakdown: TaxBreakdownView::listFromOrder($order),
             paymentMeans: PaymentMeansView::fromOrder($order, $cfg['bankIban'], $cfg['bankBic']),
             paymentDueDate: new \DateTimeImmutable('2026-06-04T00:00:00+00:00'),
             intraCommunityDelivery: false,

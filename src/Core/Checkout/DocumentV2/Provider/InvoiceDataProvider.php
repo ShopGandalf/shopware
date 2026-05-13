@@ -14,6 +14,7 @@ use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\PaymentMeansView;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TaxBreakdownView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
@@ -119,6 +120,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             deliveryDate: $this->resolveDeliveryDate($order),
             lineItems: LineItemView::listFromOrder($order),
             allowanceCharges: AllowanceChargeView::listFromOrder($order),
+            taxBreakdown: TaxBreakdownView::listFromOrder($order),
             paymentMeans: PaymentMeansView::fromOrder(
                 $order,
                 $bundle->company->bankIban,
