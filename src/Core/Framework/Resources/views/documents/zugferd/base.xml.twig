@@ -77,6 +77,10 @@
                         {% include '@Framework/documents/zugferd/includes/payment_terms.xml.twig' with { dueDate: renderData.paymentDueDate } only %}
                     {% endif %}
                 {% endblock %}
+
+                {% block zugferd_header_settlement_monetary_summation %}
+                    {% include '@Framework/documents/zugferd/includes/monetary_summation.xml.twig' with { sum: renderData.monetarySummation } only %}
+                {% endblock %}
             </ram:ApplicableHeaderTradeSettlement>
         {% endblock %}
     </rsm:SupplyChainTradeTransaction>

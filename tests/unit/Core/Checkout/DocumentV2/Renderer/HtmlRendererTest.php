@@ -19,6 +19,7 @@ use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Twig\PaginationCounter;
 use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Adapter\Translation\AbstractTranslator;
@@ -198,6 +199,7 @@ class HtmlRendererTest extends TestCase
             lineItems: [],
             allowanceCharges: [],
             taxBreakdown: [],
+            monetarySummation: new MonetarySummationView(0, 0, 0, 0, 0, 'EUR', 0, 0, 0, 0),
             paymentMeans: null,
             paymentDueDate: null,
             intraCommunityDelivery: false,

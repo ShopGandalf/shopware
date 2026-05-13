@@ -9,6 +9,7 @@ use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\PaymentMeansView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TaxBreakdownView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
@@ -45,6 +46,7 @@ final readonly class InvoiceRenderData extends AbstractRenderData
         public array $lineItems,
         public array $allowanceCharges,
         public array $taxBreakdown,
+        public MonetarySummationView $monetarySummation,
         public ?PaymentMeansView $paymentMeans,
         public ?\DateTimeImmutable $paymentDueDate,
         public bool $intraCommunityDelivery,

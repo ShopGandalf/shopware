@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Twig\TemplateContext;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Framework\Log\Package;
 use Shopware\Core\System\Country\CountryEntity;
@@ -179,6 +180,7 @@ class TemplateContextTest extends TestCase
             lineItems: [],
             allowanceCharges: [],
             taxBreakdown: [],
+            monetarySummation: new MonetarySummationView(0, 0, 0, 0, 0, 'EUR', 0, 0, 0, 0),
             paymentMeans: null,
             paymentDueDate: null,
             intraCommunityDelivery: false,

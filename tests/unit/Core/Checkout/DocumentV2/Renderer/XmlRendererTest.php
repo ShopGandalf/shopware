@@ -17,6 +17,7 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Twig\DocumentTemplateRenderer;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\XmlFormatter;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -210,6 +211,7 @@ class XmlRendererTest extends TestCase
             lineItems: [],
             allowanceCharges: [],
             taxBreakdown: [],
+            monetarySummation: new MonetarySummationView(0, 0, 0, 0, 0, 'EUR', 0, 0, 0, 0),
             paymentMeans: null,
             paymentDueDate: null,
             intraCommunityDelivery: false,

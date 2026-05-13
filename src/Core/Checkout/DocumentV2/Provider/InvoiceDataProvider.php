@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\PaymentMeansView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TaxBreakdownView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
@@ -106,6 +107,9 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             throw DocumentV2Exception::missingDocumentNumber($generationRequest->documentType);
         }
 
+        $lineItems = LineItemView::listFromOrder($order);
+        $allowanceCharges = AllowanceChargeView::listFromOrder($order);
+
         return new InvoiceRenderData(
             config: $bundle->config,
             company: $bundle->company,
@@ -118,9 +122,10 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             buyerReference: $order->getOrderNumber() ?? '',
             buyer: TradePartyView::buyerFromOrder($order),
             deliveryDate: $this->resolveDeliveryDate($order),
-            lineItems: LineItemView::listFromOrder($order),
-            allowanceCharges: AllowanceChargeView::listFromOrder($order),
+            lineItems: $lineItems,
+            allowanceCharges: $allowanceCharges,
             taxBreakdown: TaxBreakdownView::listFromOrder($order),
+            monetarySummation: MonetarySummationView::fromOrder($order, $lineItems, $allowanceCharges),
             paymentMeans: PaymentMeansView::fromOrder(
                 $order,
                 $bundle->company->bankIban,

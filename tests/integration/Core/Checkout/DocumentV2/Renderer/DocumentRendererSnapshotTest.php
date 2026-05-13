@@ -27,6 +27,7 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\MonetarySummationView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\PaymentMeansView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TaxBreakdownView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
@@ -292,6 +293,9 @@ class DocumentRendererSnapshotTest extends TestCase
             displayDivergentDeliveryAddress: $cfg['displayDivergentDeliveryAddress'],
         );
 
+        $lineItems = LineItemView::listFromOrder($order);
+        $allowanceCharges = AllowanceChargeView::listFromOrder($order);
+
         return new InvoiceRenderData(
             config: $this->buildDocumentConfig(),
             company: $this->buildDocumentCompanyInfo($companyCountry),
@@ -304,9 +308,10 @@ class DocumentRendererSnapshotTest extends TestCase
             buyerReference: '10000',
             buyer: TradePartyView::buyerFromOrder($order),
             deliveryDate: new \DateTimeImmutable('2026-05-15T00:00:00+00:00'),
-            lineItems: LineItemView::listFromOrder($order),
-            allowanceCharges: AllowanceChargeView::listFromOrder($order),
+            lineItems: $lineItems,
+            allowanceCharges: $allowanceCharges,
             taxBreakdown: TaxBreakdownView::listFromOrder($order),
+            monetarySummation: MonetarySummationView::fromOrder($order, $lineItems, $allowanceCharges),
             paymentMeans: PaymentMeansView::fromOrder($order, $cfg['bankIban'], $cfg['bankBic']),
             paymentDueDate: new \DateTimeImmutable('2026-06-04T00:00:00+00:00'),
             intraCommunityDelivery: false,

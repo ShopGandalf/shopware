@@ -353,6 +353,8 @@ class InvoiceDataProviderTest extends TestCase
         $order->setBillingAddressId(Uuid::randomHex());
         $order->setLineItems(new OrderLineItemCollection());
         $order->setPrice(new CartPrice(0.0, 0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection(), CartPrice::TAX_STATE_NET));
+        $order->setAmountTotal(0.0);
+        $order->setAmountNet(0.0);
 
         $orderCustomer = new OrderCustomerEntity();
         $orderCustomer->setUniqueIdentifier(Uuid::randomHex());
