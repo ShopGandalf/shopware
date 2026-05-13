@@ -177,6 +177,7 @@ class TemplateContextTest extends TestCase
             ),
             deliveryDate: null,
             lineItems: [],
+            allowanceCharges: [],
             intraCommunityDelivery: false,
             legacyConfig: $legacyConfig,
         );

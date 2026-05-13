@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\DocumentV2\Zugferd\View;
 
 use Shopware\Core\Checkout\Cart\LineItem\LineItem;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\Calculation\NetAmount;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TaxCategory;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\UnitCode;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -42,7 +43,7 @@ final readonly class LineItemView
      */
     public static function listFromOrder(OrderEntity $order): array
     {
-        $isGross = !$order->getPrice()->hasNetPrices();
+        $isGross = NetAmount::isOrderGross($order);
 
         $items = [];
         $position = 0;
@@ -62,12 +63,11 @@ final readonly class LineItemView
                 continue;
             }
 
-            $totalNet = $isGross
-                ? $price->getTotalPrice() - $price->getCalculatedTaxes()->getAmount()
-                : $price->getTotalPrice();
+            $tax = $price->getCalculatedTaxes()->first();
+            $totalNet = NetAmount::fromTax($tax, $price, $isGross);
 
             $quantity = max($lineItem->getQuantity(), 1);
-            $taxRate = $price->getCalculatedTaxes()->first()?->getTaxRate() ?? 0.0;
+            $taxRate = $tax?->getTaxRate() ?? 0.0;
             $product = $lineItem->getProduct();
 
             $items[] = new self(

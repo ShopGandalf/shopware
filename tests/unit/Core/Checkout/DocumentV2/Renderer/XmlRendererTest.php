@@ -208,6 +208,7 @@ class XmlRendererTest extends TestCase
             ),
             deliveryDate: null,
             lineItems: [],
+            allowanceCharges: [],
             intraCommunityDelivery: false,
         );
     }

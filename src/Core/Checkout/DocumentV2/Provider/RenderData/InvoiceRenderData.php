@@ -7,6 +7,7 @@ use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Framework\Log\Package;
@@ -24,6 +25,7 @@ final readonly class InvoiceRenderData extends AbstractRenderData
      * @param array<string, mixed> $custom
      * @param array<string, mixed> $legacyConfig
      * @param list<LineItemView> $lineItems
+     * @param list<AllowanceChargeView> $allowanceCharges
      */
     public function __construct(
         DocumentConfig $config,
@@ -38,6 +40,7 @@ final readonly class InvoiceRenderData extends AbstractRenderData
         public TradePartyView $buyer,
         public ?\DateTimeImmutable $deliveryDate,
         public array $lineItems,
+        public array $allowanceCharges,
         public bool $intraCommunityDelivery,
         array $custom = [],
         array $legacyConfig = [],

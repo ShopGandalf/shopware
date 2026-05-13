@@ -4,6 +4,8 @@ namespace Shopware\Tests\Integration\Core\Checkout\DocumentV2\Renderer;
 
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Cart;
+use Shopware\Core\Checkout\Cart\SalesChannel\CartService;
 use Shopware\Core\Checkout\Document\Renderer\AbstractDocumentRenderer;
 use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer as LegacyInvoiceRenderer;
@@ -23,10 +25,12 @@ use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderInput;
 use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
+use Shopware\Core\Checkout\Promotion\Cart\PromotionItemBuilder;
 use Shopware\Core\Framework\Adapter\Translation\Translator;
 use Shopware\Core\Framework\Context;
 use Shopware\Core\Framework\DataAbstractionLayer\EntityRepository;
@@ -39,6 +43,7 @@ use Shopware\Core\System\Country\CountryEntity;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextFactory;
 use Shopware\Core\System\SalesChannel\Context\SalesChannelContextService;
 use Shopware\Core\System\SalesChannel\SalesChannelContext;
+use Shopware\Core\Test\Integration\Traits\Promotion\PromotionTestFixtureBehaviour;
 use Shopware\Core\Test\Integration\Traits\SnapshotTesting;
 use Shopware\Core\Test\TestDefaults;
 use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
@@ -50,6 +55,7 @@ use Shopware\Tests\Integration\Core\Checkout\Document\DocumentTrait;
 class DocumentRendererSnapshotTest extends TestCase
 {
     use DocumentTrait;
+    use PromotionTestFixtureBehaviour;
     use SnapshotTesting;
 
     private const DOCUMENT_NUMBER = '1000';
@@ -120,7 +126,9 @@ class DocumentRendererSnapshotTest extends TestCase
         $dataProvider = static::getContainer()->get($dataProviderClass);
         static::assertInstanceOf(AbstractDocumentDataProvider::class, $dataProvider);
 
-        $orderId = $this->persistCart($this->generateDemoCartWithTaxes([19, 7]));
+        $cart = $this->generateDemoCartWithTaxes([19, 7]);
+        $cart = $this->applyTenPercentPromotion($cart);
+        $orderId = $this->persistCart($cart);
 
         $this->orderRepository->update([
             [
@@ -288,6 +296,7 @@ class DocumentRendererSnapshotTest extends TestCase
             buyer: TradePartyView::buyerFromOrder($order),
             deliveryDate: new \DateTimeImmutable('2026-05-15T00:00:00+00:00'),
             lineItems: LineItemView::listFromOrder($order),
+            allowanceCharges: AllowanceChargeView::listFromOrder($order),
             intraCommunityDelivery: false,
             custom: ['invoiceNumber' => $cfg['documentNumber']],
             legacyConfig: $cfg,
@@ -373,6 +382,25 @@ class DocumentRendererSnapshotTest extends TestCase
             'pageOrientation' => 'portrait',
             'itemsPerPage' => 10,
         ];
+    }
+
+    private function applyTenPercentPromotion(Cart $cart): Cart
+    {
+        $code = 'TENOFF';
+
+        $this->createTestFixturePercentagePromotion(
+            Uuid::randomHex(),
+            $code,
+            10.0,
+            null,
+            static::getContainer(),
+        );
+
+        $promoLineItem = (new PromotionItemBuilder())->buildPlaceholderItem($code);
+
+        return static::getContainer()
+            ->get(CartService::class)
+            ->add($cart, $promoLineItem, $this->salesChannelContext);
     }
 
     private function loadCompanyCountry(): CountryEntity

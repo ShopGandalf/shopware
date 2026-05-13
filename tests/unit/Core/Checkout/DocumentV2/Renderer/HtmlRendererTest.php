@@ -196,6 +196,7 @@ class HtmlRendererTest extends TestCase
             buyerReference: '10000',
             deliveryDate: null,
             lineItems: [],
+            allowanceCharges: [],
             intraCommunityDelivery: false,
             custom: $custom,
         );

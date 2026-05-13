@@ -122,6 +122,37 @@
         </ram:OccurrenceDateTime>
       </ram:ActualDeliverySupplyChainEvent>
     </ram:ApplicableHeaderTradeDelivery>
-    <ram:ApplicableHeaderTradeSettlement/>
+    <ram:ApplicableHeaderTradeSettlement>
+      <ram:SpecifiedTradeAllowanceCharge>
+        <ram:ChargeIndicator>
+          <udt:Indicator>false</udt:Indicator>
+        </ram:ChargeIndicator>
+        <ram:CalculationPercent>10.00</ram:CalculationPercent>
+        <ram:BasisAmount>84.00</ram:BasisAmount>
+        <ram:ActualAmount>8.40</ram:ActualAmount>
+        <ram:ReasonCode>DISCOUNT</ram:ReasonCode>
+        <ram:Reason>TENOFF</ram:Reason>
+        <ram:CategoryTradeTax>
+          <ram:TypeCode>VAT</ram:TypeCode>
+          <ram:CategoryCode>S</ram:CategoryCode>
+          <ram:RateApplicablePercent>19.00</ram:RateApplicablePercent>
+        </ram:CategoryTradeTax>
+      </ram:SpecifiedTradeAllowanceCharge>
+      <ram:SpecifiedTradeAllowanceCharge>
+        <ram:ChargeIndicator>
+          <udt:Indicator>false</udt:Indicator>
+        </ram:ChargeIndicator>
+        <ram:CalculationPercent>10.00</ram:CalculationPercent>
+        <ram:BasisAmount>94.40</ram:BasisAmount>
+        <ram:ActualAmount>9.44</ram:ActualAmount>
+        <ram:ReasonCode>DISCOUNT</ram:ReasonCode>
+        <ram:Reason>TENOFF</ram:Reason>
+        <ram:CategoryTradeTax>
+          <ram:TypeCode>VAT</ram:TypeCode>
+          <ram:CategoryCode>S</ram:CategoryCode>
+          <ram:RateApplicablePercent>7.00</ram:RateApplicablePercent>
+        </ram:CategoryTradeTax>
+      </ram:SpecifiedTradeAllowanceCharge>
+    </ram:ApplicableHeaderTradeSettlement>
   </rsm:SupplyChainTradeTransaction>
 </rsm:CrossIndustryInvoice>

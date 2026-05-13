@@ -11,6 +11,7 @@ use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
 use Shopware\Core\Checkout\DocumentV2\Generation\DocumentGenerationRequest;
 use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -116,6 +117,7 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             buyer: TradePartyView::buyerFromOrder($order),
             deliveryDate: $this->resolveDeliveryDate($order),
             lineItems: LineItemView::listFromOrder($order),
+            allowanceCharges: AllowanceChargeView::listFromOrder($order),
             intraCommunityDelivery: $isIntraCommunityDelivery,
             custom: ['invoiceNumber' => $documentNumber],
             legacyConfig: $bundle->legacyConfig,

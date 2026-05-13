@@ -53,7 +53,13 @@
         {% endblock %}
 
         {% block zugferd_header_settlement %}
-            <ram:ApplicableHeaderTradeSettlement/>
+            <ram:ApplicableHeaderTradeSettlement>
+                {% block zugferd_header_settlement_allowance_charges %}
+                    {% for ac in renderData.allowanceCharges %}
+                        {% include '@Framework/documents/zugferd/includes/allowance_charge.xml.twig' with { ac: ac } only %}
+                    {% endfor %}
+                {% endblock %}
+            </ram:ApplicableHeaderTradeSettlement>
         {% endblock %}
     </rsm:SupplyChainTradeTransaction>
 </rsm:CrossIndustryInvoice>
