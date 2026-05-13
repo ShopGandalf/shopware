@@ -17,8 +17,6 @@ use Shopware\Core\Framework\Log\Package;
  * Positive `isCharge` flips the wire `<udt:Indicator>` to `true`; everything else (allowance) to `false`.
  *
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 final readonly class AllowanceChargeView
@@ -82,7 +80,7 @@ final readonly class AllowanceChargeView
                     calculationPercent: null,
                     reasonCode: self::REASON_CODE_DELIVERY,
                     reason: 'Delivery',
-                    taxCategory: $tax->getTaxRate() > 0.0 ? TaxCategory::STANDARD_RATE : TaxCategory::ZERO_RATED,
+                    taxCategory: TaxCategory::fromRate($tax->getTaxRate()),
                     taxRate: $tax->getTaxRate(),
                 );
             }
@@ -126,17 +124,18 @@ final readonly class AllowanceChargeView
             foreach ($price->getCalculatedTaxes() as $tax) {
                 $actualAmount = NetAmount::fromTax($tax, $price, $isGross);
                 $absAmount = round(abs($actualAmount), 2);
+                $basisAmount = $isPercentage && $discountValue !== 0.0
+                    ? round($absAmount * 100 / $discountValue, 2)
+                    : null;
 
                 $views[] = new self(
                     isCharge: $isCharge,
                     actualAmount: $absAmount,
-                    basisAmount: $isPercentage && $discountValue !== 0.0
-                        ? round($absAmount * 100 / $discountValue, 2)
-                        : null,
+                    basisAmount: $basisAmount,
                     calculationPercent: $isPercentage ? $discountValue : null,
                     reasonCode: self::REASON_CODE_DISCOUNT,
                     reason: $lineItem->getReferencedId() ?? $lineItem->getLabel(),
-                    taxCategory: $tax->getTaxRate() > 0.0 ? TaxCategory::STANDARD_RATE : TaxCategory::ZERO_RATED,
+                    taxCategory: TaxCategory::fromRate($tax->getTaxRate()),
                     taxRate: $tax->getTaxRate(),
                 );
             }

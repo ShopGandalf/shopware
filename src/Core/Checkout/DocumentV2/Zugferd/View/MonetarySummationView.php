@@ -3,6 +3,7 @@
 namespace Shopware\Core\Checkout\DocumentV2\Zugferd\View;
 
 use Shopware\Core\Checkout\DocumentV2\Zugferd\Calculation\NetAmount;
+use Shopware\Core\Checkout\Order\Aggregate\OrderTransaction\OrderTransactionStates;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 
@@ -20,8 +21,6 @@ use Shopware\Core\Framework\Log\Package;
  * No re-aggregation, no `AmountCalculator` round-trip — the math has already been done.
  *
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 final readonly class MonetarySummationView
@@ -87,7 +86,7 @@ final readonly class MonetarySummationView
         $transaction = $order->getPrimaryOrderTransaction()
             ?? $order->getTransactions()?->last();
 
-        return $transaction?->getStateMachineState()?->getTechnicalName() === 'paid'
+        return $transaction?->getStateMachineState()?->getTechnicalName() === OrderTransactionStates::STATE_PAID
             ? $order->getAmountTotal()
             : 0.0;
     }

@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Log\Package;
  * @see https://docs.peppol.eu/poacc/billing/3.0/codelist/UNECERec20
  *
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 enum UnitCode: string

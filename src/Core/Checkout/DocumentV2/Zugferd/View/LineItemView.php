@@ -16,8 +16,6 @@ use Shopware\Core\Framework\Log\Package;
  * positions as `<ram:IncludedSupplyChainTradeLineItem>`.
  *
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 final readonly class LineItemView
@@ -81,7 +79,7 @@ final readonly class LineItemView
                 unitCode: UnitCode::PIECE,
                 netUnitPrice: round($totalNet / $quantity, 2),
                 lineTotal: round($totalNet, 2),
-                taxCategory: $taxRate > 0.0 ? TaxCategory::STANDARD_RATE : TaxCategory::ZERO_RATED,
+                taxCategory: TaxCategory::fromRate($taxRate),
                 taxRate: $taxRate,
             );
         }

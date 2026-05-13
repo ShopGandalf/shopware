@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Log\Package;
  * Mapping rules ported from {@see ZugferdBuilder::addPaymentInfo}.
  *
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 final readonly class PaymentMeansView

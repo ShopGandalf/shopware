@@ -9,8 +9,6 @@ use Shopware\Core\Framework\Log\Package;
  *
  * @see https://service.unece.org/trade/untdid/d16b/tred/tred1001.htm
  *
- * @codeCoverageIgnore
- *
  * @internal
  */
 #[Package('after-sales')]

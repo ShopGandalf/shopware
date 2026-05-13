@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Log\Package;
  * sourced from {@see DocumentCompanyInfo} instead.
  *
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 final readonly class TradePartyView

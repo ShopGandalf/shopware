@@ -10,8 +10,6 @@ use Shopware\Core\Framework\Log\Package;
  * @see https://service.unece.org/trade/untdid/d16b/tred/tred4461.htm Authoritative UNTDID entry
  *
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 enum PaymentMeansCode: string

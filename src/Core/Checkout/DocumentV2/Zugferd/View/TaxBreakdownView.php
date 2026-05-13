@@ -13,8 +13,6 @@ use Shopware\Core\Framework\Log\Package;
  * one entry per distinct tax rate on the order.
  *
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 final readonly class TaxBreakdownView
@@ -51,7 +49,7 @@ final readonly class TaxBreakdownView
             $views[] = new self(
                 calculatedAmount: round($tax->getTax(), 2),
                 basisAmount: round(NetAmount::fromTax($tax, null, $isGross), 2),
-                taxCategory: $tax->getTaxRate() > 0.0 ? TaxCategory::STANDARD_RATE : TaxCategory::ZERO_RATED,
+                taxCategory: TaxCategory::fromRate($tax->getTaxRate()),
                 taxRate: $tax->getTaxRate(),
             );
         }

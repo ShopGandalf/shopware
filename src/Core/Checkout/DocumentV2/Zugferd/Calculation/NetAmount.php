@@ -14,8 +14,6 @@ use Shopware\Core\Framework\Log\Package;
  * Ported verbatim from {@see ZugferdDocument::getPriceWithFallback}
  *
  * @internal
- *
- * @codeCoverageIgnore
  */
 #[Package('after-sales')]
 final readonly class NetAmount
