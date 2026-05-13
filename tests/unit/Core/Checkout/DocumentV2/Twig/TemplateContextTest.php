@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Twig;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -22,7 +22,7 @@ use Shopware\Core\System\Country\CountryEntity;
 #[CoversClass(TemplateContext::class)]
 class TemplateContextTest extends TestCase
 {
-    public function testExposesCompanyInfoFields(): void
+    public function testExposesDocumentCompanyInfoFields(): void
     {
         $context = $this->createContext();
 
@@ -152,7 +152,7 @@ class TemplateContextTest extends TestCase
                 'landscape',
                 10
             ),
-            new CompanyInfo(
+            new DocumentCompanyInfo(
                 'company',
                 'example street 10',
                 '12345',
@@ -178,6 +178,8 @@ class TemplateContextTest extends TestCase
             deliveryDate: null,
             lineItems: [],
             allowanceCharges: [],
+            paymentMeans: null,
+            paymentDueDate: null,
             intraCommunityDelivery: false,
             legacyConfig: $legacyConfig,
         );

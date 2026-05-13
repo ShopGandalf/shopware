@@ -11,7 +11,7 @@ use Shopware\Core\Checkout\Document\Renderer\DocumentRendererConfig;
 use Shopware\Core\Checkout\Document\Renderer\InvoiceRenderer as LegacyInvoiceRenderer;
 use Shopware\Core\Checkout\Document\Service\HtmlRenderer as LegacyHtmlRenderer;
 use Shopware\Core\Checkout\Document\Struct\DocumentGenerateOperation;
-use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
@@ -27,6 +27,7 @@ use Shopware\Core\Checkout\DocumentV2\Struct\RenderState;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\PaymentMeansView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderCollection;
 use Shopware\Core\Checkout\Order\OrderEntity;
@@ -278,15 +279,22 @@ class DocumentRendererSnapshotTest extends TestCase
     {
         $cfg = $this->getComparisonLegacyConfig();
 
+        $displayOptions = new DocumentDisplayOptions(
+            displayHeader: $cfg['displayHeader'],
+            displayFooter: $cfg['displayFooter'],
+            displayPageCount: $cfg['displayPageCount'],
+            displayCompanyAddress: $cfg['displayCompanyAddress'],
+            displayReturnAddress: $cfg['displayReturnAddress'],
+            displayLineItems: $cfg['displayLineItems'],
+            displayLineItemPosition: $cfg['displayLineItemPosition'],
+            displayPrices: $cfg['displayPrices'],
+            displayDivergentDeliveryAddress: $cfg['displayDivergentDeliveryAddress'],
+        );
+
         return new InvoiceRenderData(
             config: $this->buildDocumentConfig(),
-            company: $this->buildCompanyInfo($companyCountry),
-            display: new DocumentDisplayOptions(
-                displayLineItems: $cfg['displayLineItems'],
-                displayLineItemPosition: $cfg['displayLineItemPosition'],
-                displayPrices: $cfg['displayPrices'],
-                displayDivergentDeliveryAddress: $cfg['displayDivergentDeliveryAddress'],
-            ),
+            company: $this->buildDocumentCompanyInfo($companyCountry),
+            display: $displayOptions,
             documentDate: $cfg['documentDate'],
             documentNumber: $cfg['documentNumber'],
             documentComment: $cfg['documentComment'],
@@ -297,6 +305,8 @@ class DocumentRendererSnapshotTest extends TestCase
             deliveryDate: new \DateTimeImmutable('2026-05-15T00:00:00+00:00'),
             lineItems: LineItemView::listFromOrder($order),
             allowanceCharges: AllowanceChargeView::listFromOrder($order),
+            paymentMeans: PaymentMeansView::fromOrder($order, $cfg['bankIban'], $cfg['bankBic']),
+            paymentDueDate: new \DateTimeImmutable('2026-06-04T00:00:00+00:00'),
             intraCommunityDelivery: false,
             custom: ['invoiceNumber' => $cfg['documentNumber']],
             legacyConfig: $cfg,
@@ -311,19 +321,14 @@ class DocumentRendererSnapshotTest extends TestCase
             pageSize: $cfg['pageSize'],
             pageOrientation: $cfg['pageOrientation'],
             itemsPerPage: $cfg['itemsPerPage'],
-            displayHeader: $cfg['displayHeader'],
-            displayFooter: $cfg['displayFooter'],
-            displayPageCount: $cfg['displayPageCount'],
-            displayCompanyAddress: $cfg['displayCompanyAddress'],
-            displayReturnAddress: $cfg['displayReturnAddress'],
         );
     }
 
-    private function buildCompanyInfo(CountryEntity $companyCountry): CompanyInfo
+    private function buildDocumentCompanyInfo(CountryEntity $companyCountry): DocumentCompanyInfo
     {
         $cfg = $this->getComparisonLegacyConfig();
 
-        return new CompanyInfo(
+        return new DocumentCompanyInfo(
             companyName: $cfg['companyName'],
             companyStreet: $cfg['companyStreet'],
             companyZipcode: $cfg['companyZipcode'],

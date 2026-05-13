@@ -2,13 +2,14 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Provider\RenderData;
 
-use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\PaymentMeansView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Framework\Log\Package;
 
@@ -29,7 +30,7 @@ final readonly class InvoiceRenderData extends AbstractRenderData
      */
     public function __construct(
         DocumentConfig $config,
-        CompanyInfo $company,
+        DocumentCompanyInfo $company,
         DocumentDisplayOptions $display,
         string $documentDate,
         string $documentNumber,
@@ -41,6 +42,8 @@ final readonly class InvoiceRenderData extends AbstractRenderData
         public ?\DateTimeImmutable $deliveryDate,
         public array $lineItems,
         public array $allowanceCharges,
+        public ?PaymentMeansView $paymentMeans,
+        public ?\DateTimeImmutable $paymentDueDate,
         public bool $intraCommunityDelivery,
         array $custom = [],
         array $legacyConfig = [],

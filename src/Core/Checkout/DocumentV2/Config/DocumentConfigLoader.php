@@ -86,8 +86,8 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
         $legacyConfig = $this->mergeJsonConfig($globalRow, $salesChannelRow);
 
         $documentConfig = $this->buildDocumentConfig($globalRow, $salesChannelRow, $documentType);
-        $companyInfo = $this->buildCompanyInfo($legacyConfig, $context, $documentType);
-        $displayOptions = $this->buildDisplayOptions($legacyConfig);
+        $companyInfo = $this->buildDocumentCompanyInfo($legacyConfig, $context, $documentType);
+        $displayOptions = $this->buildDisplayOptions($globalRow, $salesChannelRow, $legacyConfig);
 
         $bundle = new DocumentConfigBundle(
             config: $documentConfig,
@@ -123,19 +123,13 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             filenamePrefix: $salesChannelRow?->getFilenamePrefix() ?? $globalRow?->getFilenamePrefix(),
             filenameSuffix: $salesChannelRow?->getFilenameSuffix() ?? $globalRow?->getFilenameSuffix(),
             logo: $salesChannelRow?->getLogo() ?? $globalRow?->getLogo(),
-            displayHeader: $salesChannelRow?->getDisplayHeader() ?? $globalRow?->getDisplayHeader() ?? false,
-            displayFooter: $salesChannelRow?->getDisplayFooter() ?? $globalRow?->getDisplayFooter() ?? false,
-            displayPageCount: $salesChannelRow?->getDisplayPageCount() ?? $globalRow?->getDisplayPageCount() ?? false,
-            displayCompanyAddress: $salesChannelRow?->getDisplayCompanyAddress() ?? $globalRow?->getDisplayCompanyAddress() ?? false,
-            displayReturnAddress: $salesChannelRow?->getDisplayReturnAddress() ?? $globalRow?->getDisplayReturnAddress() ?? false,
-            displayCustomerVatId: $salesChannelRow?->getDisplayCustomerVatId() ?? $globalRow?->getDisplayCustomerVatId() ?? false,
         );
     }
 
     /**
      * @param array<string, mixed> $legacyConfig
      */
-    private function buildCompanyInfo(array $legacyConfig, Context $context, string $documentType): CompanyInfo
+    private function buildDocumentCompanyInfo(array $legacyConfig, Context $context, string $documentType): DocumentCompanyInfo
     {
         $companyCountryId = $legacyConfig['companyCountryId'] ?? null;
         $companyCountry = null;
@@ -146,7 +140,7 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
 
         if (!$companyCountry instanceof CountryEntity) {
             throw DocumentV2Exception::legacyConfigMissingRequiredFields(
-                CompanyInfo::class,
+                DocumentCompanyInfo::class,
                 $documentType,
                 'companyCountry'
             );
@@ -159,9 +153,9 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
             'companyCity' => $legacyConfig['companyCity'] ?? null,
         ];
 
-        $this->ensureRequiredValues(CompanyInfo::class, $documentType, $required);
+        $this->ensureRequiredValues(DocumentCompanyInfo::class, $documentType, $required);
 
-        return new CompanyInfo(
+        return new DocumentCompanyInfo(
             companyName: (string) $required['companyName'],
             companyStreet: (string) $required['companyStreet'],
             companyZipcode: (string) $required['companyZipcode'],
@@ -185,9 +179,18 @@ final class DocumentConfigLoader implements EventSubscriberInterface, ResetInter
     /**
      * @param array<string, mixed> $legacyConfig
      */
-    private function buildDisplayOptions(array $legacyConfig): DocumentDisplayOptions
-    {
+    private function buildDisplayOptions(
+        ?DocumentBaseConfigEntity $globalRow,
+        ?DocumentBaseConfigEntity $salesChannelRow,
+        array $legacyConfig,
+    ): DocumentDisplayOptions {
         return new DocumentDisplayOptions(
+            displayHeader: $salesChannelRow?->getDisplayHeader() ?? $globalRow?->getDisplayHeader() ?? false,
+            displayFooter: $salesChannelRow?->getDisplayFooter() ?? $globalRow?->getDisplayFooter() ?? false,
+            displayPageCount: $salesChannelRow?->getDisplayPageCount() ?? $globalRow?->getDisplayPageCount() ?? false,
+            displayCompanyAddress: $salesChannelRow?->getDisplayCompanyAddress() ?? $globalRow?->getDisplayCompanyAddress() ?? false,
+            displayReturnAddress: $salesChannelRow?->getDisplayReturnAddress() ?? $globalRow?->getDisplayReturnAddress() ?? false,
+            displayCustomerVatId: $salesChannelRow?->getDisplayCustomerVatId() ?? $globalRow?->getDisplayCustomerVatId() ?? false,
             displayLineItems: (bool) ($legacyConfig['displayLineItems'] ?? false),
             displayLineItemPosition: (bool) ($legacyConfig['displayLineItemPosition'] ?? false),
             displayPrices: (bool) ($legacyConfig['displayPrices'] ?? false),

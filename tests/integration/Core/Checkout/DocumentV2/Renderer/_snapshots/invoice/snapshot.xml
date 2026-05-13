@@ -123,6 +123,10 @@
       </ram:ActualDeliverySupplyChainEvent>
     </ram:ApplicableHeaderTradeDelivery>
     <ram:ApplicableHeaderTradeSettlement>
+      <ram:SpecifiedTradeSettlementPaymentMeans>
+        <ram:TypeCode>10</ram:TypeCode>
+        <ram:Information>Cash on delivery</ram:Information>
+      </ram:SpecifiedTradeSettlementPaymentMeans>
       <ram:SpecifiedTradeAllowanceCharge>
         <ram:ChargeIndicator>
           <udt:Indicator>false</udt:Indicator>
@@ -153,6 +157,11 @@
           <ram:RateApplicablePercent>7.00</ram:RateApplicablePercent>
         </ram:CategoryTradeTax>
       </ram:SpecifiedTradeAllowanceCharge>
+      <ram:SpecifiedTradePaymentTerms>
+        <ram:DueDateDateTime>
+          <udt:DateTimeString format="102">[date]</udt:DateTimeString>
+        </ram:DueDateDateTime>
+      </ram:SpecifiedTradePaymentTerms>
     </ram:ApplicableHeaderTradeSettlement>
   </rsm:SupplyChainTradeTransaction>
 </rsm:CrossIndustryInvoice>

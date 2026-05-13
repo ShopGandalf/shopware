@@ -5,9 +5,9 @@ namespace Shopware\Core\Checkout\DocumentV2\Zugferd;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * UN/CEFACT codelist 1001 — Document name code (subset used by Shopware).
+ * UN/CEFACT codelist 1001 — Document name code.
  *
- * @see https://service.unece.org/trade/uncefact/vocabulary/uncl1001/
+ * @see https://service.unece.org/trade/untdid/d16b/tred/tred1001.htm
  *
  * @codeCoverageIgnore
  *

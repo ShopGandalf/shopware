@@ -54,10 +54,22 @@
 
         {% block zugferd_header_settlement %}
             <ram:ApplicableHeaderTradeSettlement>
+                {% block zugferd_header_settlement_payment_means %}
+                    {% if renderData.paymentMeans %}
+                        {% include '@Framework/documents/zugferd/includes/payment_means.xml.twig' with { means: renderData.paymentMeans } only %}
+                    {% endif %}
+                {% endblock %}
+
                 {% block zugferd_header_settlement_allowance_charges %}
                     {% for ac in renderData.allowanceCharges %}
                         {% include '@Framework/documents/zugferd/includes/allowance_charge.xml.twig' with { ac: ac } only %}
                     {% endfor %}
+                {% endblock %}
+
+                {% block zugferd_header_settlement_payment_terms %}
+                    {% if renderData.paymentDueDate is not null %}
+                        {% include '@Framework/documents/zugferd/includes/payment_terms.xml.twig' with { dueDate: renderData.paymentDueDate } only %}
+                    {% endif %}
                 {% endblock %}
             </ram:ApplicableHeaderTradeSettlement>
         {% endblock %}

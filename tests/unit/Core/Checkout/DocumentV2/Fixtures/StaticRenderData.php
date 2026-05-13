@@ -2,7 +2,7 @@
 
 namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Fixtures;
 
-use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\Struct\AbstractRenderData;
@@ -24,7 +24,7 @@ readonly class StaticRenderData extends AbstractRenderData
             10
         );
 
-        $company = new CompanyInfo(
+        $company = new DocumentCompanyInfo(
             'company',
             'street',
             '12345',

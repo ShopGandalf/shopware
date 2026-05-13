@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Zugferd\View;
 
-use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Log\Package;
 
@@ -10,7 +10,7 @@ use Shopware\Core\Framework\Log\Package;
  * Precomputed XRechnung view of a trade party (buyer, ship-to, …).
  *
  * Generic enough to model any `<ram:*TradeParty>` derived from an order entity; sellers are
- * sourced from {@see CompanyInfo} instead.
+ * sourced from {@see DocumentCompanyInfo} instead.
  *
  * @internal
  *

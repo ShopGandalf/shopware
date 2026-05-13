@@ -2,7 +2,7 @@
 
 namespace Shopware\Core\Checkout\DocumentV2\Struct;
 
-use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentV2Exception;
@@ -30,7 +30,7 @@ abstract readonly class AbstractRenderData
      */
     public function __construct(
         public DocumentConfig $config,
-        public CompanyInfo $company,
+        public DocumentCompanyInfo $company,
         public DocumentDisplayOptions $display,
         public string $documentDate,
         public string $documentNumber,

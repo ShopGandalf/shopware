@@ -5,9 +5,9 @@ namespace Shopware\Core\Checkout\DocumentV2\Zugferd;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * UN/ECE Recommendation 20 unit-of-measure code (subset used by XRechnung 3.0).
+ * UN/ECE Recommendation 20 — unit of measure code.
  *
- * @see https://docs.peppol.eu/pracc/catalogue/1.0/codelist/UNECERec20/
+ * @see https://docs.peppol.eu/poacc/billing/3.0/codelist/UNECERec20
  *
  * @internal
  *

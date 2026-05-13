@@ -4,7 +4,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Renderer;
 
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\TestCase;
-use Shopware\Core\Checkout\DocumentV2\Config\CompanyInfo;
+use Shopware\Core\Checkout\DocumentV2\Config\DocumentCompanyInfo;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentConfig;
 use Shopware\Core\Checkout\DocumentV2\Config\DocumentDisplayOptions;
 use Shopware\Core\Checkout\DocumentV2\DocumentFormat;
@@ -181,7 +181,7 @@ class XmlRendererTest extends TestCase
                 itemsPerPage: 10,
                 filenamePrefix: $filenamePrefix,
             ),
-            company: new CompanyInfo(
+            company: new DocumentCompanyInfo(
                 'company',
                 'street',
                 '12345',
@@ -209,6 +209,8 @@ class XmlRendererTest extends TestCase
             deliveryDate: null,
             lineItems: [],
             allowanceCharges: [],
+            paymentMeans: null,
+            paymentDueDate: null,
             intraCommunityDelivery: false,
         );
     }

@@ -21,6 +21,12 @@ final readonly class DocumentDisplayOptions
      * @param list<string> $deliveryCountries
      */
     public function __construct(
+        public bool $displayHeader = false,
+        public bool $displayFooter = false,
+        public bool $displayPageCount = false,
+        public bool $displayCompanyAddress = false,
+        public bool $displayReturnAddress = false,
+        public bool $displayCustomerVatId = false,
         public bool $displayLineItems = false,
         public bool $displayLineItemPosition = false,
         public bool $displayPrices = false,

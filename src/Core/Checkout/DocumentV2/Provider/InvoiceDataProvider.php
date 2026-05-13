@@ -13,6 +13,7 @@ use Shopware\Core\Checkout\DocumentV2\Provider\RenderData\InvoiceRenderData;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\TypeCode;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\AllowanceChargeView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\LineItemView;
+use Shopware\Core\Checkout\DocumentV2\Zugferd\View\PaymentMeansView;
 use Shopware\Core\Checkout\DocumentV2\Zugferd\View\TradePartyView;
 use Shopware\Core\Checkout\Order\OrderEntity;
 use Shopware\Core\Framework\Context;
@@ -118,10 +119,30 @@ final readonly class InvoiceDataProvider extends AbstractDocumentDataProvider
             deliveryDate: $this->resolveDeliveryDate($order),
             lineItems: LineItemView::listFromOrder($order),
             allowanceCharges: AllowanceChargeView::listFromOrder($order),
+            paymentMeans: PaymentMeansView::fromOrder(
+                $order,
+                $bundle->company->bankIban,
+                $bundle->company->bankBic,
+            ),
+            paymentDueDate: $this->resolvePaymentDueDate($bundle->legacyConfig),
             intraCommunityDelivery: $isIntraCommunityDelivery,
             custom: ['invoiceNumber' => $documentNumber],
             legacyConfig: $bundle->legacyConfig,
         );
+    }
+
+    /**
+     * @param array<string, mixed> $legacyConfig
+     */
+    private function resolvePaymentDueDate(array $legacyConfig): ?\DateTimeImmutable
+    {
+        $modifier = $legacyConfig['paymentDueDate'] ?? null;
+
+        if (!\is_string($modifier) || $modifier === '') {
+            return null;
+        }
+
+        return (new \DateTimeImmutable())->modify($modifier) ?: null;
     }
 
     private function resolveDeliveryDate(OrderEntity $order): ?\DateTimeImmutable

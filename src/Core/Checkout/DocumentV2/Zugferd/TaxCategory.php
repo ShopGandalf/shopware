@@ -5,9 +5,9 @@ namespace Shopware\Core\Checkout\DocumentV2\Zugferd;
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * UN/CEFACT codelist 5305 — Duty/tax/fee category code (subset used by XRechnung 3.0).
+ * UN/CEFACT codelist 5305 — Duty/tax/fee category code.
  *
- * @see https://unece.org/fileadmin/DAM/trade/untdid/d16b/tred/tred5305.htm
+ * @see https://service.unece.org/trade/untdid/d16b/tred/tred5305.htm
  *
  * @internal
  *
