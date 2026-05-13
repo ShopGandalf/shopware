@@ -12,7 +12,7 @@
     <ram:ID>1000</ram:ID>
     <ram:TypeCode>380</ram:TypeCode>
     <ram:IssueDateTime>
-      <udt:DateTimeString format="102">[date]</udt:DateTimeString>
+      <udt:DateTimeString format="102">20260513</udt:DateTimeString>
     </ram:IssueDateTime>
   </rsm:ExchangedDocument>
   <rsm:SupplyChainTradeTransaction>
@@ -118,11 +118,16 @@
     <ram:ApplicableHeaderTradeDelivery>
       <ram:ActualDeliverySupplyChainEvent>
         <ram:OccurrenceDateTime>
-          <udt:DateTimeString format="102">[date]</udt:DateTimeString>
+          <udt:DateTimeString format="102">20260513</udt:DateTimeString>
         </ram:OccurrenceDateTime>
       </ram:ActualDeliverySupplyChainEvent>
     </ram:ApplicableHeaderTradeDelivery>
     <ram:ApplicableHeaderTradeSettlement>
+      <ram:InvoiceCurrencyCode>EUR</ram:InvoiceCurrencyCode>
+      <ram:SpecifiedTradeSettlementPaymentMeans>
+        <ram:TypeCode>10</ram:TypeCode>
+        <ram:Information>Cash on delivery</ram:Information>
+      </ram:SpecifiedTradeSettlementPaymentMeans>
       <ram:ApplicableTradeTax>
         <ram:CalculatedAmount>14.37</ram:CalculatedAmount>
         <ram:TypeCode>VAT</ram:TypeCode>
@@ -137,10 +142,6 @@
         <ram:CategoryCode>S</ram:CategoryCode>
         <ram:RateApplicablePercent>7.00</ram:RateApplicablePercent>
       </ram:ApplicableTradeTax>
-      <ram:SpecifiedTradeSettlementPaymentMeans>
-        <ram:TypeCode>10</ram:TypeCode>
-        <ram:Information>Cash on delivery</ram:Information>
-      </ram:SpecifiedTradeSettlementPaymentMeans>
       <ram:SpecifiedTradeAllowanceCharge>
         <ram:ChargeIndicator>
           <udt:Indicator>true</udt:Indicator>
@@ -174,7 +175,7 @@
         <ram:CalculationPercent>10.00</ram:CalculationPercent>
         <ram:BasisAmount>84.00</ram:BasisAmount>
         <ram:ActualAmount>8.40</ram:ActualAmount>
-        <ram:ReasonCode>DISCOUNT</ram:ReasonCode>
+        <ram:ReasonCode>95</ram:ReasonCode>
         <ram:Reason>TENOFF</ram:Reason>
         <ram:CategoryTradeTax>
           <ram:TypeCode>VAT</ram:TypeCode>
@@ -189,7 +190,7 @@
         <ram:CalculationPercent>10.00</ram:CalculationPercent>
         <ram:BasisAmount>94.40</ram:BasisAmount>
         <ram:ActualAmount>9.44</ram:ActualAmount>
-        <ram:ReasonCode>DISCOUNT</ram:ReasonCode>
+        <ram:ReasonCode>95</ram:ReasonCode>
         <ram:Reason>TENOFF</ram:Reason>
         <ram:CategoryTradeTax>
           <ram:TypeCode>VAT</ram:TypeCode>
@@ -199,14 +200,14 @@
       </ram:SpecifiedTradeAllowanceCharge>
       <ram:SpecifiedTradePaymentTerms>
         <ram:DueDateDateTime>
-          <udt:DateTimeString format="102">[date]</udt:DateTimeString>
+          <udt:DateTimeString format="102">20260513</udt:DateTimeString>
         </ram:DueDateDateTime>
       </ram:SpecifiedTradePaymentTerms>
       <ram:SpecifiedTradeSettlementHeaderMonetarySummation>
         <ram:LineTotalAmount>178.42</ram:LineTotalAmount>
         <ram:ChargeTotalAmount>0.00</ram:ChargeTotalAmount>
         <ram:AllowanceTotalAmount>17.84</ram:AllowanceTotalAmount>
-        <ram:TaxBasisTotalAmount>0.00</ram:TaxBasisTotalAmount>
+        <ram:TaxBasisTotalAmount>160.58</ram:TaxBasisTotalAmount>
         <ram:TaxTotalAmount currencyID="EUR">20.32</ram:TaxTotalAmount>
         <ram:RoundingAmount>0.00</ram:RoundingAmount>
         <ram:GrandTotalAmount>180.90</ram:GrandTotalAmount>

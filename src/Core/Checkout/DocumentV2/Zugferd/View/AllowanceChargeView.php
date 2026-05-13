@@ -23,7 +23,18 @@ use Shopware\Core\Framework\Log\Package;
 #[Package('after-sales')]
 final readonly class AllowanceChargeView
 {
-    public const REASON_CODE_DISCOUNT = 'DISCOUNT';
+    /**
+     * UNCL 5189 "Allowance reason code" — code 95 = "Discount" (BR-CL-19).
+     *
+     * @see https://docs.peppol.eu/poacc/billing/3.0/codelist/UNCL5189/
+     */
+    public const REASON_CODE_DISCOUNT = '95';
+
+    /**
+     * UNCL 7161 "Charge reason code" — code DL = "Carriage and insurance" / delivery service charge.
+     *
+     * @see https://docs.peppol.eu/poacc/billing/3.0/codelist/UNCL7161/
+     */
     public const REASON_CODE_DELIVERY = 'DL';
 
     public function __construct(

@@ -69,10 +69,13 @@ final readonly class MonetarySummationView
             lineTotal: round($lineTotal, 2),
             chargeTotal: round($chargeTotal, 2),
             allowanceTotal: round($allowanceTotal, 2),
-            taxBasisTotal: round($net - $lineTotal - $chargeTotal + $allowanceTotal, 2),
+            // BR-CO-13: TaxBasisTotal = ΣlineNet − allowances + charges → identical to amountNet by definition.
+            // Use the order's authoritative value so BR-CO-15 (grand = taxBasis + taxTotal) also holds.
+            taxBasisTotal: round($net, 2),
             taxTotal: round($grand - $net, 2),
             currencyCode: $order->getCurrency()?->getIsoCode() ?? 'EUR',
-            rounding: 0.0,
+            // Residual between the order net and the sum of bucketed view nets; non-zero only on rounding drift.
+            rounding: round($net - $lineTotal - $chargeTotal + $allowanceTotal, 2),
             grandTotal: round($grand, 2),
             prepaid: round($paid, 2),
             duePayable: round($grand - $paid, 2),
