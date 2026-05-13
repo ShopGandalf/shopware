@@ -5,6 +5,7 @@ namespace Shopware\Tests\Unit\Core\Checkout\DocumentV2\Provider;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use Shopware\Core\Checkout\Cart\Price\Struct\CalculatedPrice;
 use Shopware\Core\Checkout\Cart\Price\Struct\CartPrice;
 use Shopware\Core\Checkout\Cart\Tax\Struct\CalculatedTaxCollection;
 use Shopware\Core\Checkout\Cart\Tax\Struct\TaxRuleCollection;
@@ -384,6 +385,7 @@ class InvoiceDataProviderTest extends TestCase
             $delivery->setUniqueIdentifier(Uuid::randomHex());
             $delivery->setShippingOrderAddress($address);
             $delivery->setShippingDateLatest(new \DateTimeImmutable('2026-05-15'));
+            $delivery->setShippingCosts(new CalculatedPrice(0.0, 0.0, new CalculatedTaxCollection(), new TaxRuleCollection()));
 
             $order->setDeliveries(new OrderDeliveryCollection([$delivery]));
             $order->setPrimaryOrderDelivery($delivery);

@@ -10,10 +10,11 @@ use Shopware\Core\Checkout\Promotion\Aggregate\PromotionDiscount\PromotionDiscou
 use Shopware\Core\Framework\Log\Package;
 
 /**
- * Precomputed XRechnung view of a single `<ram:SpecifiedTradeAllowanceCharge>` entry —
- * one per (promotion/credit line item × tax breakdown row).
+ * Precomputed XRechnung view of a single `<ram:SpecifiedTradeAllowanceCharge>` entry.
  *
- * Positive `isCharge` flips the wire `<udt:Indicator>` to `true`; everything else (allowance) flips it to `false`.
+ * One entry is emitted per (source × tax breakdown row); the source can be a promotion/credit
+ * line item (`REASON_CODE_DISCOUNT`) or an order delivery's shipping cost (`REASON_CODE_DELIVERY`).
+ * Positive `isCharge` flips the wire `<udt:Indicator>` to `true`; everything else (allowance) to `false`.
  *
  * @internal
  *
@@ -23,6 +24,7 @@ use Shopware\Core\Framework\Log\Package;
 final readonly class AllowanceChargeView
 {
     public const REASON_CODE_DISCOUNT = 'DISCOUNT';
+    public const REASON_CODE_DELIVERY = 'DL';
 
     public function __construct(
         public bool $isCharge,
@@ -43,6 +45,46 @@ final readonly class AllowanceChargeView
     {
         $isGross = NetAmount::isOrderGross($order);
 
+        return [
+            ...self::fromDeliveryCosts($order, $isGross),
+            ...self::fromPromotionLineItems($order, $isGross),
+        ];
+    }
+
+    /**
+     * @return list<self>
+     */
+    private static function fromDeliveryCosts(OrderEntity $order, bool $isGross): array
+    {
+        $views = [];
+
+        foreach ($order->getDeliveries() ?? [] as $delivery) {
+            $shippingCosts = $delivery->getShippingCosts();
+
+            foreach ($shippingCosts->getCalculatedTaxes() as $tax) {
+                $actualAmount = NetAmount::fromTax($tax, $shippingCosts, $isGross);
+
+                $views[] = new self(
+                    isCharge: true,
+                    actualAmount: round(abs($actualAmount), 2),
+                    basisAmount: null,
+                    calculationPercent: null,
+                    reasonCode: self::REASON_CODE_DELIVERY,
+                    reason: 'Delivery',
+                    taxCategory: $tax->getTaxRate() > 0.0 ? TaxCategory::STANDARD_RATE : TaxCategory::ZERO_RATED,
+                    taxRate: $tax->getTaxRate(),
+                );
+            }
+        }
+
+        return $views;
+    }
+
+    /**
+     * @return list<self>
+     */
+    private static function fromPromotionLineItems(OrderEntity $order, bool $isGross): array
+    {
         $views = [];
 
         foreach ($order->getLineItems() ?? [] as $lineItem) {
