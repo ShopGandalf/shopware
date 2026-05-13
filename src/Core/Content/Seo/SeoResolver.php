@@ -52,7 +52,8 @@ class SeoResolver extends AbstractSeoResolver
             ->select('id', 'path_info pathInfo', 'seo_path_info seoPathInfo', 'is_canonical isCanonical', 'sales_channel_id salesChannelId')
             ->from('seo_url')
             ->where('language_id = :language_id')
-            ->andWhere('(sales_channel_id = :sales_channel_id OR sales_channel_id IS NULL)');
+            ->andWhere('(sales_channel_id = :sales_channel_id OR sales_channel_id IS NULL)')
+            ->andWhere('seo_url.is_deleted = 0');
 
         $seoPathConditions = [
             'seo_path_info = :seoPath',
@@ -122,6 +123,7 @@ class SeoResolver extends AbstractSeoResolver
                 ->andWhere('sales_channel_id = :sales_channel_id')
                 ->andWhere('path_info = :pathInfo')
                 ->andWhere('is_canonical = 1')
+                ->andWhere('is_deleted = 0')
                 ->setMaxResults(1)
                 ->setParameter('language_id', Uuid::fromHexToBytes($context->languageId))
                 ->setParameter('sales_channel_id', Uuid::fromHexToBytes($context->salesChannelId))
